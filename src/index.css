@@ -1,0 +1,150 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-primary: #FFFFFF;
+  --color-bg-secondary: #F8F9FA;
+  --color-bg-tertiary: #E9ECEF;
+  
+  --color-text-primary: #212529;
+  --color-text-secondary: #6C757D;
+  --color-text-muted: #ADB5BD;
+  
+  --color-accent: #58CC02;
+  --color-accent-hover: #46A302;
+  --color-accent-active: #3D8B02;
+  
+  --color-success: #58CC02;
+  --color-error: #FF4B4B;
+  --color-warning: #FFC800;
+  --color-info: #1CB0F6;
+  --color-purple: #CE82FF;
+  --color-orange: #FF9600;
+  
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  min-height: 100dvh;
+  font-weight: 500;
+}
+
+.text-display {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+
+.text-heading {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+.text-body {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+}
+
+.text-small {
+  font-size: 1rem;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+
+.text-caption {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+}
+
+button, [role="button"] {
+  transition: transform 100ms ease-out, opacity 100ms ease-out, background-color 200ms ease, box-shadow 100ms ease-out;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+button:active, [role="button"]:active {
+  transform: translateY(2px);
+}
+
+.shadow-duo {
+  box-shadow: 0 4px 0 var(--color-bg-tertiary);
+}
+
+.shadow-duo-accent {
+  box-shadow: 0 4px 0 var(--color-accent-hover);
+}
+
+.shadow-duo-success {
+  box-shadow: 0 4px 0 var(--color-accent-hover);
+}
+
+.shadow-duo-error {
+  box-shadow: 0 4px 0 #CC3B3B;
+}
+
+.shadow-duo-info {
+  box-shadow: 0 4px 0 #0E8BC1;
+}
+
+.shadow-duo-lg {
+  box-shadow: 0 6px 0 var(--color-bg-tertiary);
+}
+
+.btn-duo {
+  position: relative;
+  border: none;
+  border-radius: 16px;
+  font-weight: 700;
+  transition: all 100ms ease-out;
+}
+
+.btn-duo:active {
+  box-shadow: none !important;
+  transform: translateY(4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-text-muted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}
