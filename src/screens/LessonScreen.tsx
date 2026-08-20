@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
-import confetti from 'canvas-confetti';
 import { useApp } from '../hooks/useApp';
 import { t, checkAnswer, getCharacterSvgName } from '../utils/helpers';
 import { playCorrectSound, playWrongSound, playClickSound, playTransitionSound } from '../utils/sounds';
+import { fireSuccess } from '../utils/confetti';
 import Character from '../components/Character';
 import TaskInput from '../components/TaskInput';
+import AnimatedBackground from '../components/AnimatedBackground';
 import { getLessonById } from '../data';
 import type { Step } from '../types';
 
@@ -60,7 +61,7 @@ export default function LessonScreen() {
     if (correct) {
       setScore(s => s + 10);
       playCorrectSound();
-      confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
+      fireSuccess();
     } else {
       playWrongSound();
     }
@@ -76,17 +77,21 @@ export default function LessonScreen() {
   const renderDialogue = () => (
     <motion.div
       key="dialogue"
-      initial={{ opacity: 0, x: 20 }}
+      initial={{ opacity: 0, x: 50 }}
       animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
+      exit={{ opacity: 0, x: -50 }}
       transition={{ type: 'spring', damping: 25, stiffness: 200 }}
       className="space-y-6"
     >
       <div className="card-premium p-8">
         <div className="flex items-center gap-4 mb-6">
-          <div className="w-20 h-20 rounded-2xl bg-[#6366F1]/20 flex items-center justify-center">
+          <motion.div 
+            className="w-20 h-20 rounded-2xl bg-[#6366F1]/20 flex items-center justify-center"
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
             <Character name={getCharacterSvgName(lesson.character)} size={64} isSpeaking={true} />
-          </div>
+          </motion.div>
           <div>
             <div className="text-caption text-[#6366F1] uppercase tracking-wider font-medium">
               {t('Диалог', 'Диалог', lang)}
@@ -97,11 +102,16 @@ export default function LessonScreen() {
           </div>
         </div>
         
-        <div className="bg-[#1C1C24] rounded-2xl p-6 mb-4">
+        <motion.div 
+          className="bg-[#1C1C24] rounded-2xl p-6 mb-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
           <p className="text-body text-[#FFFFFF] whitespace-pre-line">
             {step.dialogueKz}
           </p>
-        </div>
+        </motion.div>
         
         <div className="border-t border-[#1C1C24] pt-4">
           <p className="text-small text-[#A0A0B0] italic whitespace-pre-line">
@@ -112,7 +122,7 @@ export default function LessonScreen() {
       </div>
 
       <motion.button
-        whileHover={{ y: -2 }}
+        whileHover={{ y: -2, boxShadow: '0 0 40px rgba(99, 102, 241, 0.6)' }}
         whileTap={{ y: 2 }}
         onClick={() => { playClickSound(); setPhase('grammar'); }}
         className="btn-premium w-full py-5 text-white text-body"
@@ -125,17 +135,21 @@ export default function LessonScreen() {
   const renderGrammar = () => (
     <motion.div
       key="grammar"
-      initial={{ opacity: 0, x: 20 }}
+      initial={{ opacity: 0, x: 50 }}
       animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
+      exit={{ opacity: 0, x: -50 }}
       transition={{ type: 'spring', damping: 25, stiffness: 200 }}
       className="space-y-6"
     >
       <div className="card-premium p-8">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-14 h-14 rounded-2xl bg-[#3B82F6]/20 flex items-center justify-center">
-            <span className="text-3xl">📐</span>
-          </div>
+          <motion.div 
+            className="w-14 h-14 rounded-2xl bg-[#3B82F6]/20 flex items-center justify-center"
+            animate={{ rotate: [0, 5, -5, 0] }}
+            transition={{ duration: 3, repeat: Infinity }}
+          >
+            <span className="text-3xl"></span>
+          </motion.div>
           <div className="text-caption text-[#3B82F6] uppercase tracking-wider font-medium">
             {t('Грамматика', 'Грамматика', lang)}
           </div>
@@ -157,9 +171,13 @@ export default function LessonScreen() {
 
       <div className="card-premium p-6">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#F59E0B]/20 flex items-center justify-center">
+          <motion.div 
+            className="w-12 h-12 rounded-2xl bg-[#F59E0B]/20 flex items-center justify-center"
+            animate={{ y: [0, -3, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
             <Character name="teacher" size={32} />
-          </div>
+          </motion.div>
           <div className="text-caption text-[#F59E0B] uppercase tracking-wider font-medium">
             {t('Мұғалім', 'Учитель', lang)}
           </div>
@@ -176,11 +194,10 @@ export default function LessonScreen() {
       </div>
 
       <motion.button
-        whileHover={{ y: -2 }}
+        whileHover={{ y: -2, boxShadow: '0 0 40px rgba(59, 130, 246, 0.6)' }}
         whileTap={{ y: 2 }}
         onClick={() => { playClickSound(); setPhase('task'); }}
         className="w-full py-5 bg-[#3B82F6] text-white font-bold rounded-2xl text-body"
-        style={{ boxShadow: '0 0 30px rgba(59, 130, 246, 0.4)' }}
       >
         {t('Тапсырма', 'Задание', lang)} →
       </motion.button>
@@ -199,9 +216,9 @@ export default function LessonScreen() {
   const renderResult = () => (
     <motion.div
       key="result"
-      initial={{ opacity: 0, scale: 0.95 }}
+      initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
+      exit={{ opacity: 0, scale: 0.9 }}
       transition={{ type: 'spring', damping: 25, stiffness: 200 }}
       className="space-y-8 flex flex-col items-center"
     >
@@ -215,22 +232,32 @@ export default function LessonScreen() {
       </motion.div>
 
       <div className="text-center space-y-4">
-        <h2 className={`text-heading ${isCorrect ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
+        <motion.h2 
+          className={`text-heading ${isCorrect ? 'text-[#10B981]' : 'text-[#EF4444]'}`}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
           {isCorrect ? t('Дұрыс!', 'Правильно!', lang) : t('Қате', 'Не совсем', lang)}
-        </h2>
+        </motion.h2>
         
         {!isCorrect && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
             className="space-y-3"
           >
             <p className="text-small text-[#A0A0B0] font-medium">
               {t('Дұрыс жауап:', 'Правильный ответ:', lang)}
             </p>
-            <div className="bg-[#10B981]/10 rounded-2xl px-6 py-4 border border-[#10B981]/30">
+            <motion.div 
+              className="bg-[#10B981]/10 rounded-2xl px-6 py-4 border border-[#10B981]/30"
+              animate={{ boxShadow: ['0 0 0px rgba(16, 185, 129, 0)', '0 0 30px rgba(16, 185, 129, 0.3)', '0 0 0px rgba(16, 185, 129, 0)'] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
               <p className="text-display text-[#10B981]">{step.answerKz}</p>
-            </div>
+            </motion.div>
             <p className="text-small text-[#A0A0B0] italic">
               <span className="text-[#10B981] not-italic mr-2 font-medium">перевод:</span>
               {step.answerRu}
@@ -242,10 +269,10 @@ export default function LessonScreen() {
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: 'spring', damping: 15, stiffness: 200 }}
+            transition={{ delay: 0.4, type: 'spring', damping: 15, stiffness: 200 }}
             className="bg-[#10B981]/10 rounded-2xl px-8 py-4 border border-[#10B981]/30"
           >
-            <p className="text-heading text-[#10B981] font-bold">+10 XP 💎</p>
+            <p className="text-heading text-[#10B981] font-bold">+10 XP </p>
           </motion.div>
         )}
       </div>
@@ -271,7 +298,7 @@ export default function LessonScreen() {
       </div>
 
       <motion.button
-        whileHover={{ y: -2 }}
+        whileHover={{ y: -2, boxShadow: '0 0 40px rgba(99, 102, 241, 0.6)' }}
         whileTap={{ y: 2 }}
         onClick={handleNext}
         className="btn-premium w-full py-5 text-white text-body"
@@ -283,14 +310,17 @@ export default function LessonScreen() {
 
   return (
     <div className="min-h-[100dvh] relative overflow-hidden">
-      <div className="mesh-bg" />
-      <div className="absolute top-0 left-0 w-96 h-96 bg-[#6366F1]/10 rounded-full blur-3xl" />
+      <AnimatedBackground />
 
       <div className="relative z-10 px-6 md:px-12 lg:px-24 py-8">
         <div className="max-w-4xl mx-auto space-y-8">
           
           {/* Header */}
-          <div className="flex items-center gap-6">
+          <motion.div 
+            className="flex items-center gap-6"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -320,7 +350,7 @@ export default function LessonScreen() {
               <span className="text-xl">💎</span>
               <span className="text-body text-[#FFFFFF] font-bold">{score}</span>
             </motion.div>
-          </div>
+          </motion.div>
 
           {/* Content */}
           <AnimatePresence mode="wait">

@@ -5,6 +5,8 @@ import { useApp } from '../hooks/useApp';
 import { t, formatXp } from '../utils/helpers';
 import { playClickSound, startBackgroundMusic, stopBackgroundMusic, setBackgroundMusicVolume } from '../utils/sounds';
 import { lessons } from '../data';
+import TiltCard from '../components/TiltCard';
+import AnimatedBackground from '../components/AnimatedBackground';
 
 const menuItems = [
   {
@@ -69,12 +71,7 @@ export default function MenuScreen() {
 
   return (
     <div className="min-h-[100dvh] relative overflow-hidden">
-      {/* Mesh gradient background */}
-      <div className="mesh-bg" />
-      
-      {/* Decorative elements */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-[#6366F1]/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#8B5CF6]/10 rounded-full blur-3xl" />
+      <AnimatedBackground />
 
       <div className="relative z-10 px-6 md:px-12 lg:px-24 py-12">
         <div className="max-w-7xl mx-auto space-y-12">
@@ -135,9 +132,13 @@ export default function MenuScreen() {
                   <span className="text-heading text-[#6B6B7B]">/ {lessons.length}</span>
                 </div>
               </div>
-              <div className="text-6xl">
-                {completedLessons === 0 ? '🌱' : completedLessons < 5 ? '🌿' : completedLessons < 10 ? '' : '🏆'}
-              </div>
+              <motion.div 
+                className="text-6xl"
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+              >
+                {completedLessons === 0 ? '🌱' : completedLessons < 5 ? '🌿' : completedLessons < 10 ? '' : ''}
+              </motion.div>
             </div>
             
             <div className="h-2 bg-[#1C1C24] rounded-full overflow-hidden">
@@ -155,18 +156,13 @@ export default function MenuScreen() {
             </div>
           </motion.section>
 
-          {/* Menu grid - Bento style */}
+          {/* Menu grid - Bento style with 3D cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {menuItems.map((item, i) => (
-              <motion.button
+              <TiltCard
                 key={item.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 * i, ease: [0.16, 1, 0.3, 1] }}
-                whileHover={{ y: -4 }}
-                whileTap={{ y: 0 }}
+                className="group relative p-8 text-left overflow-hidden cursor-pointer"
                 onClick={() => { playClickSound(); navigate(item.path); }}
-                className="card-premium group relative p-8 text-left overflow-hidden"
               >
                 {/* Gradient overlay on hover */}
                 <div 
@@ -176,20 +172,27 @@ export default function MenuScreen() {
                 
                 <div className="relative z-10">
                   <div className="flex items-start justify-between mb-6">
-                    <div 
+                    <motion.div 
                       className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl"
                       style={{ backgroundColor: `${item.color}20` }}
+                      whileHover={{ scale: 1.1, rotate: 5 }}
                     >
                       {item.icon}
-                    </div>
-                    <span className="text-3xl text-[#6B6B7B] group-hover:text-[#FFFFFF] transition-colors">→</span>
+                    </motion.div>
+                    <motion.span 
+                      className="text-3xl text-[#6B6B7B] group-hover:text-[#FFFFFF] transition-colors"
+                      animate={{ x: [0, 5, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    >
+                      →
+                    </motion.span>
                   </div>
                   
                   <h2 className="text-heading text-[#FFFFFF] mb-2">{item.titleKz}</h2>
                   <p className="text-small text-[#A0A0B0] mb-4">{item.titleRu}</p>
                   <p className="text-caption text-[#6B6B7B] font-medium">{t(item.subtitleKz, item.subtitleRu, lang)}</p>
                 </div>
-              </motion.button>
+              </TiltCard>
             ))}
           </div>
 
@@ -204,14 +207,23 @@ export default function MenuScreen() {
               { icon: '🔥', label: t('Күн', 'Дней', lang), value: streak, color: '#F59E0B' },
               { icon: '💎', label: 'XP', value: formatXp(xp), color: '#6366F1' },
               { icon: '📚', label: t('Сабақ', 'Уроков', lang), value: completedLessons, color: '#3B82F6' },
-              { icon: '🎯', label: t('Деңгей', 'Уровень', lang), value: state.level, color: '#8B5CF6' },
+              { icon: '', label: t('Деңгей', 'Уровень', lang), value: state.level, color: '#8B5CF6' },
             ].map((stat, i) => (
               <motion.div
                 key={i}
-                whileHover={{ scale: 1.02 }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.6 + i * 0.1 }}
+                whileHover={{ scale: 1.05, y: -5 }}
                 className="card-premium p-6 text-center"
               >
-                <div className="text-4xl mb-2">{stat.icon}</div>
+                <motion.div 
+                  className="text-4xl mb-2"
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, delay: i * 0.2 }}
+                >
+                  {stat.icon}
+                </motion.div>
                 <div className="text-heading text-[#FFFFFF]">{stat.value}</div>
                 <div className="text-caption text-[#6B6B7B] font-medium">{stat.label}</div>
               </motion.div>
