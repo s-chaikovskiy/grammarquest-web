@@ -43,12 +43,12 @@ export default function TaskInput({ step, lang, onAnswer, onSkip }: TaskInputPro
 
   const renderInputTask = () => (
     <>
-      <div className="bg-[#F7F7F7] rounded-2xl p-6 mb-4">
-        <p className="text-body text-[#3C3C3C] font-bold">{step.taskKz}</p>
+      <div className="bg-[#1C1C24] rounded-2xl p-6 mb-4">
+        <p className="text-body text-[#FFFFFF] font-medium">{step.taskKz}</p>
       </div>
-      <div className="border-t-2 border-[#E5E5E5] pt-4">
-        <p className="text-small text-[#777777] italic">
-          <span className="text-[#CE82FF] font-bold not-italic mr-2">перевод:</span>
+      <div className="border-t border-[#1C1C24] pt-4">
+        <p className="text-small text-[#A0A0B0] italic">
+          <span className="text-[#8B5CF6] font-medium not-italic mr-2">перевод:</span>
           {step.taskRu}
         </p>
       </div>
@@ -58,8 +58,7 @@ export default function TaskInput({ step, lang, onAnswer, onSkip }: TaskInputPro
         onChange={e => setUserAnswer(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={t('Жауапты жаз...', 'Напиши ответ...', lang)}
-        className="w-full px-6 py-5 bg-white border-2 border-[#E5E5E5] rounded-2xl text-body focus:border-[#58CC02] focus:outline-none transition-colors font-bold mt-4"
-        style={{ boxShadow: '0 4px 0 #E5E5E5' }}
+        className="w-full px-6 py-5 bg-[#1C1C24] border border-[#2C2C34] rounded-2xl text-body text-[#FFFFFF] placeholder-[#6B6B7B] focus:border-[#6366F1] focus:outline-none transition-colors font-medium mt-4"
         autoFocus
       />
     </>
@@ -69,12 +68,12 @@ export default function TaskInput({ step, lang, onAnswer, onSkip }: TaskInputPro
     const options = step.options || [];
     return (
       <>
-        <div className="bg-[#F7F7F7] rounded-2xl p-6 mb-4">
-          <p className="text-body text-[#3C3C3C] font-bold">{step.taskKz}</p>
+        <div className="bg-[#1C1C24] rounded-2xl p-6 mb-4">
+          <p className="text-body text-[#FFFFFF] font-medium">{step.taskKz}</p>
         </div>
-        <div className="border-t-2 border-[#E5E5E5] pt-4 mb-4">
-          <p className="text-small text-[#777777] italic">
-            <span className="text-[#CE82FF] font-bold not-italic mr-2">перевод:</span>
+        <div className="border-t border-[#1C1C24] pt-4 mb-4">
+          <p className="text-small text-[#A0A0B0] italic">
+            <span className="text-[#8B5CF6] font-medium not-italic mr-2">перевод:</span>
             {step.taskRu}
           </p>
         </div>
@@ -82,15 +81,14 @@ export default function TaskInput({ step, lang, onAnswer, onSkip }: TaskInputPro
           {options.map((option, i) => (
             <motion.button
               key={i}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
               onClick={() => setUserAnswer(option)}
-              className={`p-4 rounded-2xl border-2 text-left font-bold transition-all ${
+              className={`p-5 rounded-2xl border text-left font-medium transition-all ${
                 userAnswer === option
-                  ? 'bg-[#58CC02]/10 border-[#58CC02] text-[#58CC02]'
-                  : 'bg-white border-[#E5E5E5] text-[#3C3C3C] hover:border-[#58CC02]/50'
+                  ? 'bg-[#6366F1]/20 border-[#6366F1] text-[#6366F1]'
+                  : 'bg-[#1C1C24] border-[#2C2C34] text-[#FFFFFF] hover:border-[#6366F1]/50'
               }`}
-              style={{ boxShadow: userAnswer === option ? '0 4px 0 #46A302' : '0 4px 0 #E5E5E5' }}
             >
               <span className="text-body">{option}</span>
             </motion.button>
@@ -119,25 +117,24 @@ export default function TaskInput({ step, lang, onAnswer, onSkip }: TaskInputPro
 
     return (
       <>
-        <div className="bg-[#F7F7F7] rounded-2xl p-6 mb-4">
-          <p className="text-body text-[#3C3C3C] font-bold">{step.taskKz}</p>
+        <div className="bg-[#1C1C24] rounded-2xl p-6 mb-4">
+          <p className="text-body text-[#FFFFFF] font-medium">{step.taskKz}</p>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-3">
             {leftItems.map((left, i) => (
               <motion.button
                 key={i}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
                 onClick={() => setSelectedLeft(left)}
-                className={`w-full p-4 rounded-2xl border-2 text-left font-bold ${
+                className={`w-full p-4 rounded-2xl border text-left font-medium ${
                   selectedLeft === left
-                    ? 'bg-[#1CB0F6]/10 border-[#1CB0F6] text-[#1CB0F6]'
+                    ? 'bg-[#3B82F6]/20 border-[#3B82F6] text-[#3B82F6]'
                     : matches[left]
-                    ? 'bg-[#58CC02]/10 border-[#58CC02] text-[#58CC02]'
-                    : 'bg-white border-[#E5E5E5] text-[#3C3C3C]'
+                    ? 'bg-[#10B981]/20 border-[#10B981] text-[#10B981]'
+                    : 'bg-[#1C1C24] border-[#2C2C34] text-[#FFFFFF]'
                 }`}
-                style={{ boxShadow: '0 4px 0 #E5E5E5' }}
               >
                 {left}
               </motion.button>
@@ -147,15 +144,14 @@ export default function TaskInput({ step, lang, onAnswer, onSkip }: TaskInputPro
             {rightItems.map((right, i) => (
               <motion.button
                 key={i}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
                 onClick={() => selectedLeft && handleSelect(selectedLeft, right)}
-                className={`w-full p-4 rounded-2xl border-2 text-left font-bold ${
+                className={`w-full p-4 rounded-2xl border text-left font-medium ${
                   Object.values(matches).includes(right)
-                    ? 'bg-[#58CC02]/10 border-[#58CC02] text-[#58CC02]'
-                    : 'bg-white border-[#E5E5E5] text-[#3C3C3C] hover:border-[#1CB0F6]/50'
+                    ? 'bg-[#10B981]/20 border-[#10B981] text-[#10B981]'
+                    : 'bg-[#1C1C24] border-[#2C2C34] text-[#FFFFFF] hover:border-[#3B82F6]/50'
                 }`}
-                style={{ boxShadow: '0 4px 0 #E5E5E5' }}
               >
                 {right}
               </motion.button>
@@ -168,12 +164,12 @@ export default function TaskInput({ step, lang, onAnswer, onSkip }: TaskInputPro
 
   const renderFillBlankTask = () => (
     <>
-      <div className="bg-[#F7F7F7] rounded-2xl p-6 mb-4">
-        <p className="text-body text-[#3C3C3C] font-bold whitespace-pre-line">{step.taskKz}</p>
+      <div className="bg-[#1C1C24] rounded-2xl p-6 mb-4">
+        <p className="text-body text-[#FFFFFF] font-medium whitespace-pre-line">{step.taskKz}</p>
       </div>
-      <div className="border-t-2 border-[#E5E5E5] pt-4 mb-4">
-        <p className="text-small text-[#777777] italic">
-          <span className="text-[#CE82FF] font-bold not-italic mr-2">перевод:</span>
+      <div className="border-t border-[#1C1C24] pt-4 mb-4">
+        <p className="text-small text-[#A0A0B0] italic">
+          <span className="text-[#8B5CF6] font-medium not-italic mr-2">перевод:</span>
           {step.taskRu}
         </p>
       </div>
@@ -183,8 +179,7 @@ export default function TaskInput({ step, lang, onAnswer, onSkip }: TaskInputPro
         onChange={e => setUserAnswer(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={t('Пропускты толтыр...', 'Заполни пропуск...', lang)}
-        className="w-full px-6 py-5 bg-white border-2 border-[#E5E5E5] rounded-2xl text-body focus:border-[#58CC02] focus:outline-none transition-colors font-bold"
-        style={{ boxShadow: '0 4px 0 #E5E5E5' }}
+        className="w-full px-6 py-5 bg-[#1C1C24] border border-[#2C2C34] rounded-2xl text-body text-[#FFFFFF] placeholder-[#6B6B7B] focus:border-[#6366F1] focus:outline-none transition-colors font-medium"
         autoFocus
       />
     </>
@@ -192,11 +187,11 @@ export default function TaskInput({ step, lang, onAnswer, onSkip }: TaskInputPro
 
   const renderTranslateTask = () => (
     <>
-      <div className="bg-[#58CC02]/10 rounded-2xl p-6 mb-4 border-2 border-[#58CC02]/30">
-        <p className="text-body text-[#3C3C3C] font-bold">{step.taskKz}</p>
+      <div className="bg-[#10B981]/10 rounded-2xl p-6 mb-4 border border-[#10B981]/30">
+        <p className="text-body text-[#FFFFFF] font-medium">{step.taskKz}</p>
       </div>
-      <div className="bg-[#1CB0F6]/10 rounded-2xl p-6 mb-4 border-2 border-[#1CB0F6]/30">
-        <p className="text-body text-[#3C3C3C] font-bold">{step.taskRu}</p>
+      <div className="bg-[#3B82F6]/10 rounded-2xl p-6 mb-4 border border-[#3B82F6]/30">
+        <p className="text-body text-[#FFFFFF] font-medium">{step.taskRu}</p>
       </div>
       <input
         type="text"
@@ -204,8 +199,7 @@ export default function TaskInput({ step, lang, onAnswer, onSkip }: TaskInputPro
         onChange={e => setUserAnswer(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={t('Аударманы жаз...', 'Напиши перевод...', lang)}
-        className="w-full px-6 py-5 bg-white border-2 border-[#E5E5E5] rounded-2xl text-body focus:border-[#58CC02] focus:outline-none transition-colors font-bold"
-        style={{ boxShadow: '0 4px 0 #E5E5E5' }}
+        className="w-full px-6 py-5 bg-[#1C1C24] border border-[#2C2C34] rounded-2xl text-body text-[#FFFFFF] placeholder-[#6B6B7B] focus:border-[#6366F1] focus:outline-none transition-colors font-medium"
         autoFocus
       />
     </>
@@ -220,12 +214,12 @@ export default function TaskInput({ step, lang, onAnswer, onSkip }: TaskInputPro
       transition={{ type: 'spring', damping: 25, stiffness: 200 }}
       className="space-y-6"
     >
-      <div className="bg-white rounded-3xl p-8 border-2 border-[#E5E5E5]" style={{ boxShadow: '0 4px 0 #E5E5E5' }}>
+      <div className="card-premium p-8">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-14 h-14 rounded-2xl bg-[#CE82FF]/10 flex items-center justify-center">
-            <span className="text-3xl">️</span>
+          <div className="w-14 h-14 rounded-2xl bg-[#8B5CF6]/20 flex items-center justify-center">
+            <span className="text-3xl">✏️</span>
           </div>
-          <div className="text-caption text-[#CE82FF] uppercase tracking-wider font-bold">
+          <div className="text-caption text-[#8B5CF6] uppercase tracking-wider font-medium">
             {t('Тапсырма', 'Задание', lang)}
           </div>
         </div>
@@ -236,18 +230,18 @@ export default function TaskInput({ step, lang, onAnswer, onSkip }: TaskInputPro
       <div className="flex gap-4">
         <motion.button
           whileHover={{ y: -2 }}
-          whileTap={{ y: 4, boxShadow: 'none' }}
+          whileTap={{ y: 2 }}
           onClick={onSkip}
-          className="flex-1 py-5 bg-white text-[#777777] font-bold rounded-2xl text-body border-2 border-[#E5E5E5] shadow-duo"
+          className="flex-1 py-5 glass glass-hover text-[#A0A0B0] font-medium rounded-2xl text-body"
         >
           {t('Өткізу', 'Пропустить', lang)}
         </motion.button>
         <motion.button
-          whileHover={{ y: -4 }}
-          whileTap={{ y: 4, boxShadow: 'none' }}
+          whileHover={{ y: -2 }}
+          whileTap={{ y: 2 }}
           onClick={handleSubmit}
           disabled={!userAnswer.trim()}
-          className="flex-1 py-5 bg-[#58CC02] text-white font-bold rounded-2xl text-body disabled:opacity-40 shadow-duo-accent"
+          className="flex-1 py-5 btn-premium text-white font-bold rounded-2xl text-body disabled:opacity-40"
         >
           {t('Тексеру', 'Проверить', lang)}
         </motion.button>

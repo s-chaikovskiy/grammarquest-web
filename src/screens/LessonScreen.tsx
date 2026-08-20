@@ -27,7 +27,7 @@ export default function LessonScreen() {
   if (!lesson) {
     return (
       <div className="min-h-[100dvh] flex items-center justify-center">
-        <p className="text-body text-[#777777]">{t('Сабақ табылмады', 'Урок не найден', lang)}</p>
+        <p className="text-body text-[#A0A0B0]">{t('Сабақ табылмады', 'Урок не найден', lang)}</p>
       </div>
     );
   }
@@ -82,40 +82,40 @@ export default function LessonScreen() {
       transition={{ type: 'spring', damping: 25, stiffness: 200 }}
       className="space-y-6"
     >
-      <div className="bg-white rounded-3xl p-8 border-2 border-[#E5E5E5]" style={{ boxShadow: '0 4px 0 #E5E5E5' }}>
+      <div className="card-premium p-8">
         <div className="flex items-center gap-4 mb-6">
-          <div className="w-20 h-20 rounded-2xl bg-[#58CC02]/10 flex items-center justify-center">
+          <div className="w-20 h-20 rounded-2xl bg-[#6366F1]/20 flex items-center justify-center">
             <Character name={getCharacterSvgName(lesson.character)} size={64} isSpeaking={true} />
           </div>
           <div>
-            <div className="text-caption text-[#58CC02] uppercase tracking-wider font-bold">
+            <div className="text-caption text-[#6366F1] uppercase tracking-wider font-medium">
               {t('Диалог', 'Диалог', lang)}
             </div>
-            <div className="text-small text-[#777777] font-bold">
+            <div className="text-small text-[#A0A0B0] font-medium">
               {lesson.character === 'aisha' ? 'Айша' : lesson.character === 'dima' ? 'Дима' : 'Мұғалім'}
             </div>
           </div>
         </div>
         
-        <div className="bg-[#F7F7F7] rounded-2xl p-6 mb-4">
-          <p className="text-body text-[#3C3C3C] whitespace-pre-line font-bold">
+        <div className="bg-[#1C1C24] rounded-2xl p-6 mb-4">
+          <p className="text-body text-[#FFFFFF] whitespace-pre-line">
             {step.dialogueKz}
           </p>
         </div>
         
-        <div className="border-t-2 border-[#E5E5E5] pt-4">
-          <p className="text-small text-[#777777] italic whitespace-pre-line">
-            <span className="text-[#58CC02] font-bold not-italic mr-2">перевод:</span>
+        <div className="border-t border-[#1C1C24] pt-4">
+          <p className="text-small text-[#A0A0B0] italic whitespace-pre-line">
+            <span className="text-[#6366F1] font-medium not-italic mr-2">перевод:</span>
             {step.dialogueRu}
           </p>
         </div>
       </div>
 
       <motion.button
-        whileHover={{ y: -4 }}
-        whileTap={{ y: 4, boxShadow: 'none' }}
+        whileHover={{ y: -2 }}
+        whileTap={{ y: 2 }}
         onClick={() => { playClickSound(); setPhase('grammar'); }}
-        className="w-full py-5 bg-[#58CC02] text-white font-bold rounded-2xl text-body shadow-duo-accent"
+        className="btn-premium w-full py-5 text-white text-body"
       >
         {t('Ережені көру', 'Правило', lang)} →
       </motion.button>
@@ -131,56 +131,56 @@ export default function LessonScreen() {
       transition={{ type: 'spring', damping: 25, stiffness: 200 }}
       className="space-y-6"
     >
-      <div className="bg-white rounded-3xl p-8 border-2 border-[#E5E5E5]" style={{ boxShadow: '0 4px 0 #E5E5E5' }}>
+      <div className="card-premium p-8">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-14 h-14 rounded-2xl bg-[#1CB0F6]/10 flex items-center justify-center">
+          <div className="w-14 h-14 rounded-2xl bg-[#3B82F6]/20 flex items-center justify-center">
             <span className="text-3xl">📐</span>
           </div>
-          <div className="text-caption text-[#1CB0F6] uppercase tracking-wider font-bold">
+          <div className="text-caption text-[#3B82F6] uppercase tracking-wider font-medium">
             {t('Грамматика', 'Грамматика', lang)}
           </div>
         </div>
         
-        <div className="bg-[#F7F7F7] rounded-2xl p-6 mb-4">
-          <p className="text-body text-[#3C3C3C] whitespace-pre-line font-bold">
+        <div className="bg-[#1C1C24] rounded-2xl p-6 mb-4">
+          <p className="text-body text-[#FFFFFF] whitespace-pre-line">
             {step.grammarKz}
           </p>
         </div>
         
-        <div className="border-t-2 border-[#E5E5E5] pt-4">
-          <p className="text-small text-[#777777] italic whitespace-pre-line">
-            <span className="text-[#1CB0F6] font-bold not-italic mr-2">перевод:</span>
+        <div className="border-t border-[#1C1C24] pt-4">
+          <p className="text-small text-[#A0A0B0] italic whitespace-pre-line">
+            <span className="text-[#3B82F6] font-medium not-italic mr-2">перевод:</span>
             {step.grammarRu}
           </p>
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl p-6 border-2 border-[#E5E5E5]" style={{ boxShadow: '0 4px 0 #E5E5E5' }}>
+      <div className="card-premium p-6">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#FFC800]/10 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-[#F59E0B]/20 flex items-center justify-center">
             <Character name="teacher" size={32} />
           </div>
-          <div className="text-caption text-[#FF9600] uppercase tracking-wider font-bold">
+          <div className="text-caption text-[#F59E0B] uppercase tracking-wider font-medium">
             {t('Мұғалім', 'Учитель', lang)}
           </div>
         </div>
-        <div className="bg-[#F7F7F7] rounded-2xl p-4">
-          <p className="text-small text-[#3C3C3C] mb-2 font-bold">
+        <div className="bg-[#1C1C24] rounded-2xl p-4">
+          <p className="text-small text-[#FFFFFF] mb-2">
             {step.teacherKz1}
           </p>
-          <p className="text-caption text-[#777777] italic">
-            <span className="text-[#FF9600] not-italic mr-2 font-bold">перевод:</span>
+          <p className="text-caption text-[#A0A0B0] italic">
+            <span className="text-[#F59E0B] not-italic mr-2 font-medium">перевод:</span>
             {step.teacherRu1}
           </p>
         </div>
       </div>
 
       <motion.button
-        whileHover={{ y: -4 }}
-        whileTap={{ y: 4, boxShadow: 'none' }}
+        whileHover={{ y: -2 }}
+        whileTap={{ y: 2 }}
         onClick={() => { playClickSound(); setPhase('task'); }}
-        className="w-full py-5 bg-[#1CB0F6] text-white font-bold rounded-2xl text-body"
-        style={{ boxShadow: '0 4px 0 #0E8BC1' }}
+        className="w-full py-5 bg-[#3B82F6] text-white font-bold rounded-2xl text-body"
+        style={{ boxShadow: '0 0 30px rgba(59, 130, 246, 0.4)' }}
       >
         {t('Тапсырма', 'Задание', lang)} →
       </motion.button>
@@ -211,11 +211,11 @@ export default function LessonScreen() {
         transition={{ type: 'spring', damping: 15, stiffness: 200 }}
         className="text-9xl"
       >
-        {isCorrect ? '🎉' : ''}
+        {isCorrect ? '🎉' : '😔'}
       </motion.div>
 
       <div className="text-center space-y-4">
-        <h2 className={`text-heading ${isCorrect ? 'text-[#58CC02]' : 'text-[#FF4B4B]'}`}>
+        <h2 className={`text-heading ${isCorrect ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
           {isCorrect ? t('Дұрыс!', 'Правильно!', lang) : t('Қате', 'Не совсем', lang)}
         </h2>
         
@@ -225,14 +225,14 @@ export default function LessonScreen() {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-3"
           >
-            <p className="text-small text-[#777777] font-bold">
+            <p className="text-small text-[#A0A0B0] font-medium">
               {t('Дұрыс жауап:', 'Правильный ответ:', lang)}
             </p>
-            <div className="bg-[#58CC02]/10 rounded-2xl px-6 py-4 border-2 border-[#58CC02]/30">
-              <p className="text-display text-[#58CC02]">{step.answerKz}</p>
+            <div className="bg-[#10B981]/10 rounded-2xl px-6 py-4 border border-[#10B981]/30">
+              <p className="text-display text-[#10B981]">{step.answerKz}</p>
             </div>
-            <p className="text-small text-[#777777] italic">
-              <span className="text-[#58CC02] not-italic mr-2 font-bold">перевод:</span>
+            <p className="text-small text-[#A0A0B0] italic">
+              <span className="text-[#10B981] not-italic mr-2 font-medium">перевод:</span>
               {step.answerRu}
             </p>
           </motion.div>
@@ -243,38 +243,38 @@ export default function LessonScreen() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: 'spring', damping: 15, stiffness: 200 }}
-            className="bg-[#58CC02]/10 rounded-2xl px-8 py-4 border-2 border-[#58CC02]/30"
+            className="bg-[#10B981]/10 rounded-2xl px-8 py-4 border border-[#10B981]/30"
           >
-            <p className="text-heading text-[#58CC02] font-bold">+10 XP 💎</p>
+            <p className="text-heading text-[#10B981] font-bold">+10 XP 💎</p>
           </motion.div>
         )}
       </div>
 
-      <div className="w-full bg-white rounded-3xl p-6 border-2 border-[#E5E5E5]" style={{ boxShadow: '0 4px 0 #E5E5E5' }}>
+      <div className="w-full card-premium p-6">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#FFC800]/10 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-[#F59E0B]/20 flex items-center justify-center">
             <Character name="teacher" size={32} />
           </div>
-          <div className="text-caption text-[#FF9600] uppercase tracking-wider font-bold">
+          <div className="text-caption text-[#F59E0B] uppercase tracking-wider font-medium">
             {t('Мұғалім', 'Учитель', lang)}
           </div>
         </div>
-        <div className="bg-[#F7F7F7] rounded-2xl p-4">
-          <p className="text-small text-[#3C3C3C] mb-2 font-bold">
+        <div className="bg-[#1C1C24] rounded-2xl p-4">
+          <p className="text-small text-[#FFFFFF] mb-2">
             {step.teacherKz2}
           </p>
-          <p className="text-caption text-[#777777] italic">
-            <span className="text-[#FF9600] not-italic mr-2 font-bold">перевод:</span>
+          <p className="text-caption text-[#A0A0B0] italic">
+            <span className="text-[#F59E0B] not-italic mr-2 font-medium">перевод:</span>
             {step.teacherRu2}
           </p>
         </div>
       </div>
 
       <motion.button
-        whileHover={{ y: -4 }}
-        whileTap={{ y: 4, boxShadow: 'none' }}
+        whileHover={{ y: -2 }}
+        whileTap={{ y: 2 }}
         onClick={handleNext}
-        className="w-full py-5 bg-[#58CC02] text-white font-bold rounded-2xl text-body shadow-duo-accent"
+        className="btn-premium w-full py-5 text-white text-body"
       >
         {isLastStep ? t('Аяқтау', 'Завершить', lang) : t('Келесі', 'Далее', lang)} →
       </motion.button>
@@ -282,53 +282,55 @@ export default function LessonScreen() {
   );
 
   return (
-    <div className="min-h-[100dvh] px-6 md:px-12 lg:px-24 py-8 bg-gradient-to-b from-[#58CC02]/5 to-white">
-      <div className="max-w-4xl mx-auto space-y-8">
-        
-        {/* Header */}
-        <div className="flex items-center gap-6">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => { playClickSound(); navigate('/lessons'); }}
-            className="w-14 h-14 flex items-center justify-center rounded-2xl bg-white border-2 border-[#E5E5E5] shadow-duo"
-          >
-            <span className="text-2xl">←</span>
-          </motion.button>
+    <div className="min-h-[100dvh] relative overflow-hidden">
+      <div className="mesh-bg" />
+      <div className="absolute top-0 left-0 w-96 h-96 bg-[#6366F1]/10 rounded-full blur-3xl" />
+
+      <div className="relative z-10 px-6 md:px-12 lg:px-24 py-8">
+        <div className="max-w-4xl mx-auto space-y-8">
           
-          <div className="flex-1">
-            <div className="text-caption text-[#AFAFAF] uppercase tracking-wider mb-2 font-bold">
-              {t('Сабақ', 'Урок', lang)} {stepIndex + 1} / {totalSteps}
+          {/* Header */}
+          <div className="flex items-center gap-6">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => { playClickSound(); navigate('/lessons'); }}
+              className="glass glass-hover w-14 h-14 flex items-center justify-center rounded-2xl"
+            >
+              <span className="text-2xl">←</span>
+            </motion.button>
+            
+            <div className="flex-1">
+              <div className="text-caption text-[#6B6B7B] uppercase tracking-wider mb-2 font-medium">
+                {t('Сабақ', 'Урок', lang)} {stepIndex + 1} / {totalSteps}
+              </div>
+              <div className="h-2 bg-[#1C1C24] rounded-full overflow-hidden">
+                <motion.div
+                  animate={{ width: `${((stepIndex + (phase !== 'dialogue' ? 1 : 0)) / totalSteps) * 100}%` }}
+                  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                  className="h-full bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] rounded-full"
+                />
+              </div>
             </div>
-            <div className="h-3 bg-[#E5E5E5] rounded-full overflow-hidden">
-              <motion.div
-                animate={{ width: `${((stepIndex + (phase !== 'dialogue' ? 1 : 0)) / totalSteps) * 100}%` }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className="h-full bg-gradient-to-r from-[#58CC02] to-[#58CC02] rounded-full relative overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-white/20 animate-pulse" />
-              </motion.div>
-            </div>
+            
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              className="glass flex items-center gap-2 px-4 py-2.5 rounded-xl"
+            >
+              <span className="text-xl">💎</span>
+              <span className="text-body text-[#FFFFFF] font-bold">{score}</span>
+            </motion.div>
           </div>
-          
-          <motion.div 
-            whileHover={{ scale: 1.05 }}
-            className="flex items-center gap-2 px-4 py-3 bg-[#58CC02] rounded-2xl"
-            style={{ boxShadow: '0 4px 0 #46A302' }}
-          >
-            <span className="text-2xl">💎</span>
-            <span className="text-body text-white font-bold">{score}</span>
-          </motion.div>
+
+          {/* Content */}
+          <AnimatePresence mode="wait">
+            {phase === 'dialogue' && renderDialogue()}
+            {phase === 'grammar' && renderGrammar()}
+            {phase === 'task' && renderTask()}
+            {phase === 'result' && renderResult()}
+          </AnimatePresence>
+
         </div>
-
-        {/* Content */}
-        <AnimatePresence mode="wait">
-          {phase === 'dialogue' && renderDialogue()}
-          {phase === 'grammar' && renderGrammar()}
-          {phase === 'task' && renderTask()}
-          {phase === 'result' && renderResult()}
-        </AnimatePresence>
-
       </div>
     </div>
   );
