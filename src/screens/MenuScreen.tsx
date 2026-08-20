@@ -9,13 +9,13 @@ import { lessons } from '../data';
 const menuItems = [
   {
     id: 'lessons',
-    icon: '',
+    icon: '📖',
     titleKz: 'Сабақтар',
     titleRu: 'Уроки',
     subtitleKz: 'Диалогтар арқылы үйрен',
     subtitleRu: 'Учись через диалоги',
     path: '/lessons',
-    color: '#58CC02',
+    color: '#6366F1',
   },
   {
     id: 'review',
@@ -25,7 +25,7 @@ const menuItems = [
     subtitleKz: 'Ескі тақырыптарды қайтала',
     subtitleRu: 'Повтори старые темы',
     path: '/review',
-    color: '#FFC800',
+    color: '#F59E0B',
   },
   {
     id: 'rules',
@@ -35,7 +35,7 @@ const menuItems = [
     subtitleKz: 'Грамматика',
     subtitleRu: 'Грамматические правила',
     path: '/rules',
-    color: '#1CB0F6',
+    color: '#3B82F6',
   },
   {
     id: 'reference',
@@ -45,7 +45,7 @@ const menuItems = [
     subtitleKz: 'Толық анықтамалық',
     subtitleRu: 'Полный справочник',
     path: '/reference',
-    color: '#CE82FF',
+    color: '#8B5CF6',
   },
 ];
 
@@ -68,141 +68,157 @@ export default function MenuScreen() {
   }, [musicEnabled]);
 
   return (
-    <div className="min-h-[100dvh] px-6 md:px-12 lg:px-24 py-12">
-      <div className="max-w-6xl mx-auto space-y-12">
-        
-        {/* Header */}
-        <motion.header
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between"
-        >
-          <div>
-            <h1 className="text-heading text-[#212529]">GrammarQuest</h1>
-            <p className="text-body text-[#6C757D] mt-2">
-              {t('Сабақты таңда', 'Выбери раздел', lang)}
-            </p>
-          </div>
-          
-          <div className="flex gap-3">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => { playClickSound(); setMusicEnabled(!musicEnabled); }}
-              className="flex items-center justify-center w-12 h-12 bg-white rounded-xl border-2 border-[#E9ECEF] shadow-[0_2px_0_#E9ECEF]"
-            >
-              <span className="text-xl">{musicEnabled ? '🔊' : '🔇'}</span>
-            </motion.button>
-            <motion.div 
-              whileHover={{ scale: 1.05 }}
-              className="flex items-center gap-2 px-4 py-2.5 bg-[#FFC800] rounded-xl shadow-[0_2px_0_#E5A600]"
-            >
-              <span className="text-xl">⚡</span>
-              <span className="text-body text-white font-bold">{streak}</span>
-            </motion.div>
-            <motion.div 
-              whileHover={{ scale: 1.05 }}
-              className="flex items-center gap-2 px-4 py-2.5 bg-[#58CC02] rounded-xl shadow-[0_2px_0_#46A302]"
-            >
-              <span className="text-xl">💎</span>
-              <span className="text-body text-white font-bold">{formatXp(xp)}</span>
-            </motion.div>
-          </div>
-        </motion.header>
+    <div className="min-h-[100dvh] relative overflow-hidden">
+      {/* Mesh gradient background */}
+      <div className="mesh-bg" />
+      
+      {/* Decorative elements */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-[#6366F1]/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#8B5CF6]/10 rounded-full blur-3xl" />
 
-        {/* Progress Section */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white rounded-3xl p-8 border-2 border-[#E9ECEF] shadow-[0_4px_0_#E9ECEF]"
-        >
-          <div className="flex items-center justify-between mb-6">
+      <div className="relative z-10 px-6 md:px-12 lg:px-24 py-12">
+        <div className="max-w-7xl mx-auto space-y-12">
+          
+          {/* Header */}
+          <motion.header
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center justify-between"
+          >
             <div>
-              <div className="text-caption text-[#ADB5BD] uppercase tracking-wider mb-2 font-bold">
-                {t('Прогресс', 'Прогресс', lang)}
-              </div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-display text-[#212529]">{completedLessons}</span>
-                <span className="text-heading text-[#ADB5BD]">/ {lessons.length}</span>
-              </div>
+              <h1 className="text-heading text-[#FFFFFF]">GrammarQuest</h1>
+              <p className="text-body text-[#A0A0B0] mt-2">
+                {t('Сабақты таңда', 'Выбери раздел', lang)}
+              </p>
             </div>
-            <div className="text-6xl">
-              {completedLessons === 0 ? '🌱' : completedLessons < 5 ? '🌿' : completedLessons < 10 ? '🌳' : '🏆'}
+            
+            <div className="flex gap-3">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => { playClickSound(); setMusicEnabled(!musicEnabled); }}
+                className="glass glass-hover flex items-center justify-center w-12 h-12 rounded-xl"
+              >
+                <span className="text-xl">{musicEnabled ? '🔊' : '🔇'}</span>
+              </motion.button>
+              <motion.div 
+                whileHover={{ scale: 1.05 }}
+                className="glass flex items-center gap-2 px-4 py-2.5 rounded-xl"
+              >
+                <span className="text-xl">⚡</span>
+                <span className="text-body text-[#FFFFFF] font-bold">{streak}</span>
+              </motion.div>
+              <motion.div 
+                whileHover={{ scale: 1.05 }}
+                className="glass flex items-center gap-2 px-4 py-2.5 rounded-xl"
+              >
+                <span className="text-xl">💎</span>
+                <span className="text-body text-[#FFFFFF] font-bold">{formatXp(xp)}</span>
+              </motion.div>
             </div>
-          </div>
-          
-          <div className="h-3 bg-[#E9ECEF] rounded-full overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="h-full bg-gradient-to-r from-[#58CC02] to-[#58CC02] rounded-full relative overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-white/20 animate-pulse" />
-            </motion.div>
-          </div>
-          <div className="text-caption text-[#6C757D] mt-3 text-center font-bold">
-            {Math.round(progress)}% {t('аяқталды', 'завершено', lang)}
-          </div>
-        </motion.section>
+          </motion.header>
 
-        {/* Menu grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {menuItems.map((item, i) => (
-            <motion.button
-              key={item.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 * i, ease: [0.16, 1, 0.3, 1] }}
-              whileHover={{ y: -4 }}
-              whileTap={{ y: 4, boxShadow: 'none' }}
-              onClick={() => { playClickSound(); navigate(item.path); }}
-              className="group relative p-8 bg-white rounded-3xl text-left border-2 border-[#E9ECEF] transition-all"
-              style={{ boxShadow: `0 6px 0 ${item.color}40` }}
-            >
-              <div className="flex items-start justify-between mb-6">
-                <div 
-                  className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl"
-                  style={{ backgroundColor: `${item.color}20` }}
-                >
-                  {item.icon}
+          {/* Progress Section */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="card-premium p-8"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <div className="text-caption text-[#6B6B7B] uppercase tracking-wider mb-2 font-medium">
+                  {t('Прогресс', 'Прогресс', lang)}
                 </div>
-                <span className="text-3xl text-[#ADB5BD] group-hover:text-[#212529] transition-colors">→</span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-display text-[#FFFFFF]">{completedLessons}</span>
+                  <span className="text-heading text-[#6B6B7B]">/ {lessons.length}</span>
+                </div>
               </div>
-              
-              <h2 className="text-heading text-[#212529] mb-2">{item.titleKz}</h2>
-              <p className="text-small text-[#6C757D] mb-4">{item.titleRu}</p>
-              <p className="text-caption text-[#ADB5BD] font-bold">{t(item.subtitleKz, item.subtitleRu, lang)}</p>
-            </motion.button>
-          ))}
+              <div className="text-6xl">
+                {completedLessons === 0 ? '🌱' : completedLessons < 5 ? '🌿' : completedLessons < 10 ? '' : '🏆'}
+              </div>
+            </div>
+            
+            <div className="h-2 bg-[#1C1C24] rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                className="h-full bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] rounded-full relative overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-white/20 animate-pulse" />
+              </motion.div>
+            </div>
+            <div className="text-caption text-[#A0A0B0] mt-3 text-center font-medium">
+              {Math.round(progress)}% {t('аяқталды', 'завершено', lang)}
+            </div>
+          </motion.section>
+
+          {/* Menu grid - Bento style */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {menuItems.map((item, i) => (
+              <motion.button
+                key={item.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 * i, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={{ y: -4 }}
+                whileTap={{ y: 0 }}
+                onClick={() => { playClickSound(); navigate(item.path); }}
+                className="card-premium group relative p-8 text-left overflow-hidden"
+              >
+                {/* Gradient overlay on hover */}
+                <div 
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{ background: `radial-gradient(circle at 50% 50%, ${item.color}20, transparent 70%)` }}
+                />
+                
+                <div className="relative z-10">
+                  <div className="flex items-start justify-between mb-6">
+                    <div 
+                      className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl"
+                      style={{ backgroundColor: `${item.color}20` }}
+                    >
+                      {item.icon}
+                    </div>
+                    <span className="text-3xl text-[#6B6B7B] group-hover:text-[#FFFFFF] transition-colors">→</span>
+                  </div>
+                  
+                  <h2 className="text-heading text-[#FFFFFF] mb-2">{item.titleKz}</h2>
+                  <p className="text-small text-[#A0A0B0] mb-4">{item.titleRu}</p>
+                  <p className="text-caption text-[#6B6B7B] font-medium">{t(item.subtitleKz, item.subtitleRu, lang)}</p>
+                </div>
+              </motion.button>
+            ))}
+          </div>
+
+          {/* Stats Section */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-4"
+          >
+            {[
+              { icon: '🔥', label: t('Күн', 'Дней', lang), value: streak, color: '#F59E0B' },
+              { icon: '💎', label: 'XP', value: formatXp(xp), color: '#6366F1' },
+              { icon: '📚', label: t('Сабақ', 'Уроков', lang), value: completedLessons, color: '#3B82F6' },
+              { icon: '🎯', label: t('Деңгей', 'Уровень', lang), value: state.level, color: '#8B5CF6' },
+            ].map((stat, i) => (
+              <motion.div
+                key={i}
+                whileHover={{ scale: 1.02 }}
+                className="card-premium p-6 text-center"
+              >
+                <div className="text-4xl mb-2">{stat.icon}</div>
+                <div className="text-heading text-[#FFFFFF]">{stat.value}</div>
+                <div className="text-caption text-[#6B6B7B] font-medium">{stat.label}</div>
+              </motion.div>
+            ))}
+          </motion.section>
+
         </div>
-
-        {/* Stats Section */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4"
-        >
-          {[
-            { icon: '', label: t('Күн', 'Дней', lang), value: streak, color: '#FF9600' },
-            { icon: '💎', label: 'XP', value: formatXp(xp), color: '#58CC02' },
-            { icon: '📚', label: t('Сабақ', 'Уроков', lang), value: completedLessons, color: '#1CB0F6' },
-            { icon: '🎯', label: t('Деңгей', 'Уровень', lang), value: state.level, color: '#CE82FF' },
-          ].map((stat, i) => (
-            <motion.div
-              key={i}
-              whileHover={{ scale: 1.02 }}
-              className="bg-white rounded-2xl p-6 text-center border-2 border-[#E9ECEF] shadow-[0_2px_0_#E9ECEF]"
-            >
-              <div className="text-4xl mb-2">{stat.icon}</div>
-              <div className="text-heading text-[#212529]">{stat.value}</div>
-              <div className="text-caption text-[#6C757D] font-bold">{stat.label}</div>
-            </motion.div>
-          ))}
-        </motion.section>
-
       </div>
     </div>
   );
