@@ -45,6 +45,18 @@
    ]
   },
   {
+   "kz": "атым",
+   "ru": "моё имя",
+   "level": 1,
+   "unit": "Первые слова",
+   "lessons": [
+    {
+     "lessonId": "kz_base_01_tanysu",
+     "stepIndex": 0
+    }
+   ]
+  },
+  {
    "kz": "аяғы",
    "ru": "его нога",
    "level": 1,

@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import type { Step } from '../types';
 import type { Verdict } from '../utils/answer';
-import { checkAnswerDetailed, openAnswerOverlap, foldKazakh, normalizeAnswer } from '../utils/answer';
+import { checkAnswerDetailed, checkBlank, openAnswerOverlap, foldKazakh, normalizeAnswer } from '../utils/answer';
 
 
 export interface TaskResult {
@@ -91,7 +91,11 @@ function WrittenTask({ step, onSubmit, type }: {
 
   const submit = () => {
     if (!value.trim()) return;
-    const res = checkAnswerDetailed(value, answer);
+    // У задания с пропуском своя проверка: ученик вправе вписать и только
+    // пропущенную часть, и предложение целиком — угадывать формат он не должен.
+    const res = type === 'fill_blank' && step.blank
+      ? checkBlank(value, answer, step.blank.sentence)
+      : checkAnswerDetailed(value, answer);
     onSubmit({ verdict: res.verdict, userAnswer: value, hintsUsed: hints, note: res.note });
   };
 

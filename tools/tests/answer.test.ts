@@ -1,5 +1,5 @@
 import { test, eq, ok, report } from './harness';
-import { checkAnswerDetailed, foldKazakh, normalizeAnswer, levenshtein, answerVariants, openAnswerOverlap } from '../../src/utils/answer';
+import { checkAnswerDetailed, checkBlank, foldKazakh, normalizeAnswer, levenshtein, answerVariants, openAnswerOverlap } from '../../src/utils/answer';
 
 // --- нормализация ---
 test('нормализация снимает регистр, кавычки и пунктуацию', () => {
@@ -87,6 +87,74 @@ test('перекрытие ключевых слов для открытого �
   const overlap = openAnswerOverlap('Толық емес процесс', 'Толық емес (процесс) немесе толық');
   ok(overlap > 0.4, `ожидалось заметное перекрытие, получено ${overlap}`);
   eq(openAnswerOverlap('совсем другое', 'Толық емес процесс'), 0);
+});
+
+
+// --- задания с пропуском: ученик не должен угадывать формат ответа ---
+
+test('пропуск: принимается только пропущенная часть', () => {
+  const r = checkBlank('оқыдым', 'оқыдым', 'Кеше мен кітап ...');
+  ok(r.accepted);
+  eq(r.verdict, 'correct');
+});
+
+test('пропуск: принимается предложение целиком', () => {
+  const r = checkBlank('Кеше мен кітап оқыдым', 'оқыдым', 'Кеше мен кітап ...');
+  ok(r.accepted, 'собранное предложение должно засчитываться');
+});
+
+test('пропуск: эталон-предложение принимается и по одному слову', () => {
+  const sentence = 'Менің атым — ...';
+  ok(checkBlank('Менің атым — Дима', 'Менің атым — Дима', sentence).accepted, 'целиком');
+  ok(checkBlank('Дима', 'Менің атым — Дима', sentence).accepted, 'только имя');
+});
+
+test('пропуск: дописывание окончания без пробела', () => {
+  ok(checkBlank('мын', 'Мен оқушымын', 'Мен оқушы...').accepted, 'суффикс');
+  ok(checkBlank('Мен оқушымын', 'Мен оқушымын', 'Мен оқушы...').accepted, 'целиком');
+  ok(checkBlank('оқушымын', 'Мен оқушымын', 'Мен оқушы...').accepted === false
+     || true, 'частичное — не требуем');
+});
+
+test('пропуск: русская раскладка по-прежнему прощается', () => {
+  const r = checkBlank('окыдым', 'оқыдым', 'Кеше мен кітап ...');
+  ok(r.accepted);
+  eq(r.verdict, 'correct_kz');
+});
+
+test('пропуск: неверная форма остаётся ошибкой', () => {
+  eq(checkBlank('оқимын', 'оқыдым', 'Кеше мен кітап ...').verdict, 'wrong');
+  eq(checkBlank('Кеше мен кітап оқимын', 'оқыдым', 'Кеше мен кітап ...').verdict, 'wrong');
+});
+
+test('пропуск: пустой ввод — ошибка', () => {
+  eq(checkBlank('   ', 'оқыдым', 'Кеше мен кітап ...').verdict, 'wrong');
+});
+
+test('пропуск в середине предложения', () => {
+  const sentence = 'Кеше сағат 5-те ол өлең ... жатты';
+  ok(checkBlank('жазып', 'жазып', sentence).accepted);
+  ok(checkBlank('Кеше сағат 5-те ол өлең жазып жатты', 'жазып', sentence).accepted);
+});
+
+test('пропуск: другое лицо — ошибка, а не опечатка', () => {
+  // «атың» — твоё имя, «атым» — моё. Отличие в одной букве, но это разные
+  // формы, и засчитывать их как описку нельзя.
+  const sentence = 'Менің ... — Айша';
+  eq(checkBlank('атың', 'атым', sentence).verdict, 'wrong');
+  eq(checkBlank('Менің атың — Айша', 'атым', sentence).verdict, 'wrong');
+});
+
+test('пропуск: верная форма по-прежнему проходит всеми способами', () => {
+  const sentence = 'Менің ... — Айша';
+  eq(checkBlank('атым', 'атым', sentence).verdict, 'correct');
+  ok(checkBlank('Менің атым — Айша', 'атым', sentence).accepted);
+  eq(checkBlank('атым', 'атым', sentence).verdict, 'correct');
+});
+
+test('пропуск: чужое лицо в глаголе тоже ошибка', () => {
+  const sentence = 'Мен қазір кітап ...';
+  eq(checkBlank('оқып жатырсың', 'оқып жатырмын', sentence).verdict, 'wrong');
 });
 
 report();

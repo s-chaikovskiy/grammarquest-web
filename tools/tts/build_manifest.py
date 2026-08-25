@@ -49,6 +49,9 @@ def main():
         text = clean(text)
         if not text or len(text) > MAX_CHARS:
             return
+        # Цифры озвучивать незачем: ученику нужно услышать «он», а не «десять».
+        if not any(ch.isalpha() for ch in text):
+            return
         key = audio_id(text)
         existing = entries.get(key)
         if existing:

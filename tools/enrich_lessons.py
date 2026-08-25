@@ -363,6 +363,15 @@ def validate(data):
             elif tt == "fill_blank":
                 if "..." not in s["blank"]["sentence"]:
                     problems.append(f"{tag}: в предложении нет пропуска")
+
+            # Формулировка не должна обещать свободу, которой проверка не даёт.
+            # Задание «напиши любое имя» с единственным верным ответом «Дима»
+            # наказывает ученика за то, что он сделал ровно то, о чём просили.
+            promise = ("любое", "любой", "своё имя", "свое имя", "на выбор", "что хочешь")
+            text = (s["taskRu"] + " " + s["taskKz"]).lower()
+            if any(word in text for word in promise) and tt not in ("open",):
+                problems.append(f"{tag}: формулировка обещает свободный ответ, "
+                                f"а проверка ждёт «{s['answerKz']}»")
     return problems
 
 
