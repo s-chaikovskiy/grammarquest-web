@@ -43,7 +43,8 @@ export default function Character({ name, size = 96, emotion = 'neutral' }: Char
       alt={ALT[name] ?? ''}
       width={size}
       height={size}
-      loading="lazy"
+      // Не lazy: портрет стоит на первом экране, и ленивая загрузка
+      // откладывала бы его появление ради экономии 25 КБ.
       decoding="async"
       style={{ objectFit: 'contain', flexShrink: 0 }}
     />
