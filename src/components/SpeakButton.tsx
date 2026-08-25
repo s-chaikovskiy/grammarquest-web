@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { hasAudio, speak } from '../utils/speech';
 
 /**
@@ -7,18 +7,16 @@ import { hasAudio, speak } from '../utils/speech';
  * Показывается только тогда, когда запись действительно есть: пустая кнопка,
  * которая ничего не делает, хуже её отсутствия. Пока озвучка не записана,
  * интерфейс выглядит так, будто её и не задумывали.
+ *
+ * Наличие записи известно из самой сборки, поэтому кнопка либо есть сразу,
+ * либо её нет вовсе. Раньше ответ выяснялся запросом по сети: кнопка
+ * появлялась с задержкой, а на экране без записей приложение всё равно
+ * ходило в сеть на каждую фразу.
  */
 export default function SpeakButton({ text, label = 'Послушать' }: { text: string; label?: string }) {
-  const [ready, setReady] = useState(false);
   const [playing, setPlaying] = useState(false);
 
-  useEffect(() => {
-    let alive = true;
-    hasAudio(text).then(ok => { if (alive) setReady(ok); });
-    return () => { alive = false; };
-  }, [text]);
-
-  if (!ready) return null;
+  if (!hasAudio(text)) return null;
 
   const play = async () => {
     setPlaying(true);

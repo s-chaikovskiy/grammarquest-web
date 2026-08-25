@@ -1,5 +1,5 @@
 import { useEffect, lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { AppProvider, useApp } from './hooks/useApp';
 import { setSoundEnabled } from './utils/sounds';
 import AppShell from './components/AppShell';
@@ -37,6 +37,20 @@ function Loading() {
   );
 }
 
+/**
+ * Урок пересоздаётся при смене адреса.
+ *
+ * Без этого React оставляет экран смонтированным, когда меняется только
+ * номер урока: шаг, фаза и список ошибок остаются от предыдущего. Переход
+ * с итогов одного урока прямо на другой ронял экран — разбор ошибок брал
+ * шаг по номеру из прошлого урока, а там его уже нет. Ключ по адресу
+ * заставляет React собрать экран заново, с чистым состоянием.
+ */
+function LessonRoute() {
+  const { id } = useParams<{ id: string }>();
+  return <LessonScreen key={id} />;
+}
+
 function AppRoutes() {
   const { state } = useApp();
 
@@ -63,7 +77,7 @@ function AppRoutes() {
         </Route>
 
         {/* Занятия идут на весь экран: панель отвлекала бы от задания */}
-        <Route path="/lesson/:id" element={<LessonScreen />} />
+        <Route path="/lesson/:id" element={<LessonRoute />} />
         <Route path="/review" element={<ReviewScreen />} />
         <Route path="/cards" element={<CardsScreen />} />
         <Route path="/sprint" element={<SprintScreen />} />

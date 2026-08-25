@@ -16,7 +16,22 @@ import index from '../data/audio-index.json';
  * В сборку попадает только пара «код — текст»: переводы и пометки типа
  * нужны скриптам записи, но не браузеру, а весят втрое больше.
  */
-const ITEMS = (index as unknown as { items: [string, string][] }).items;
+const DATA = index as unknown as { items: [string, string][]; available?: string[] };
+const ITEMS = DATA.items;
+
+/**
+ * Какие записи действительно лежат в сборке.
+ *
+ * Список составляется при сборке содержания, а не выясняется по сети.
+ * Раньше приложение спрашивало сам файл: пока записей нет, каждая фраза
+ * на экране порождала запрос, который заканчивался ошибкой. Обещание
+ * «работает без интернета и не ходит в сеть» переставало быть правдой,
+ * а на слабой связи экран ещё и подтормаживал.
+ *
+ * Список обновляется командой `npm run data`. Положили записи в
+ * public/audio — прогоните её, иначе приложение о них не узнает.
+ */
+const AVAILABLE = new Set(DATA.available ?? []);
 
 /** Текст → код записи. Строится один раз при загрузке модуля. */
 const BY_TEXT = new Map<string, string>(
@@ -27,8 +42,6 @@ function normalize(text: string): string {
   return text.replace(/\s+/g, ' ').trim().toLowerCase();
 }
 
-/** Какие записи реально лежат в сборке — проверяется один раз, лениво. */
-const available = new Map<string, boolean>();
 let current: HTMLAudioElement | null = null;
 
 export function audioIdFor(text: string): string | null {
@@ -39,46 +52,25 @@ export function audioUrl(id: string): string {
   return `${import.meta.env.BASE_URL}audio/${id}.mp3`;
 }
 
-/**
- * Есть ли запись для этой фразы.
- * Первая проверка обращается к файлу, дальше ответ берётся из памяти.
- */
-export async function hasAudio(text: string): Promise<boolean> {
+/** Есть ли запись для этой фразы. Ответ известен заранее, в сеть не ходим. */
+export function hasAudio(text: string): boolean {
   const id = audioIdFor(text);
-  if (!id) return false;
-  const known = available.get(id);
-  if (known !== undefined) return known;
-  try {
-    const res = await fetch(audioUrl(id), { method: 'HEAD' });
-    // Одного статуса 200 мало. И dev-сервер Vite, и хостинг с переадресацией
-    // на index.html отвечают на несуществующий файл страницей приложения —
-    // тоже со статусом 200. Тогда кнопка «послушать» появлялась там, где
-    // записи нет, и молчала при нажатии. Разделяет их тип содержимого.
-    const type = res.headers.get('content-type') ?? '';
-    const ok = res.ok && /audio|mpeg|octet-stream/i.test(type);
-    available.set(id, ok);
-    return ok;
-  } catch {
-    available.set(id, false);
-    return false;
-  }
+  return id !== null && AVAILABLE.has(id);
 }
 
 /** Проигрывает фразу. Возвращает false, если записи нет. */
 export async function speak(text: string): Promise<boolean> {
   const id = audioIdFor(text);
-  if (!id) return false;
+  if (!id || !AVAILABLE.has(id)) return false;
 
   current?.pause();
   const audio = new Audio(audioUrl(id));
   current = audio;
   try {
     await audio.play();
-    available.set(id, true);
     return true;
   } catch {
-    // Файла нет или браузер не дал воспроизвести — тишина, но не ошибка.
-    available.set(id, false);
+    // Браузер не дал воспроизвести — тишина, но не ошибка.
     return false;
   }
 }
@@ -90,3 +82,6 @@ export function stopSpeaking() {
 
 /** Сколько фраз вообще предусмотрено к озвучке — для экрана статистики. */
 export const TOTAL_PHRASES = ITEMS.length;
+
+/** Сколько из них уже записано. */
+export const RECORDED_PHRASES = AVAILABLE.size;

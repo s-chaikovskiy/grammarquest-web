@@ -26,6 +26,7 @@ VOCAB = ROOT / "src" / "data" / "vocabulary.json"
 MANIFEST = ROOT / "tools" / "tts" / "audio-manifest.json"
 INDEX = ROOT / "src" / "data" / "audio-index.json"
 PHRASES = ROOT / "tools" / "tts" / "фразы-для-записи.md"
+AUDIO = ROOT / "public" / "audio"
 
 # Реплики длиннее этого не озвучиваем: их не переслушивают.
 MAX_CHARS = 120
@@ -132,10 +133,20 @@ def main():
         encoding="utf-8",
     )
 
+    # Какие записи реально лежат в public/audio на момент сборки.
+    #
+    # Раньше приложение узнавало это, спрашивая сам файл по сети. Пока записей
+    # нет, каждая фраза на экране порождала запрос, который заканчивался
+    # ошибкой, — и обещание «работает без интернета, ни одного запроса в сеть»
+    # переставало быть правдой. Теперь список известен заранее.
+    available = sorted(p.stem for p in AUDIO.glob("*.mp3")) if AUDIO.exists() else []
+
     # В приложение уходит только то, что нужно для поиска записи по тексту:
     # переводы и пометки типа в браузере не используются, а весят втрое больше.
     INDEX.write_text(
-        json.dumps({"version": 1, "items": [[e["id"], e["text"]] for e in items]},
+        json.dumps({"version": 2,
+                    "items": [[e["id"], e["text"]] for e in items],
+                    "available": available},
                    ensure_ascii=False, separators=(",", ":")),
         encoding="utf-8",
     )
@@ -173,7 +184,10 @@ def main():
         lines += [f"| `{e['id']}.mp3` | {who_ru.get(e['speaker'], '—')} | {e['text']} | {e['ru']} |" for e in group]
         lines.append("")
     PHRASES.write_text("\n".join(lines), encoding="utf-8")
-    print(f"\nСписок для записи голосом: {PHRASES.relative_to(ROOT)}")
+    print(f"\nЗаписей в public/audio: {len(available)} из {len(items)}")
+    if not available:
+        print("  Кнопка «послушать» не показывается нигде — записей ещё нет.")
+    print(f"Список для записи голосом: {PHRASES.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

@@ -59,6 +59,19 @@ export default defineConfig({
 
         runtimeCaching: [
           {
+            // Записи озвучки. В предзагрузку они не идут намеренно: файлов
+            // почти шестьсот, и тянуть их все при первом заходе значит
+            // испортить установку ради того, что может и не понадобиться.
+            // Прослушанное сохраняется и дальше работает без интернета.
+            urlPattern: ({ url }) => url.pathname.startsWith('/audio/'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'audio',
+              expiration: { maxEntries: 700, maxAgeSeconds: 60 * 60 * 24 * 180 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
             // Сама страница: сначала сеть, кэш — запасной путь.
             urlPattern: ({ request }) => request.mode === 'navigate',
             handler: 'NetworkFirst',
