@@ -44,11 +44,11 @@ function normalize(text: string): string {
 
 let current: HTMLAudioElement | null = null;
 
-export function audioIdFor(text: string): string | null {
+function audioIdFor(text: string): string | null {
   return BY_TEXT.get(normalize(text)) ?? null;
 }
 
-export function audioUrl(id: string): string {
+function audioUrl(id: string): string {
   return `${import.meta.env.BASE_URL}audio/${id}.mp3`;
 }
 
@@ -75,13 +75,9 @@ export async function speak(text: string): Promise<boolean> {
   }
 }
 
-export function stopSpeaking() {
-  current?.pause();
-  current = null;
-}
-
-/** Сколько фраз вообще предусмотрено к озвучке — для экрана статистики. */
-export const TOTAL_PHRASES = ITEMS.length;
-
-/** Сколько из них уже записано. */
-export const RECORDED_PHRASES = AVAILABLE.size;
+/*
+ * Наружу торчат ровно две функции: «есть ли запись» и «проиграть».
+ * Остальное — внутреннее. Экспорт, который никто не вызывает, со временем
+ * начинает выглядеть как обещанная возможность: именно так прежняя версия
+ * и разошлась с собственным описанием.
+ */
