@@ -6,6 +6,7 @@ import { getCharacterSvgName, speakerOf, speakerName } from '../utils/helpers';
 import { playCorrectSound, playWrongSound, playClickSound } from '../utils/sounds';
 import { fireSuccess } from '../utils/confetti';
 import Character from '../components/Character';
+import Celebration from '../components/Celebration';
 import SpeakButton from '../components/SpeakButton';
 import TaskInput, { type TaskResult } from '../components/TaskInput';
 import { getLessonById } from '../data';
@@ -336,6 +337,9 @@ export default function LessonScreen() {
                 }[tone];
                 return (
                   <section className={`summary-hero summary-hero--${tone}`}>
+                    {/* Сцена появляется только за отличный результат: если
+                        показывать её всегда, она перестаёт что-либо значить. */}
+                    <Celebration active={tone === 'perfect'} />
                     <div className="summary-hero__figure">
                       <Character
                         name={getCharacterSvgName(lesson.character)}

@@ -1082,10 +1082,6 @@ p { text-wrap: pretty; }
   60% { transform: scale(1.06) rotate(2deg); opacity: 1; }
   100% { transform: scale(1) rotate(0); opacity: 1; }
 }
-@keyframes glow-sweep {
-  0% { background-position: -140% 0; }
-  100% { background-position: 240% 0; }
-}
 
 .summary-hero {
   position: relative;
@@ -1097,32 +1093,71 @@ p { text-wrap: pretty; }
   border-radius: var(--radius-lg);
   background: var(--surface-2);
   overflow: hidden;
+  isolation: isolate;
   animation: trophy-in 520ms var(--ease-out-quart);
 }
 
 /* Цвет соответствует результату: зелёный достаётся тем, кто его заслужил. */
-.summary-hero--perfect { border-color: var(--success); background: var(--success-wash); }
 .summary-hero--good { border-color: var(--accent); background: var(--accent-wash); }
 .summary-hero--weak { border-color: var(--gold-ink); background: var(--gold-wash); }
 
-/* Блик проходит по карточке один раз — как отражение по стеклу. */
-.summary-hero--perfect::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(100deg, transparent 38%,
-              oklch(1 0 0 / 0.22) 50%, transparent 62%);
-  background-size: 220% 100%;
-  animation: glow-sweep 1100ms var(--ease-out-quart) 240ms both;
-  pointer-events: none;
+/* --- панель победы ---------------------------------------------------------
+   Безошибочный урок получает не просто другой цвет, а другое оформление:
+   тёмная панель с золотом. Она намеренно выпадает из остального интерфейса —
+   именно поэтому и читается как награда, а не как очередная карточка.
+   Тёмная она в обеих темах: золото по тёмному контрастно всегда, и не нужно
+   подгонять читаемость под светлое и тёмное оформление по отдельности. */
+
+.summary-hero--perfect {
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;   /* текст внизу, сцена занимает верх */
+  gap: 0.25rem;
+  min-height: 17rem;
+  padding: 1.25rem 1.25rem 1.5rem;
+  border-color: oklch(0.72 0.13 82 / 0.55);
+  background: radial-gradient(120% 90% at 50% 40%,
+              oklch(0.22 0.04 255) 0%, oklch(0.13 0.03 260) 70%);
+  text-align: center;
+  color: oklch(0.97 0.01 90);
 }
+.summary-hero--perfect .summary-hero__score {
+  color: oklch(0.86 0.13 84);
+  font-size: 2.75rem;
+  line-height: 1.05;
+}
+.summary-hero--perfect .t-small { color: oklch(0.82 0.03 90); }
+
+/* Портрет на тёмной панели ни к чему: он спорит с фигурой шаңырақа
+   за центр композиции. */
+.summary-hero--perfect .summary-hero__figure { display: none; }
 
 .summary-hero__figure { flex-shrink: 0; }
 .summary-hero__text { min-width: 0; }
 .summary-hero__score { font-size: var(--text-2xl); font-weight: 700; letter-spacing: -0.02em; }
 
 @media (prefers-reduced-motion: reduce) {
-  .summary-hero, .summary-hero--perfect::after { animation: none; }
-  .summary-hero--perfect::after { display: none; }
+  .summary-hero { animation: none; }
   .node--current .node__dot, .node__dot:active { transform: none; }
 }
+
+/* --- праздничная сцена ------------------------------------------------------
+   Холст лежит фоном карточки итогов и не перехватывает нажатия.
+   Если сцена не запустилась, карточка выглядит как обычно. */
+
+.summary-hero { isolation: isolate; }
+
+/* Сцена занимает верхнюю часть панели, текст — нижнюю. Раньше они лежали
+   друг на друге, и подпись терялась среди уықов. */
+.celebration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 68%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Текст лежит над сценой и всегда читается. */
+.summary-hero--perfect .summary-hero__text { position: relative; z-index: 1; }
