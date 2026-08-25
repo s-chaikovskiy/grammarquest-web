@@ -92,3 +92,43 @@ export function speakerName(dialogue: string, fallback: string): string {
   return { teacher: 'Учитель', girl: 'Айша', boy: 'Дима' }[svg];
 }
 
+
+/**
+ * Разбор реплики на отдельные высказывания.
+ *
+ * В 187 шагах из 225 «диалог» — это обмен репликами двух собеседников,
+ * записанный в одно поле через перевод строки. Экран показывал один портрет,
+ * от первого говорящего, и весь обмен под ним — выходило, что учитель
+ * отвечает сам себе. Строки казахского и русского всегда идут парами,
+ * поэтому разбираются вместе.
+ */
+export type DialogueLine = {
+  who: 'teacher' | 'girl' | 'boy';
+  name: string;
+  kz: string;
+  ru: string;
+};
+
+export function splitDialogue(kz: string, ru: string, fallback: string): DialogueLine[] {
+  const kzLines = kz.split('\n').map(s => s.trim()).filter(Boolean);
+  const ruLines = ru.split('\n').map(s => s.trim()).filter(Boolean);
+
+  return kzLines.map((line, i) => {
+    const who = speakerOf(line, fallback);
+    return {
+      who,
+      name: speakerName(line, fallback),
+      kz: stripSpeaker(line),
+      // Если перевод оказался короче — оставляем строку пустой, но не рушим пару.
+      ru: stripSpeaker(ruLines[i] ?? ''),
+    };
+  });
+}
+
+/** Убирает подпись «Имя:» в начале строки — имя показывается рядом с портретом. */
+function stripSpeaker(line: string): string {
+  const match = line.match(/^([^:\n]{2,20}):\s*/);
+  if (!match) return line;
+  const name = match[1].trim().toLowerCase();
+  return SPEAKERS[name] ? line.slice(match[0].length) : line;
+}

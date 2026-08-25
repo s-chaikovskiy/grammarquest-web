@@ -19,9 +19,22 @@ const TablesScreen = lazy(() => import('./screens/TablesScreen'));
 const StatsScreen = lazy(() => import('./screens/StatsScreen'));
 const CardsScreen = lazy(() => import('./screens/CardsScreen'));
 const SprintScreen = lazy(() => import('./screens/SprintScreen'));
+const HelpScreen = lazy(() => import('./screens/HelpScreen'));
 
+/* Экран во время подгрузки раздела. Надпись «Загрузка…» на пустой странице
+   читается как поломка; скелетон занимает место будущего содержимого, и
+   страница не прыгает, когда оно приходит. */
 function Loading() {
-  return <p className="t-small" style={{ padding: '2rem 0' }}>Загрузка…</p>;
+  return (
+    <div className="page">
+      <div className="shell skeleton" role="status" aria-label="Загрузка раздела">
+        <div className="skeleton__bar skeleton__bar--title" />
+        <div className="skeleton__bar skeleton__bar--half" />
+        <div className="skeleton__block" />
+        <div className="skeleton__block" />
+      </div>
+    </div>
+  );
 }
 
 function AppRoutes() {
@@ -46,6 +59,7 @@ function AppRoutes() {
           <Route path="/reference/topics" element={<ReferenceScreen />} />
           <Route path="/reference/tables" element={<TablesScreen />} />
           <Route path="/stats" element={<StatsScreen />} />
+          <Route path="/help" element={<HelpScreen />} />
         </Route>
 
         {/* Занятия идут на весь экран: панель отвлекала бы от задания */}

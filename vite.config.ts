@@ -11,9 +11,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['characters/*.webp', 'icons/*.png', 'fonts/*.woff2'],
       manifest: {
-        name: 'GrammarQuest — тренажёр казахской грамматики',
-        short_name: 'GrammarQuest',
-        description: 'Диалоги, правила и семь типов упражнений по казахской грамматике. Работает офлайн.',
+        name: 'Тілашар — казахский язык шаг за шагом',
+        short_name: 'Тілашар',
+        description: 'Казахский язык для тех, кто говорит по-русски: диалоги, правила и семь типов упражнений. Работает офлайн.',
         lang: 'ru',
         theme_color: '#0064B9',
         background_color: '#0064B9',

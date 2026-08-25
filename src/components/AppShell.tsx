@@ -14,7 +14,7 @@ const TABS = [
   { to: '/learn', label: 'Учиться', icon: PathIcon },
   { to: '/practice', label: 'Практика', icon: RepeatIcon },
   { to: '/dictionary', label: 'Словарь', icon: BookIcon },
-  { to: '/reference', label: 'Правила', icon: RulesIcon },
+  { to: '/reference', label: 'Справка', icon: RulesIcon },
   { to: '/stats', label: 'Профиль', icon: ChartIcon },
 ];
 

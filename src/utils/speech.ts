@@ -50,8 +50,14 @@ export async function hasAudio(text: string): Promise<boolean> {
   if (known !== undefined) return known;
   try {
     const res = await fetch(audioUrl(id), { method: 'HEAD' });
-    available.set(id, res.ok);
-    return res.ok;
+    // Одного статуса 200 мало. И dev-сервер Vite, и хостинг с переадресацией
+    // на index.html отвечают на несуществующий файл страницей приложения —
+    // тоже со статусом 200. Тогда кнопка «послушать» появлялась там, где
+    // записи нет, и молчала при нажатии. Разделяет их тип содержимого.
+    const type = res.headers.get('content-type') ?? '';
+    const ok = res.ok && /audio|mpeg|octet-stream/i.test(type);
+    available.set(id, ok);
+    return ok;
   } catch {
     available.set(id, false);
     return false;

@@ -7,6 +7,7 @@ import TaskInput, { type TaskResult } from '../components/TaskInput';
 import { getLessonById } from '../data';
 import { todayISO } from '../utils/srs';
 import type { Step } from '../types';
+import ScreenHeader from '../components/ScreenHeader';
 
 /**
  * Экран повторения работает по очереди интервального повторения.
@@ -63,15 +64,12 @@ export default function ReviewScreen() {
   return (
     <div className="page">
       <div className="shell stack">
-        <header style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <button className="btn btn--quiet" onClick={() => navigate('/learn')} aria-label={'Назад'}>
-            ←
-          </button>
-          <h1 className="t-head" style={{ flex: 1 }}>Повторение</h1>
-          {!finished && (
-            <span className="t-small">{position + 1} / {queue.length}</span>
-          )}
-        </header>
+        <ScreenHeader
+          back={{ to: '/learn', label: 'К урокам' }}
+          title="Повторение"
+          subtitle="Задания, которые пора освежить"
+          right={!finished && <span className="t-small">{position + 1} / {queue.length}</span>}
+        />
 
         {finished ? (
           <EmptyOrDone

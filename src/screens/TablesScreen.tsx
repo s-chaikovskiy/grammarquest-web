@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { declension, plural, possessive, presentTense, pastTense, isBack, lastSound } from '../utils/morphology';
 import { vocabulary } from '../data';
+import ScreenHeader from '../components/ScreenHeader';
 
 type Mode = 'noun' | 'verb';
 
@@ -44,16 +45,11 @@ export default function TablesScreen() {
 
   return (
     <div className="stack">
-      <header className="stack--tight">
-        <button className="btn btn--quiet" onClick={() => navigate('/reference')} style={{ alignSelf: 'flex-start' }}>
-          ← Правила
-        </button>
-        <h1 className="t-head">Таблицы окончаний</h1>
-        <p className="t-small prose">
-          Подставь любое слово — увидишь все его формы. Окончание подсвечено,
-          рядом сказано, почему выбрано именно оно.
-        </p>
-      </header>
+      <ScreenHeader
+        back={{ to: '/reference', label: 'Справка' }}
+        title="Таблицы окончаний"
+        subtitle="Подставь любое слово — увидишь все его формы. Окончание подсвечено, рядом сказано, почему выбрано именно оно."
+      />
 
       <div className="tabs" role="group" aria-label="Часть речи">
         <button className={`tab${mode === 'noun' ? ' tab--active' : ''}`} onClick={() => setMode('noun')}>

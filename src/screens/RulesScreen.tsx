@@ -5,6 +5,7 @@ import { useApp } from '../hooks/useApp';
 import { foldKazakh, normalizeAnswer } from '../utils/answer';
 import { loadRules } from '../data';
 import type { Rule } from '../types';
+import ScreenHeader from '../components/ScreenHeader';
 
 export default function RulesScreen() {
   const navigate = useNavigate();
@@ -29,12 +30,12 @@ export default function RulesScreen() {
   }, [query, rules]);
 
   return (
-    <div className="page">
-      <div className="shell stack">
-        <header style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <button className="btn btn--quiet" onClick={() => navigate('/reference')} aria-label="Назад к разделу «Правила»">←</button>
-          <h1 className="t-head">Правила</h1>
-        </header>
+    <div className="stack">
+        <ScreenHeader
+          back={{ to: '/reference', label: 'Справка' }}
+          title="Правила"
+          subtitle="Поиск по всем правилам курса"
+        />
 
         <input
           type="search"
@@ -92,7 +93,6 @@ export default function RulesScreen() {
             })}
           </ul>
         )}
-      </div>
     </div>
   );
 }

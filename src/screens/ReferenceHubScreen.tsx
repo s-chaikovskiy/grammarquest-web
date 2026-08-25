@@ -21,9 +21,15 @@ const SECTIONS = [
   },
   {
     to: '/reference/topics',
-    title: 'Справочник',
+    title: 'Темы курса',
     sub: '22 темы подробно',
     hint: 'Разбор с примерами и частыми ошибками',
+  },
+  {
+    to: '/help',
+    title: 'Как устроено приложение',
+    sub: 'Разделы, урок, проверка ответов',
+    hint: 'Почему «почти верно» — это почти верно',
   },
 ];
 
@@ -33,8 +39,8 @@ export default function ReferenceHubScreen() {
   return (
     <div className="stack">
       <header className="stack--tight">
-        <h1 className="t-head">Правила</h1>
-        <p className="t-small">Сюда можно заглядывать прямо во время урока.</p>
+        <h1 className="t-head">Справка</h1>
+        <p className="t-small">Правила, таблицы и объяснения. Сюда можно заглядывать прямо во время урока.</p>
       </header>
 
       <div className="stack--tight">

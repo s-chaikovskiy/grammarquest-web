@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* =============================================================================
-   GrammarQuest — дизайн-система
+   Тілашар — дизайн-система
 
    Шрифт вшит в бандл: приложение обязано работать офлайн и внутри APK,
    где загрузка с Google Fonts недоступна. Golos Text выбран потому, что
@@ -231,6 +231,10 @@ p { text-wrap: pretty; }
               color var(--dur-fast) var(--ease-out-quart),
               transform var(--dur-fast) var(--ease-out-quart);
 }
+/* Нажатие пальцем не должно выделять надпись на кнопке. */
+.btn, .tab, .option, .chip, .node__dot, .node__title, .topbar__back, .topbar__home,
+.tabbar__item, .kzkeys__key { -webkit-user-select: none; user-select: none; }
+
 .btn:active:not(:disabled) { transform: translateY(1px); }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
@@ -524,7 +528,10 @@ p { text-wrap: pretty; }
 
 .tabs { display: flex; gap: 0.375rem; flex-wrap: wrap; }
 .tab {
-  padding: 0.4375rem 0.8125rem;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;             /* цель для пальца — 44 px */
+  padding: 0.4375rem 0.875rem;
   background: transparent;
   border: 1px solid var(--border);
   border-radius: 999px;
@@ -680,7 +687,10 @@ p { text-wrap: pretty; }
 .node__body { min-width: 0; }
 .node__title {
   display: block;
-  padding: 0;
+  /* Отступы расширяют область нажатия до 44 px, отрицательные поля
+     возвращают текст на прежнее место — вид не меняется, попасть легче. */
+  padding: 0.625rem 0.5rem 0.625rem 0;
+  margin: -0.625rem -0.5rem -0.625rem 0;
   background: none;
   border: 0;
   color: inherit;
@@ -851,19 +861,6 @@ p { text-wrap: pretty; }
 .mistake__given { font-size: var(--text-sm); color: var(--error); text-decoration: line-through; }
 .mistake__right { font-size: var(--text-md); font-weight: 650; color: var(--success); }
 
-/* --- разбор ошибок --------------------------------------------------------- */
-
-.mistake {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1875rem;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid var(--border);
-}
-.mistake:last-of-type { border-bottom: 0; }
-.mistake__given { font-size: var(--text-sm); color: var(--error); text-decoration: line-through; }
-.mistake__right { font-size: var(--text-md); font-weight: 650; color: var(--success); }
-
 /* --- переключатель настройки ----------------------------------------------- */
 
 .switch {
@@ -899,17 +896,20 @@ p { text-wrap: pretty; }
 .verdict--no { animation: verdict-shake 420ms var(--ease-out-quart); }
 
 /* Галочка на пройденном узле прорисовывается, а не появляется готовой. */
+/* Прозрачности в появлении нет намеренно: на скрытой вкладке браузер
+   притормаживает анимации, и элемент, чья видимость держится на opacity,
+   остаётся невидимым. Анимируется только форма — узел виден всегда. */
 @keyframes check-in {
-  from { transform: scale(0.5) rotate(-12deg); opacity: 0; }
-  to { transform: scale(1) rotate(0); opacity: 1; }
+  from { transform: scale(0.5) rotate(-12deg); }
+  to { transform: scale(1) rotate(0); }
 }
 .node--done .node__dot { animation: check-in 320ms var(--ease-out-quart); }
 
 /* Варианты ответа появляются по очереди: взгляд успевает пройти по списку
    сверху вниз, а не хватает все четыре разом. */
 @keyframes option-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { transform: translateY(6px); }
+  to { transform: translateY(0); }
 }
 .options .option {
   animation: option-in 260ms var(--ease-out-quart) backwards;
@@ -1078,9 +1078,9 @@ p { text-wrap: pretty; }
    потому что работа уже закончена. */
 
 @keyframes trophy-in {
-  0% { transform: scale(0.6) rotate(-8deg); opacity: 0; }
-  60% { transform: scale(1.06) rotate(2deg); opacity: 1; }
-  100% { transform: scale(1) rotate(0); opacity: 1; }
+  0% { transform: scale(0.6) rotate(-8deg); }
+  60% { transform: scale(1.06) rotate(2deg); }
+  100% { transform: scale(1) rotate(0); }
 }
 
 .summary-hero {
@@ -1161,3 +1161,168 @@ p { text-wrap: pretty; }
 
 /* Текст лежит над сценой и всегда читается. */
 .summary-hero--perfect .summary-hero__text { position: relative; z-index: 1; }
+
+/* --- шапка экрана --------------------------------------------------------- */
+/* Одна шапка на все экраны: подписанный возврат слева, счётчики и «домой»
+   справа, заголовок отдельной строкой. Заголовок вынесен вниз намеренно —
+   в одной строке с подписью и счётчиками он сжимался на узком телефоне. */
+
+.topbar-wrap > * + * { margin-top: 0.75rem; }
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+}
+
+.topbar__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 2.75rem;              /* цель для пальца, 44 px */
+  margin-left: -0.5rem;             /* оптическое выравнивание по краю колонки */
+  padding: 0.5rem 0.625rem 0.5rem 0.5rem;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--ink-2);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-out-quart),
+              background var(--dur-fast) var(--ease-out-quart);
+}
+.topbar__back:hover { color: var(--ink); background: var(--surface-2); }
+.topbar__back:active { transform: translateY(1px); }
+.topbar__back svg { flex-shrink: 0; }
+
+.topbar__right {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-left: auto;
+}
+
+.topbar__home {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-right: -0.5rem;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-out-quart),
+              background var(--dur-fast) var(--ease-out-quart);
+}
+.topbar__home:hover { color: var(--accent-ink); background: var(--surface-2); }
+.topbar__home:active { transform: translateY(1px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .topbar__back:active, .topbar__home:active { transform: none; }
+}
+
+/* --- подсказка «как устроено» --------------------------------------------- */
+
+.guide { display: flex; flex-direction: column; gap: 0.875rem; }
+
+.guide__item {
+  display: flex;
+  gap: 0.875rem;
+  align-items: flex-start;
+}
+
+.guide__mark {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.guide__body { min-width: 0; }
+.guide__body strong { display: block; font-size: var(--text-base); }
+.guide__body p { font-size: var(--text-sm); color: var(--ink-2); line-height: 1.55; }
+
+/* --- скелетон загрузки ---------------------------------------------------- */
+/* Пустой экран с надписью «Загрузка…» читается как поломка. Скелетон занимает
+   то же место, что и будущее содержимое, поэтому страница не прыгает. */
+
+.skeleton { display: flex; flex-direction: column; gap: 0.875rem; padding-top: 0.5rem; }
+
+.skeleton__bar {
+  height: 1rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+.skeleton__bar--title { height: 1.75rem; width: 55%; }
+.skeleton__bar--wide { width: 100%; }
+.skeleton__bar--half { width: 70%; }
+.skeleton__block {
+  height: 5.5rem;
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton__bar, .skeleton__block { animation: none; }
+}
+
+/* --- имя приложения ------------------------------------------------------- */
+
+.wordmark { display: flex; align-items: center; gap: 0.75rem; }
+
+.wordmark__glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.875rem;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: var(--lift-1);
+}
+
+.wordmark__text { display: flex; flex-direction: column; }
+.wordmark__name { font-size: var(--text-xl); font-weight: 700; letter-spacing: -0.02em; }
+.wordmark__tag { font-size: var(--text-sm); color: var(--ink-2); }
+
+/* --- диалог --------------------------------------------------------------- */
+/* Реплики показываются по одной, каждая со своим портретом. Раньше весь обмен
+   стоял под портретом первого говорящего — выходило, что человек отвечает
+   сам себе. */
+
+.dialogue { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+
+.dialogue__line { display: flex; gap: 0.75rem; align-items: flex-start; }
+.dialogue__line + .dialogue__line {
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.dialogue__body { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 0.25rem; }
+.dialogue__who { font-size: var(--text-sm); font-weight: 650; color: var(--ink-2); }
+.dialogue__say { display: flex; align-items: flex-start; gap: 0.5rem; }
+.dialogue__say .t-kz { flex: 1; min-width: 0; }

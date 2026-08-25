@@ -9,7 +9,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
  */
 const config: CapacitorConfig = {
   appId: 'kz.grammarquest.app',
-  appName: 'GrammarQuest',
+  appName: 'Тілашар',
   webDir: 'dist',
 
   android: {

@@ -170,7 +170,7 @@ export function useAppState() {
   const exportCsv = useCallback(() => {
     setState(s => {
       const csv = eventsToCsv(s.events, s.settings.participantId);
-      downloadCsv(`grammarquest-${todayISO()}.csv`, csv);
+      downloadCsv(`tilashar-${todayISO()}.csv`, csv);
       return s;
     });
   }, []);

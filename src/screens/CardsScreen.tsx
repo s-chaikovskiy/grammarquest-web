@@ -5,6 +5,7 @@ import { playCorrectSound, playWrongSound, playClickSound } from '../utils/sound
 import { plural } from '../utils/helpers';
 import { vocabulary } from '../data';
 import type { VocabWord } from '../types';
+import ScreenHeader from '../components/ScreenHeader';
 
 const DECK_SIZE = 15;
 
@@ -68,7 +69,7 @@ export default function CardsScreen() {
     return (
       <div className="page">
         <div className="shell stack">
-          <h1 className="t-head">Карточки</h1>
+          <ScreenHeader back={{ to: '/practice', label: 'Практика' }} home title="Карточки" />
           <p className="t-small">Слова появятся после первых уроков.</p>
           <button className="btn btn--primary btn--block" onClick={() => navigate('/learn')}>К урокам</button>
         </div>
@@ -79,11 +80,13 @@ export default function CardsScreen() {
   return (
     <div className="page">
       <div className="shell stack">
-        <header style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <button className="btn btn--quiet" onClick={() => navigate('/practice')} aria-label="Назад">←</button>
-          <h1 className="t-head" style={{ flex: 1 }}>Карточки</h1>
-          {!finished && <span className="t-small">{index + 1} / {deck.length}</span>}
-        </header>
+        <ScreenHeader
+          back={{ to: '/practice', label: 'Практика' }}
+          home
+          title="Карточки"
+          subtitle="Слово на казахском — вспомни перевод"
+          right={!finished && <span className="t-small">{index + 1} / {deck.length}</span>}
+        />
 
         {finished ? (
           <section className="panel panel--raised stack--tight">

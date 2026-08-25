@@ -41,14 +41,21 @@ export default function StatsScreen() {
   };
 
   return (
-    <div className="page">
-      <div className="shell stack">
+    <div className="stack">
         {/* Кнопки «назад» здесь нет: экран открывается из нижней панели,
             и возвращаться некуда — уход обратно делает та же панель. */}
         <header className="stack--tight">
           <h1 className="t-head">Профиль</h1>
           <p className="t-small">Прогресс, настройки и выгрузка данных</p>
         </header>
+
+        <button className="callout" onClick={() => navigate('/help')}>
+          <span>
+            <strong style={{ display: 'block' }}>Как устроено приложение</strong>
+            <span className="t-small">Где что лежит и по каким правилам считается ответ</span>
+          </span>
+          <span aria-hidden>→</span>
+        </button>
 
         {answered === 0 ? (
           <section className="panel panel--raised stack--tight">
@@ -224,7 +231,6 @@ export default function StatsScreen() {
             </>
           )}
         </section>
-      </div>
     </div>
   );
 }

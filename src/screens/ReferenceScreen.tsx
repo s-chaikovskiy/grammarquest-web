@@ -4,6 +4,7 @@ import { useApp } from '../hooks/useApp';
 
 import { loadReference } from '../data';
 import type { ReferenceTopic } from '../types';
+import ScreenHeader from '../components/ScreenHeader';
 
 export default function ReferenceScreen() {
   const navigate = useNavigate();
@@ -26,12 +27,12 @@ export default function ReferenceScreen() {
       : reference;
 
   return (
-    <div className="page">
-      <div className="shell stack">
-        <header style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <button className="btn btn--quiet" onClick={() => navigate('/reference')} aria-label="Назад к разделу «Правила»">←</button>
-          <h1 className="t-head">Справочник</h1>
-        </header>
+    <div className="stack">
+        <ScreenHeader
+          back={{ to: '/reference', label: 'Справка' }}
+          title="Темы курса"
+          subtitle="Темы курса с примерами"
+        />
 
         <div className="tabs" role="group" aria-label={'Категории'}>
           <button className={`tab${category === null ? ' tab--active' : ''}`} onClick={() => setCategory(null)}>Все</button>
@@ -106,7 +107,6 @@ export default function ReferenceScreen() {
             );
           })}
         </ul>
-      </div>
     </div>
   );
 }

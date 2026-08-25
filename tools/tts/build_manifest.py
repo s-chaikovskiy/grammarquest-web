@@ -39,13 +39,50 @@ def clean(text: str) -> str:
     return " ".join(text.replace("\n", " ").split()).strip()
 
 
+# Кто произносит реплику. Имя стоит в начале строки — так же, как их разбирает
+# само приложение (src/utils/helpers.ts, splitDialogue).
+SPEAKERS = {
+    "мұғалім": "teacher",
+    "учитель": "teacher",
+    "айша": "girl",
+    "дима": "boy",
+}
+
+
+def split_speaker(line: str, fallback: str) -> tuple[str, str]:
+    """Отделяет имя говорящего от самой реплики."""
+    head, sep, tail = line.partition(":")
+    name = head.strip().lower()
+    if sep and 2 <= len(head) <= 20 and name in SPEAKERS:
+        return SPEAKERS[name], tail.strip()
+    return fallback, line.strip()
+
+
+# Казахских нейроголосов у Azure ровно два. Женский — основной: им читаются
+# слова, ответы и реплики Айши. Мужской достаётся Диме и учителю, иначе в
+# диалоге двух собеседников не различить на слух.
+VOICE_BY_SPEAKER = {
+    "girl": "kk-KZ-AigulNeural",
+    "teacher": "kk-KZ-DauletNeural",
+    "boy": "kk-KZ-DauletNeural",
+}
+DEFAULT_VOICE = "kk-KZ-AigulNeural"
+
+
+def character_to_speaker(character: str) -> str:
+    return {
+        "AISHA": "girl", "GIRL": "girl",
+        "DIMA": "boy", "BOY": "boy",
+    }.get((character or "").upper(), "teacher")
+
+
 def main():
     lessons = json.loads(LESSONS.read_text(encoding="utf-8"))["lessons"]
     vocab = json.loads(VOCAB.read_text(encoding="utf-8"))["words"]
 
     entries: dict[str, dict] = {}
 
-    def add(text: str, kind: str, priority: int, ru: str = ""):
+    def add(text: str, kind: str, priority: int, ru: str = "", speaker: str = "girl"):
         text = clean(text)
         if not text or len(text) > MAX_CHARS:
             return
@@ -58,16 +95,34 @@ def main():
             # Приоритет берём самый высокий из встретившихся.
             existing["priority"] = min(existing["priority"], priority)
             return
-        entries[key] = {"id": key, "text": text, "ru": clean(ru), "kind": kind, "priority": priority}
+        entries[key] = {
+            "id": key,
+            "text": text,
+            "ru": clean(ru),
+            "kind": kind,
+            "priority": priority,
+            "speaker": speaker,
+            "voice": VOICE_BY_SPEAKER.get(speaker, DEFAULT_VOICE),
+        }
 
     for word in vocab:
-        add(word["kz"], "word", 1, word["ru"])
+        add(word["kz"], "word", 1, word["ru"], speaker="girl")
 
     for lesson in lessons:
         for step in lesson["steps"]:
             if "/" not in step["answerKz"]:
-                add(step["answerKz"], "answer", 2, step["answerRu"])
-            add(step["dialogueKz"], "dialogue", 3, step["dialogueRu"])
+                add(step["answerKz"], "answer", 2, step["answerRu"], speaker="girl")
+            # Диалог — это обмен репликами, и приложение показывает их по одной.
+            # Записываем так же построчно: иначе кнопка «послушать» рядом с
+            # репликой не найдёт файл, а в одной записи звучали бы оба
+            # собеседника подряд одним голосом.
+            fallback = character_to_speaker(lesson.get("character", ""))
+            kz_lines = [x for x in step["dialogueKz"].split("\n") if x.strip()]
+            ru_lines = [x for x in step["dialogueRu"].split("\n") if x.strip()]
+            for i, raw in enumerate(kz_lines):
+                who, line = split_speaker(raw, fallback)
+                _, line_ru = split_speaker(ru_lines[i], fallback) if i < len(ru_lines) else ("", "")
+                add(line, "dialogue", 3, line_ru, speaker=who)
 
     items = sorted(entries.values(), key=lambda e: (e["priority"], e["text"]))
 
@@ -113,8 +168,9 @@ def main():
         group = [e for e in items if e["kind"] == kind]
         if not group:
             continue
-        lines += [f"## {label} ({len(group)})", "", "| Имя файла | Текст | Перевод |", "|---|---|---|"]
-        lines += [f"| `{e['id']}.mp3` | {e['text']} | {e['ru']} |" for e in group]
+        lines += [f"## {label} ({len(group)})", "", "| Имя файла | Кто говорит | Текст | Перевод |", "|---|---|---|---|"]
+        who_ru = {"girl": "Айша", "boy": "Дима", "teacher": "Учитель"}
+        lines += [f"| `{e['id']}.mp3` | {who_ru.get(e['speaker'], '—')} | {e['text']} | {e['ru']} |" for e in group]
         lines.append("")
     PHRASES.write_text("\n".join(lines), encoding="utf-8")
     print(f"\nСписок для записи голосом: {PHRASES.relative_to(ROOT)}")

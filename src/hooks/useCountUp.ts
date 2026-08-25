@@ -14,10 +14,16 @@ export function useCountUp(target: number, duration = 550): number {
   const frame = useRef(0);
 
   useEffect(() => {
+    const finish = () => { from.current = target; setValue(target); };
+
+    // Скрытая вкладка не получает кадров анимации вовсе. Число, показанное
+    // через requestAnimationFrame, застревало на прежнем значении: ученик
+    // отвечал верно, а счётчик оставался нулевым, пока вкладка не вернётся
+    // на передний план. Показанное значение не должно зависеть от того,
+    // доиграла ли анимация.
     const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    if (reduced || from.current === target) {
-      from.current = target;
-      setValue(target);
+    if (reduced || from.current === target || document.hidden) {
+      finish();
       return;
     }
 
@@ -35,7 +41,15 @@ export function useCountUp(target: number, duration = 550): number {
     };
 
     frame.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame.current);
+
+    // Страховка на случай, если кадры так и не пришли: по истечении времени
+    // анимации значение выставляется напрямую.
+    const guard = setTimeout(finish, duration + 100);
+
+    return () => {
+      cancelAnimationFrame(frame.current);
+      clearTimeout(guard);
+    };
   }, [target, duration]);
 
   return value;

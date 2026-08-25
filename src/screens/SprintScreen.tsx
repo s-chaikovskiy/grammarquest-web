@@ -6,6 +6,7 @@ import { foldKazakh } from '../utils/answer';
 import { plural } from '../utils/helpers';
 import { vocabulary } from '../data';
 import type { VocabWord } from '../types';
+import ScreenHeader from '../components/ScreenHeader';
 
 const DURATION = 60;
 const OPTIONS = 4;
@@ -124,15 +125,17 @@ export default function SprintScreen() {
   return (
     <div className={`page sprint${flash ? ` sprint--${flash}` : ''}`}>
       <div className="shell stack">
-        <header style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <button className="btn btn--quiet" onClick={() => navigate('/practice')} aria-label="Назад">←</button>
-          <h1 className="t-head" style={{ flex: 1 }}>Спринт</h1>
-          {phase === 'run' && (
+        <ScreenHeader
+          back={{ to: '/practice', label: 'Практика' }}
+          home
+          title="Спринт"
+          subtitle="Шестьдесят секунд на скорость"
+          right={phase === 'run' && (
             <span className="sprint__timer" style={{ color: left <= 10 ? 'var(--error)' : undefined }}>
               {left}
             </span>
           )}
-        </header>
+        />
 
         {phase === 'intro' && (
           <section className="panel panel--raised stack--tight">

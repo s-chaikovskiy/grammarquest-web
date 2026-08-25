@@ -2,13 +2,14 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../hooks/useApp';
 import { useCountUp } from '../hooks/useCountUp';
-import { getCharacterSvgName, speakerOf, speakerName } from '../utils/helpers';
+import { getCharacterSvgName, splitDialogue } from '../utils/helpers';
 import { playCorrectSound, playWrongSound, playClickSound } from '../utils/sounds';
 import { fireSuccess } from '../utils/confetti';
 import Character from '../components/Character';
 import Celebration from '../components/Celebration';
 import SpeakButton from '../components/SpeakButton';
 import TaskInput, { type TaskResult } from '../components/TaskInput';
+import ScreenHeader from '../components/ScreenHeader';
 import { getLessonById } from '../data';
 import type { Step } from '../types';
 import type { Verdict } from '../utils/answer';
@@ -52,6 +53,8 @@ export default function LessonScreen() {
   /** Шаги, где ученик ошибся: из них собирается разбор в конце урока. */
   const [mistakes, setMistakes] = useState<{ stepIndex: number; given: string }[]>([]);
   const taskShownAt = useRef<number>(Date.now());
+  /** Показывать ли подтверждение выхода из начатого урока. */
+  const [confirmLeave, setConfirmLeave] = useState(false);
   /** Короткая подсветка счётчика в момент начисления. */
   const [bumpXp, setBumpXp] = useState(false);
   useEffect(() => {
@@ -76,6 +79,11 @@ export default function LessonScreen() {
       lastPlayed: new Date().toISOString(),
     });
   }, [lesson, updateProgress]);
+
+  /* Счётчик XP объявлен до раннего возврата намеренно: хук нельзя вызывать
+     после условия. Раньше он стоял ниже, и переход с несуществующего урока
+     на существующий менял число хуков между рендерами — экран падал в белое. */
+  const shownXp = useCountUp(tally.xp);
 
   if (!lesson) {
     return (
@@ -192,54 +200,73 @@ export default function LessonScreen() {
   };
 
   const answered = stepIndex + (phase === 'verdict' || phase === 'summary' ? 1 : 0);
-  const shownXp = useCountUp(tally.xp);
 
   return (
     <div className="page">
       <div className="shell stack">
-        <header className="stack--tight">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <button
-              className="btn btn--quiet"
-              onClick={() => { playClickSound(); navigate('/learn'); }}
-              aria-label="Назад"
-            >
-              ←
-            </button>
-            <div style={{ flex: 1 }}>
-              <p className="t-small">
-                {'Шаг'} {Math.min(stepIndex + 1, total)} / {total}
-              </p>
+        <ScreenHeader
+          back={{ to: '/learn', label: 'К урокам' }}
+          right={
+            <>
+              <span className="t-small">Шаг {Math.min(stepIndex + 1, total)} / {total}</span>
+              <span className={`meta meta--gold${bumpXp ? ' meta--bump' : ''}`}>{shownXp} XP</span>
+            </>
+          }
+          // Уход из начатого урока стоит потерянных ответов, поэтому спрашиваем.
+          // На итоговом экране спрашивать не о чем — урок уже засчитан.
+          onLeave={() => {
+            // Спрашиваем только если есть что терять: до первого ответа и на
+            // итоговом экране уход ничего не стоит, и лишний вопрос раздражает.
+            const given = tally.correct + tally.almost + tally.wrong;
+            if (phase === 'summary' || given === 0) return true;
+            setConfirmLeave(true);
+            return false;
+          }}
+        />
+
+        <div
+          className="progress"
+          role="progressbar"
+          aria-valuenow={answered}
+          aria-valuemin={0}
+          aria-valuemax={total}
+        >
+          <div className="progress__fill" style={{ width: `${(answered / total) * 100}%` }} />
+        </div>
+
+        {confirmLeave && (
+          <section className="panel panel--raised stack--tight" role="alertdialog" aria-label="Выйти из урока">
+            <strong>Выйти из урока?</strong>
+            <p className="t-small">
+              Ответы этого захода не сохранятся — урок начнётся сначала.
+              Уже пройденные уроки останутся на месте.
+            </p>
+            <div className="task__actions">
+              <button className="btn btn--ghost" onClick={() => setConfirmLeave(false)}>Остаться</button>
+              <button className="btn btn--primary" onClick={() => { playClickSound(); navigate('/learn'); }}>Выйти</button>
             </div>
-            <span className={`meta meta--gold${bumpXp ? ' meta--bump' : ''}`}>{shownXp} XP</span>
-          </div>
-          <div
-            className="progress"
-            role="progressbar"
-            aria-valuenow={answered}
-            aria-valuemin={0}
-            aria-valuemax={total}
-          >
-            <div className="progress__fill" style={{ width: `${(answered / total) * 100}%` }} />
-          </div>
-        </header>
+          </section>
+        )}
 
         <PhaseSwitch phase={phase}>
           {phase === 'dialogue' && (
             <Fade key="dialogue">
-              <section className="panel panel--raised stack--tight">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <Character name={speakerOf(step.dialogueKz, lesson.character)} size={44} />
-                  <span className="t-small" style={{ fontWeight: 600 }}>
-                    {speakerName(step.dialogueKz, lesson.character)}
-                  </span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.625rem' }}>
-                  <p className="t-kz" style={{ whiteSpace: 'pre-line', flex: 1 }}>{step.dialogueKz}</p>
-                  <SpeakButton text={step.dialogueKz} label="Послушать реплику" />
-                </div>
-                <hr className="divider" />
-                <p className="t-ru" style={{ whiteSpace: 'pre-line' }}>{step.dialogueRu}</p>
+              <section className="panel panel--raised">
+                <ul className="dialogue">
+                  {splitDialogue(step.dialogueKz, step.dialogueRu, lesson.character).map((line, i) => (
+                    <li key={i} className="dialogue__line">
+                      <Character name={line.who} size={40} />
+                      <div className="dialogue__body">
+                        <span className="dialogue__who">{line.name}</span>
+                        <div className="dialogue__say">
+                          <p className="t-kz">{line.kz}</p>
+                          <SpeakButton text={line.kz} label={`Послушать: ${line.name}`} />
+                        </div>
+                        {line.ru && <p className="t-ru">{line.ru}</p>}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
               </section>
               <button className="btn btn--primary btn--block" onClick={() => { playClickSound(); setPhase('grammar'); }}>К правилу</button>
             </Fade>

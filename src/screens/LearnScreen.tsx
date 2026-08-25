@@ -81,7 +81,8 @@ export default function LearnScreen() {
           <span>
             <strong style={{ display: 'block' }}>Пора повторить</strong>
             <span className="t-small">
-              {due.length} {plural(due.length, 'задание', 'задания', 'заданий')} ждут с прошлых уроков
+              {due.length} {plural(due.length, 'задание', 'задания', 'заданий')}{' '}
+              {plural(due.length, 'ждёт', 'ждут', 'ждут')} с прошлых уроков
             </span>
           </span>
           <span aria-hidden>→</span>

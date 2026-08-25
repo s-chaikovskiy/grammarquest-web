@@ -108,7 +108,7 @@ export default function DictionaryScreen() {
                   <button
                     type="button"
                     className="btn btn--quiet"
-                    style={{ minHeight: '2rem', padding: '0.25rem 0.5rem', fontSize: 'var(--text-sm)' }}
+                    style={{ minHeight: '2.75rem', padding: '0.25rem 0.5rem', fontSize: 'var(--text-sm)' }}
                     onClick={() => navigate(`/lesson/${word.lessons[0].lessonId}`)}
                   >
                     к уроку →

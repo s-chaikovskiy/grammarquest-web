@@ -33,10 +33,18 @@ export default function WelcomeScreen() {
           <div ref={tilt} className="tilt" style={{ width: 'fit-content' }}>
             <Character name="girl" size={88} />
           </div>
-          <h1 className="t-title">Қазақ тілі</h1>
+          {/* Имя приложения объяснено прямо здесь: «тіл» — язык, «ашар» — откроет.
+              Название, которое надо гуглить, работает против продукта. */}
+          <h1 className="wordmark">
+            <span className="wordmark__glyph" aria-hidden>қ</span>
+            <span className="wordmark__text">
+              <span className="wordmark__name">Тілашар</span>
+              <span className="wordmark__tag">Казахский язык — шаг за шагом</span>
+            </span>
+          </h1>
           <p className="t-body prose t-mut">
-            Тренажёр казахского языка для тех, кто говорит по-русски.
-            Диалог, правило, задание — и разбор каждой ошибки.
+            «Тіл» — язык, «ашар» — откроет. Тілашар учит казахскому тех,
+            кто говорит по-русски: диалог, правило, задание — и разбор каждой ошибки.
           </p>
         </header>
 
@@ -65,9 +73,17 @@ export default function WelcomeScreen() {
           </section>
         )}
 
-        <button className="btn btn--primary btn--block" onClick={start}>
-          {started ? 'Продолжить' : 'Начать'}
-        </button>
+        <div className="stack--tight">
+          <button className="btn btn--primary btn--block" onClick={start}>
+            {started ? 'Продолжить' : 'Начать'}
+          </button>
+          <button
+            className="btn btn--ghost btn--block"
+            onClick={() => { playClickSound(); navigate('/help'); }}
+          >
+            Как это работает
+          </button>
+        </div>
       </div>
     </div>
   );
