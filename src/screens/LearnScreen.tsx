@@ -1,6 +1,5 @@
 import { useMemo, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useApp } from '../hooks/useApp';
 import { playClickSound } from '../utils/sounds';
 import { plural } from '../utils/helpers';
@@ -106,18 +105,16 @@ export default function LearnScreen() {
                   // Смещение по горизонтали делает дорожку дорожкой, а не столбцом.
                   style={{ marginLeft: `${(idx % 3) * 1.75}rem` }}
                 >
-                  <motion.button
+                  <button
                     type="button"
                     className="node__dot"
-                    whileTap={{ scale: 0.94 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                     onClick={() => { playClickSound(); navigate(`/lesson/${lesson.id}`); }}
                     aria-label={`${lesson.shortRu}, ${st === 'done' ? 'пройден' : st === 'current' ? 'следующий' : 'ещё не начат'}`}
                   >
                     {/* Пройденный — галочка, текущий — звезда, остальные — номер.
                         Пустой кружок читался как незагрузившийся элемент. */}
                     {st === 'done' ? '✓' : st === 'current' ? '★' : idx + 1}
-                  </motion.button>
+                  </button>
                   <div className="node__body">
                     <button
                       type="button"

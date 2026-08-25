@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../hooks/useApp';
 import { playCorrectSound, playWrongSound, playClickSound } from '../utils/sounds';
 import { foldKazakh } from '../utils/answer';
@@ -167,18 +166,13 @@ export default function SprintScreen() {
               {streak >= 3 && <span className="pill pill--warn">{streak} подряд</span>}
             </div>
 
-            <AnimatePresence mode="popLayout">
-              <motion.p
+                          <p
                 key={round.word.kz}
-                className="sprint__word"
-                initial={{ y: 8 }}
-                animate={{ y: 0 }}
-                transition={{ duration: 0.14, ease: [0.25, 1, 0.5, 1] }}
+                className="sprint__word rise"
               >
                 {round.word.kz}
-              </motion.p>
-            </AnimatePresence>
-
+              </p>
+      
             <div className="options">
               {round.options.map(option => (
                 <button key={option} type="button" className="option" onClick={() => pick(option)}>

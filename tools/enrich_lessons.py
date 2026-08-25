@@ -379,6 +379,10 @@ def build_vocabulary(data):
             ru = step["answerRu"].strip().rstrip(".")
             if not (1 <= len(kz.split()) <= 3) or "/" in kz:
                 continue
+            # Цифры — не словарные слова: карточка «10 → десять» ничему не учит,
+            # учить надо казахское «он».
+            if not any(ch.isalpha() for ch in kz):
+                continue
             key = fold(kz)
             entry = entries.setdefault(key, {
                 "kz": kz, "ru": ru,

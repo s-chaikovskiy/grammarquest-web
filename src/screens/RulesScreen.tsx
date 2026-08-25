@@ -32,7 +32,7 @@ export default function RulesScreen() {
     <div className="page">
       <div className="shell stack">
         <header style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <button className="btn btn--quiet" onClick={() => navigate('/learn')} aria-label={'Назад'}>←</button>
+          <button className="btn btn--quiet" onClick={() => navigate('/reference')} aria-label="Назад к разделу «Правила»">←</button>
           <h1 className="t-head">Правила</h1>
         </header>
 

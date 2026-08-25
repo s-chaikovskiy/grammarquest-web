@@ -1,6 +1,5 @@
 import { useState, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useApp } from '../hooks/useApp';
 import { pluralize } from '../utils/helpers';
 import { playCorrectSound, playWrongSound, playClickSound } from '../utils/sounds';
@@ -105,12 +104,9 @@ export default function ReviewScreen() {
               )}
 
               {result && step && (
-                <motion.div
+                <div
                   key={`${card.id}-verdict`}
-                  className="stack"
-                  initial={{ y: 10 }}
-                  animate={{ y: 0 }}
-                  transition={{ duration: 0.2, ease: [0.25, 1, 0.5, 1] }}
+                  className="stack rise"
                 >
                   <section className={`verdict ${result.verdict === 'wrong' ? 'verdict--no' : 'verdict--ok'}`}>
                     <span className="verdict__title">
@@ -128,7 +124,7 @@ export default function ReviewScreen() {
                   <button className="btn btn--primary btn--block" onClick={next}>
                     {position + 1 >= queue.length ? 'Итоги' : 'Дальше'}
                   </button>
-                </motion.div>
+                </div>
               )}
             </>
           </>

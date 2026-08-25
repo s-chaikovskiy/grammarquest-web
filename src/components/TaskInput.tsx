@@ -1,5 +1,4 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import type { Step } from '../types';
 import type { Verdict } from '../utils/answer';
 import { checkAnswerDetailed, openAnswerOverlap, foldKazakh, normalizeAnswer } from '../utils/answer';
@@ -32,12 +31,7 @@ export default function TaskInput({ step, onSubmit, onSkip, instantCheck = true 
   const common = { step, onSubmit };
 
   return (
-    <motion.div
-      initial={{ y: 12 }}
-      animate={{ y: 0 }}
-      transition={{ type: 'spring', damping: 26, stiffness: 220 }}
-      className="task"
-    >
+    <div className="task rise">
       <div className="task__badge">{taskLabel(type)}</div>
 
       {type === 'choice' && <ChoiceTask key={step.answerKz} {...common} instant={instantCheck} />}
@@ -49,7 +43,7 @@ export default function TaskInput({ step, onSubmit, onSkip, instantCheck = true 
       )}
 
       <button type="button" className="btn btn--ghost task__skip" onClick={onSkip}>Пропустить</button>
-    </motion.div>
+    </div>
   );
 }
 
@@ -210,7 +204,16 @@ function ChoiceTask({ step, onSubmit, instant }: {
     setPicked(option);
     if (!instant) return;
     setLocked(true);
-    setTimeout(() => send(option), 180);
+    // Пауза даёт увидеть, какой вариант был верным, до перехода к разбору.
+    setTimeout(() => send(option), 480);
+  };
+
+  /** После ответа верный вариант подсвечивается зелёным, ошибочный — красным. */
+  const optionClass = (option: string) => {
+    if (!locked) return picked === option ? ' option--picked' : '';
+    const isRight = checkAnswerDetailed(option, step.answerKz).accepted;
+    if (isRight) return ' option--right';
+    return picked === option ? ' option--wrong' : '';
   };
 
   return (
@@ -223,8 +226,8 @@ function ChoiceTask({ step, onSubmit, instant }: {
             type="button"
             role="radio"
             aria-checked={picked === option}
-            disabled={locked && picked !== option}
-            className={`option${picked === option ? ' option--picked' : ''}`}
+            disabled={locked}
+            className={`option${optionClass(option)}`}
             onClick={() => choose(option)}
           >
             {option}

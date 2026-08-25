@@ -1,11 +1,12 @@
-import { useState, useRef, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../hooks/useApp';
-import { getCharacterName, getCharacterSvgName } from '../utils/helpers';
+import { useCountUp } from '../hooks/useCountUp';
+import { getCharacterSvgName, speakerOf, speakerName } from '../utils/helpers';
 import { playCorrectSound, playWrongSound, playClickSound } from '../utils/sounds';
 import { fireSuccess } from '../utils/confetti';
 import Character from '../components/Character';
+import SpeakButton from '../components/SpeakButton';
 import TaskInput, { type TaskResult } from '../components/TaskInput';
 import { getLessonById } from '../data';
 import type { Step } from '../types';
@@ -50,6 +51,15 @@ export default function LessonScreen() {
   /** Шаги, где ученик ошибся: из них собирается разбор в конце урока. */
   const [mistakes, setMistakes] = useState<{ stepIndex: number; given: string }[]>([]);
   const taskShownAt = useRef<number>(Date.now());
+  /** Короткая подсветка счётчика в момент начисления. */
+  const [bumpXp, setBumpXp] = useState(false);
+  useEffect(() => {
+    if (tally.xp === 0) return;
+    setBumpXp(true);
+    const t = setTimeout(() => setBumpXp(false), 450);
+    return () => clearTimeout(t);
+  }, [tally.xp]);
+
   /** Очередь повторного прохода по ошибкам; пустая — идёт обычный урок. */
   const [redoQueue, setRedoQueue] = useState<number[]>([]);
   const [redoPos, setRedoPos] = useState(0);
@@ -181,6 +191,7 @@ export default function LessonScreen() {
   };
 
   const answered = stepIndex + (phase === 'verdict' || phase === 'summary' ? 1 : 0);
+  const shownXp = useCountUp(tally.xp);
 
   return (
     <div className="page">
@@ -199,7 +210,7 @@ export default function LessonScreen() {
                 {'Шаг'} {Math.min(stepIndex + 1, total)} / {total}
               </p>
             </div>
-            <span className="meta meta--gold">{tally.xp} XP</span>
+            <span className={`meta meta--gold${bumpXp ? ' meta--bump' : ''}`}>{shownXp} XP</span>
           </div>
           <div
             className="progress"
@@ -217,12 +228,15 @@ export default function LessonScreen() {
             <Fade key="dialogue">
               <section className="panel panel--raised stack--tight">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <Character name={getCharacterSvgName(lesson.character)} size={44} />
+                  <Character name={speakerOf(step.dialogueKz, lesson.character)} size={44} />
                   <span className="t-small" style={{ fontWeight: 600 }}>
-                    {getCharacterName(lesson.character)}
+                    {speakerName(step.dialogueKz, lesson.character)}
                   </span>
                 </div>
-                <p className="t-kz" style={{ whiteSpace: 'pre-line' }}>{step.dialogueKz}</p>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.625rem' }}>
+                  <p className="t-kz" style={{ whiteSpace: 'pre-line', flex: 1 }}>{step.dialogueKz}</p>
+                  <SpeakButton text={step.dialogueKz} label="Послушать реплику" />
+                </div>
                 <hr className="divider" />
                 <p className="t-ru" style={{ whiteSpace: 'pre-line' }}>{step.dialogueRu}</p>
               </section>
@@ -260,7 +274,17 @@ export default function LessonScreen() {
           {phase === 'verdict' && result && (
             <Fade key="verdict">
               <section className={`verdict ${result.verdict === 'wrong' ? 'verdict--no' : 'verdict--ok'}`}>
-                <span className="verdict__title">{verdictTitle(result.verdict)}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  {/* Персонаж меняет позу в зависимости от результата: одобрение
+                      или «обрати внимание». Реакция живого собеседника читается
+                      быстрее, чем цвет рамки. */}
+                  <Character
+                    name={getCharacterSvgName(lesson.character)}
+                    size={48}
+                    emotion={result.verdict === 'wrong' ? 'finger_up' : 'like'}
+                  />
+                  <span className="verdict__title">{verdictTitle(result.verdict)}</span>
+                </div>
 
                 {result.verdict !== 'correct' && (
                   <div>
@@ -271,7 +295,10 @@ export default function LessonScreen() {
                         <span className="morph__suffix">{morph.suffix}</span>
                       </p>
                     ) : (
-                      <p className="verdict__answer">{step.answerKz}</p>
+                      <p className="verdict__answer" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        {step.answerKz}
+                        <SpeakButton text={step.answerKz} label="Послушать ответ" />
+                      </p>
                     )}
                     <p className="t-ru">{step.answerRu}</p>
                   </div>
@@ -372,15 +399,12 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
  */
 function PhaseSwitch({ phase, children }: { phase: string; children: React.ReactNode }) {
   return (
-    <motion.div
+    <div
       key={phase}
-      className="stack"
-      initial={{ y: 10 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.2, ease: [0.25, 1, 0.5, 1] }}
+      className="stack rise"
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 

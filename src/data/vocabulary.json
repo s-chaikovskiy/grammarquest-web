@@ -2,28 +2,11 @@
  "version": 1,
  "words": [
   {
-   "kz": "10",
-   "ru": "десять",
-   "level": 1,
-   "unit": "Первые слова",
-   "lessons": [
-    {
-     "lessonId": "kz_base_02_sandar",
-     "stepIndex": 1
-    }
-   ]
-  },
-  {
    "kz": "3",
    "ru": "три",
    "level": 1,
    "unit": "Первые слова",
-   "lessons": [
-    {
-     "lessonId": "kz_base_02_sandar",
-     "stepIndex": 0
-    }
-   ]
+   "lessons": []
   },
   {
    "kz": "ағамыз",

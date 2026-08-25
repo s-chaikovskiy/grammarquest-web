@@ -1,6 +1,5 @@
 import { useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../hooks/useApp';
 import { playCorrectSound, playWrongSound, playClickSound } from '../utils/sounds';
 import { plural } from '../utils/helpers';
@@ -36,6 +35,7 @@ export default function CardsScreen() {
 
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
+  const [flipping, setFlipping] = useState(false);
   const [tally, setTally] = useState({ knew: 0, forgot: 0 });
   const shownAt = useRef(Date.now());
 
@@ -59,6 +59,7 @@ export default function CardsScreen() {
     setTally(t => ({ knew: t.knew + (knew ? 1 : 0), forgot: t.forgot + (knew ? 0 : 1) }));
     knew ? playCorrectSound() : playWrongSound();
     setFlipped(false);
+    setFlipping(false);
     shownAt.current = Date.now();
     setIndex(i => i + 1);
   };
@@ -108,27 +109,26 @@ export default function CardsScreen() {
 
             <button
               type="button"
-              className="flashcard"
-              onClick={() => { if (!flipped) { playClickSound(); setFlipped(true); } }}
+              className={`flashcard${flipping ? ' flashcard--flipping' : ''}`}
+              onClick={() => {
+                if (flipped) return;
+                playClickSound();
+                setFlipping(true);
+                // Перевод показывается на середине переворота — как у настоящей карточки.
+                setTimeout(() => setFlipped(true), 210);
+                setTimeout(() => setFlipping(false), 430);
+              }}
               aria-live="polite"
             >
               <span className="flashcard__kz">{word.kz}</span>
-              <AnimatePresence mode="wait">
-                {flipped ? (
-                  <motion.span
-                    key="ru"
-                    className="flashcard__ru"
-                    initial={{ y: 6 }}
-                    animate={{ y: 0 }}
-                    transition={{ duration: 0.18, ease: [0.25, 1, 0.5, 1] }}
-                  >
+                              {flipped ? (
+                  <span key="ru" className="flashcard__ru rise">
                     {word.ru}
-                  </motion.span>
+                  </span>
                 ) : (
                   <span key="hint" className="flashcard__hint">нажми, чтобы проверить</span>
                 )}
-              </AnimatePresence>
-              <span className="t-small">{word.unit}</span>
+                      <span className="t-small">{word.unit}</span>
             </button>
 
             {flipped && (

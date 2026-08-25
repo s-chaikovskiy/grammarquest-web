@@ -866,3 +866,117 @@ p { text-wrap: pretty; }
 }
 .switch input { margin-top: 0.25rem; width: 1.125rem; height: 1.125rem; accent-color: var(--accent); flex-shrink: 0; }
 .switch > span { display: flex; flex-direction: column; gap: 0.125rem; }
+
+/* --- реакция на ответ ------------------------------------------------------
+   Две анимации на самый важный момент занятия. Верный ответ подпрыгивает,
+   неверный коротко вздрагивает — движение говорит о результате раньше,
+   чем ученик успевает прочитать текст. */
+
+@keyframes verdict-pop {
+  0% { transform: scale(0.94); }
+  55% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+@keyframes verdict-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-7px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(2px); }
+}
+
+.verdict--ok { animation: verdict-pop 380ms var(--ease-out-quart); }
+.verdict--no { animation: verdict-shake 420ms var(--ease-out-quart); }
+
+/* Галочка на пройденном узле прорисовывается, а не появляется готовой. */
+@keyframes check-in {
+  from { transform: scale(0.5) rotate(-12deg); opacity: 0; }
+  to { transform: scale(1) rotate(0); opacity: 1; }
+}
+.node--done .node__dot { animation: check-in 320ms var(--ease-out-quart); }
+
+/* Варианты ответа появляются по очереди: взгляд успевает пройти по списку
+   сверху вниз, а не хватает все четыре разом. */
+@keyframes option-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.options .option {
+  animation: option-in 260ms var(--ease-out-quart) backwards;
+}
+.options .option:nth-child(1) { animation-delay: 0ms; }
+.options .option:nth-child(2) { animation-delay: 45ms; }
+.options .option:nth-child(3) { animation-delay: 90ms; }
+.options .option:nth-child(4) { animation-delay: 135ms; }
+
+/* Правильный и неправильный варианты после проверки. */
+.option--right { border-color: var(--success); background: var(--success-wash); color: var(--success); }
+.option--wrong { border-color: var(--error); background: var(--error-wash); color: var(--error); }
+
+/* Счётчик XP подсвечивается в момент начисления. */
+@keyframes xp-bump {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+.meta--bump { animation: xp-bump 420ms var(--ease-out-quart); }
+
+/* Переворот карточки со словом — настоящий, с перспективой. */
+.flashcard { perspective: 900px; }
+@keyframes card-flip {
+  0% { transform: rotateX(0deg); }
+  50% { transform: rotateX(-84deg); }
+  100% { transform: rotateX(0deg); }
+}
+.flashcard--flipping { animation: card-flip 420ms var(--ease-out-quart); }
+
+@media (prefers-reduced-motion: reduce) {
+  .verdict--ok, .verdict--no, .node--done .node__dot,
+  .options .option, .meta--bump, .flashcard--flipping { animation: none; }
+}
+
+/* --- кнопка озвучки -------------------------------------------------------- */
+
+.speak {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--accent-ink);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out-quart),
+              border-color var(--dur-fast) var(--ease-out-quart);
+}
+.speak:hover { background: var(--accent-wash); border-color: var(--accent); }
+
+@keyframes speak-ping {
+  0% { box-shadow: 0 0 0 0 var(--accent-wash); }
+  100% { box-shadow: 0 0 0 10px transparent; }
+}
+.speak--playing { animation: speak-ping 600ms var(--ease-out-quart); }
+@media (prefers-reduced-motion: reduce) { .speak--playing { animation: none; } }
+
+/* --- появление блоков ------------------------------------------------------
+   Заменяет анимации из библиотеки: тот же короткий сдвиг, но средствами CSS.
+   Прозрачность не анимируется — содержимое видно, даже если анимация
+   не отработала. */
+
+@keyframes rise {
+  from { transform: translateY(10px); }
+  to { transform: translateY(0); }
+}
+.rise { animation: rise 200ms var(--ease-out-quart); }
+.rise--soft { animation: rise 260ms var(--ease-out-quart); }
+
+/* Нажатие на узел пути: отклик пальцу. */
+.node__dot:active { transform: scale(0.94); }
+
+@media (prefers-reduced-motion: reduce) {
+  .rise, .rise--soft { animation: none; }
+  .node__dot:active { transform: none; }
+}

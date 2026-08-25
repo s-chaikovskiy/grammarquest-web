@@ -4,6 +4,7 @@ import { useApp } from '../hooks/useApp';
 import { foldKazakh, normalizeAnswer } from '../utils/answer';
 import { plural } from '../utils/helpers';
 import { vocabulary, levels } from '../data';
+import SpeakButton from '../components/SpeakButton';
 import type { VocabWord } from '../types';
 
 /**
@@ -94,7 +95,10 @@ export default function DictionaryScreen() {
           {found.map(word => (
             <li key={word.kz} className="word">
               <div className="word__main">
-                <span className="word__kz">{word.kz}</span>
+                <span className="word__kz" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  {word.kz}
+                  <SpeakButton text={word.kz} label={`Послушать: ${word.kz}`} />
+                </span>
                 <span className="word__ru">{word.ru}</span>
               </div>
               <div className="word__meta">

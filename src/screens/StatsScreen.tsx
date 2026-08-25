@@ -43,9 +43,11 @@ export default function StatsScreen() {
   return (
     <div className="page">
       <div className="shell stack">
-        <header style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <button className="btn btn--quiet" onClick={() => navigate('/learn')} aria-label={'Назад'}>←</button>
-          <h1 className="t-head">Статистика</h1>
+        {/* Кнопки «назад» здесь нет: экран открывается из нижней панели,
+            и возвращаться некуда — уход обратно делает та же панель. */}
+        <header className="stack--tight">
+          <h1 className="t-head">Профиль</h1>
+          <p className="t-small">Прогресс, настройки и выгрузка данных</p>
         </header>
 
         {answered === 0 ? (

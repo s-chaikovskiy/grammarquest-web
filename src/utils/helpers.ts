@@ -64,3 +64,31 @@ export function plural(n: number, one: string, few: string, many: string): strin
 export function pluralize(n: number, one: string, few: string, many: string): string {
   return `${n} ${plural(n, one, few, many)}`;
 }
+
+/**
+ * Кто говорит в реплике.
+ *
+ * У урока есть общее поле character, но реплики принадлежат разным людям:
+ * урок может быть «за Диму», а первую фразу произносит учитель. Имя стоит
+ * в начале самой реплики, поэтому берём его оттуда, а поле урока оставляем
+ * как запасной вариант.
+ */
+const SPEAKERS: Record<string, 'teacher' | 'girl' | 'boy'> = {
+  'мұғалім': 'teacher',
+  'учитель': 'teacher',
+  'айша': 'girl',
+  'дима': 'boy',
+};
+
+export function speakerOf(dialogue: string, fallback: string): 'teacher' | 'girl' | 'boy' {
+  const match = dialogue.trimStart().match(/^([^:\n]{2,20}):/);
+  const name = match?.[1].trim().toLowerCase();
+  return (name && SPEAKERS[name]) || getCharacterSvgName(fallback);
+}
+
+/** Имя говорящего для подписи под портретом. */
+export function speakerName(dialogue: string, fallback: string): string {
+  const svg = speakerOf(dialogue, fallback);
+  return { teacher: 'Учитель', girl: 'Айша', boy: 'Дима' }[svg];
+}
+
