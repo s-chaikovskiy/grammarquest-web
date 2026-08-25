@@ -204,6 +204,12 @@ export default function LessonScreen() {
   return (
     <div className="page">
       <div className="shell stack">
+        {/* Название урока не показывается: место в шапке занято шагом и XP,
+            а во время задания заголовок только отвлекает. Но у экрана должен
+            быть заголовок первого уровня — иначе экранный диктор не может
+            назвать, где ученик находится. */}
+        <h1 className="sr-only">{lesson.titleRu} · {lesson.titleKz}</h1>
+
         <ScreenHeader
           back={{ to: '/learn', label: 'К урокам' }}
           right={
@@ -383,7 +389,7 @@ export default function LessonScreen() {
               })()}
 
               <section className="panel panel--raised stack--tight">
-                <h1 className="t-head">{lesson.titleRu}</h1>
+                <h2 className="t-head">{lesson.titleRu}</h2>
                 <p className="t-small">{lesson.titleKz}</p>
                 <hr className="divider" />
                 <dl className="stack--tight">
