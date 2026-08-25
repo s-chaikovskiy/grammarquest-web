@@ -22,7 +22,9 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          # Не ниже 22: @capacitor/cli объявляет engines >=22.0.0 и на Node 20
+          # падает при любом вызове — именно на этом ломались первые сборки.
+          node-version: '22'
           cache: npm
 
       - uses: actions/setup-java@v4
