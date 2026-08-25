@@ -53,6 +53,9 @@ export default function LearnScreen() {
   return (
     <div className="stack">
       <header className="stack--tight">
+        {/* Заголовок первого уровня: без него разметка страницы начиналась
+            сразу с H2, и экранный диктор не мог назвать, где находится. */}
+        <h1 className="t-head">{levels[String(level)].titleRu}</h1>
         <div className="tabs" role="group" aria-label="Уровень">
           {LEVEL_IDS.map(id => (
             <button

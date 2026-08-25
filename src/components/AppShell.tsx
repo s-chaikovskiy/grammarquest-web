@@ -31,6 +31,7 @@ export default function AppShell() {
       </div>
 
       <nav className="tabbar" aria-label="Разделы">
+        <div className="tabbar__inner">
         {TABS.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
@@ -51,6 +52,7 @@ export default function AppShell() {
             )}
           </NavLink>
         ))}
+        </div>
       </nav>
     </>
   );
