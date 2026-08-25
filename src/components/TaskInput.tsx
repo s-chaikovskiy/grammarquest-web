@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import type { Step } from '../types';
 import type { Verdict } from '../utils/answer';
 import { checkAnswerDetailed, openAnswerOverlap, foldKazakh, normalizeAnswer } from '../utils/answer';
-import { t } from '../utils/helpers';
+
 
 export interface TaskResult {
   verdict: Verdict;
@@ -15,9 +15,10 @@ export interface TaskResult {
 
 interface Props {
   step: Step;
-  lang: 'kz' | 'ru';
   onSubmit: (result: TaskResult) => void;
   onSkip: () => void;
+  /** Засчитывать выбор сразу, без кнопки «Проверить». */
+  instantCheck?: boolean;
 }
 
 /**
@@ -26,9 +27,9 @@ interface Props {
  * вызывался внутри условной функции рендера, и переключение типа задания
  * ломало порядок хуков.
  */
-export default function TaskInput({ step, lang, onSubmit, onSkip }: Props) {
+export default function TaskInput({ step, onSubmit, onSkip, instantCheck = true }: Props) {
   const type = step.taskType ?? 'input';
-  const common = { step, lang, onSubmit };
+  const common = { step, onSubmit };
 
   return (
     <motion.div
@@ -37,9 +38,9 @@ export default function TaskInput({ step, lang, onSubmit, onSkip }: Props) {
       transition={{ type: 'spring', damping: 26, stiffness: 220 }}
       className="task"
     >
-      <div className="task__badge">{taskLabel(type, lang)}</div>
+      <div className="task__badge">{taskLabel(type)}</div>
 
-      {type === 'choice' && <ChoiceTask key={step.answerKz} {...common} />}
+      {type === 'choice' && <ChoiceTask key={step.answerKz} {...common} instant={instantCheck} />}
       {type === 'matching' && <MatchingTask key={step.answerKz} {...common} />}
       {type === 'word_order' && <WordOrderTask key={step.answerKz} {...common} />}
       {type === 'open' && <OpenTask key={step.answerKz} {...common} />}
@@ -47,14 +48,12 @@ export default function TaskInput({ step, lang, onSubmit, onSkip }: Props) {
         <WrittenTask key={step.answerKz} {...common} type={type} />
       )}
 
-      <button type="button" className="btn btn--ghost task__skip" onClick={onSkip}>
-        {t('Өткізу', 'Пропустить', lang)}
-      </button>
+      <button type="button" className="btn btn--ghost task__skip" onClick={onSkip}>Пропустить</button>
     </motion.div>
   );
 }
 
-function taskLabel(type: string, lang: 'kz' | 'ru'): string {
+function taskLabel(type: string): string {
   const map: Record<string, [string, string]> = {
     choice: ['Дұрысын таңда', 'Выбери верную форму'],
     matching: ['Сәйкестендір', 'Сопоставь форму и перевод'],
@@ -65,16 +64,16 @@ function taskLabel(type: string, lang: 'kz' | 'ru'): string {
     input: ['Жауабыңды жаз', 'Напиши ответ'],
   };
   const pair = map[type] ?? map.input;
-  return t(pair[0], pair[1], lang);
+  return pair[1];
 }
 
 /** Формулировка задания: по-казахски, снизу русский как подсказка. */
-function Prompt({ step, lang }: { step: Step; lang: 'kz' | 'ru' }) {
+function Prompt({ step }: { step: Step }) {
   return (
     <div className="task__prompt">
       <p className="task__prompt-kz">{step.taskKz}</p>
       <p className="task__prompt-ru">
-        <span className="task__prompt-tag">{t('орысша', 'по-русски', lang)}</span>
+        <span className="task__prompt-tag">по-русски</span>
         {step.taskRu}
       </p>
     </div>
@@ -83,8 +82,8 @@ function Prompt({ step, lang }: { step: Step; lang: 'kz' | 'ru' }) {
 
 // --- письменные задания: свободный ввод, пропуск, перевод ---------------------
 
-function WrittenTask({ step, lang, onSubmit, type }: {
-  step: Step; lang: 'kz' | 'ru'; onSubmit: (r: TaskResult) => void; type: string;
+function WrittenTask({ step, onSubmit, type }: {
+  step: Step; onSubmit: (r: TaskResult) => void; type: string;
 }) {
   const [value, setValue] = useState('');
   const [hints, setHints] = useState(0);
@@ -116,12 +115,12 @@ function WrittenTask({ step, lang, onSubmit, type }: {
           </p>
           {step.blank.hint && (
             <p className="task__prompt-ru">
-              <span className="task__prompt-tag">{t('түбір', 'исходная форма', lang)}</span>
+              <span className="task__prompt-tag">исходная форма</span>
               {step.blank.hint}
             </p>
           )}
           <p className="task__prompt-ru">
-            <span className="task__prompt-tag">{t('орысша', 'по-русски', lang)}</span>
+            <span className="task__prompt-tag">по-русски</span>
             {step.taskRu}
           </p>
         </div>
@@ -129,12 +128,10 @@ function WrittenTask({ step, lang, onSubmit, type }: {
         <div className="task__prompt">
           <p className="task__prompt-kz">{step.prompt ?? step.answerRu}</p>
           <p className="task__prompt-ru">
-            <span className="task__prompt-tag">{t('нұсқау', 'задание', lang)}</span>
-            {t('Осы сөзді қазақша жаз', 'Напиши это по-казахски', lang)}
-          </p>
+            <span className="task__prompt-tag">задание</span>Напиши это по-казахски</p>
         </div>
       ) : (
-        <Prompt step={step} lang={lang} />
+        <Prompt step={step} />
       )}
 
       <input
@@ -144,14 +141,14 @@ function WrittenTask({ step, lang, onSubmit, type }: {
         value={value}
         onChange={e => setValue(e.target.value)}
         onKeyDown={e => e.key === 'Enter' && submit()}
-        placeholder={t('Жауабыңды жаз...', 'Напиши ответ...', lang)}
+        placeholder="Напиши ответ..."
         autoComplete="off"
         autoCorrect="off"
         spellCheck={false}
-        aria-label={t('Жауап өрісі', 'Поле ответа', lang)}
+        aria-label="Поле ответа"
       />
 
-      <KazakhKeys onInsert={ch => setValue(v => v + ch)} lang={lang} />
+      <KazakhKeys onInsert={ch => setValue(v => v + ch)} />
 
       <div className="task__actions">
         <button
@@ -160,12 +157,10 @@ function WrittenTask({ step, lang, onSubmit, type }: {
           onClick={() => setHints(h => Math.min(h + 1, answer.length - 1))}
           disabled={hints >= answer.length - 1}
         >
-          {t('Көмек', 'Подсказка', lang)}
+          Подсказка
           {hints > 0 && <span className="btn__hint">{revealed}…</span>}
         </button>
-        <button type="button" className="btn btn--primary" onClick={submit} disabled={!value.trim()}>
-          {t('Тексеру', 'Проверить', lang)}
-        </button>
+        <button type="button" className="btn btn--primary" onClick={submit} disabled={!value.trim()}>Проверить</button>
       </div>
     </>
   );
@@ -178,9 +173,9 @@ function WrittenTask({ step, lang, onSubmit, type }: {
  */
 const KZ_KEYS = ['ә', 'ғ', 'қ', 'ң', 'ө', 'ұ', 'ү', 'һ', 'і'];
 
-function KazakhKeys({ onInsert, lang }: { onInsert: (ch: string) => void; lang: 'kz' | 'ru' }) {
+function KazakhKeys({ onInsert }: { onInsert: (ch: string) => void }) {
   return (
-    <div className="kzkeys" role="group" aria-label={t('Қазақ әріптері', 'Казахские буквы', lang)}>
+    <div className="kzkeys" role="group" aria-label={'Казахские буквы'}>
       {KZ_KEYS.map(ch => (
         <button key={ch} type="button" className="kzkeys__key" onClick={() => onInsert(ch)} tabIndex={-1}>
           {ch}
@@ -192,19 +187,35 @@ function KazakhKeys({ onInsert, lang }: { onInsert: (ch: string) => void; lang: 
 
 // --- выбор из вариантов -------------------------------------------------------
 
-function ChoiceTask({ step, lang, onSubmit }: { step: Step; lang: 'kz' | 'ru'; onSubmit: (r: TaskResult) => void }) {
+function ChoiceTask({ step, onSubmit, instant }: {
+  step: Step; onSubmit: (r: TaskResult) => void; instant: boolean;
+}) {
   const [picked, setPicked] = useState<string | null>(null);
+  const [locked, setLocked] = useState(false);
   const options = step.options ?? [];
 
-  const submit = () => {
-    if (picked === null) return;
-    const res = checkAnswerDetailed(picked, step.answerKz);
-    onSubmit({ verdict: res.verdict, userAnswer: picked, hintsUsed: 0, note: res.note });
+  const send = (choice: string) => {
+    const res = checkAnswerDetailed(choice, step.answerKz);
+    onSubmit({ verdict: res.verdict, userAnswer: choice, hintsUsed: 0, note: res.note });
+  };
+
+  /**
+   * При мгновенной проверке ответ засчитывается по нажатию, без кнопки
+   * «Проверить»: чем короче путь между решением и обратной связью, тем лучше
+   * ученик связывает одно с другим. Небольшая задержка нужна, чтобы он успел
+   * увидеть, какой вариант выбрал.
+   */
+  const choose = (option: string) => {
+    if (locked) return;
+    setPicked(option);
+    if (!instant) return;
+    setLocked(true);
+    setTimeout(() => send(option), 180);
   };
 
   return (
     <>
-      <Prompt step={step} lang={lang} />
+      <Prompt step={step} />
       <div className="options" role="radiogroup">
         {options.map(option => (
           <button
@@ -212,25 +223,33 @@ function ChoiceTask({ step, lang, onSubmit }: { step: Step; lang: 'kz' | 'ru'; o
             type="button"
             role="radio"
             aria-checked={picked === option}
+            disabled={locked && picked !== option}
             className={`option${picked === option ? ' option--picked' : ''}`}
-            onClick={() => setPicked(option)}
+            onClick={() => choose(option)}
           >
             {option}
           </button>
         ))}
       </div>
-      <div className="task__actions">
-        <button type="button" className="btn btn--primary" onClick={submit} disabled={picked === null}>
-          {t('Тексеру', 'Проверить', lang)}
-        </button>
-      </div>
+      {!instant && (
+        <div className="task__actions">
+          <button
+            type="button"
+            className="btn btn--primary"
+            onClick={() => picked && send(picked)}
+            disabled={picked === null}
+          >
+            Проверить
+          </button>
+        </div>
+      )}
     </>
   );
 }
 
 // --- сопоставление ------------------------------------------------------------
 
-function MatchingTask({ step, lang, onSubmit }: { step: Step; lang: 'kz' | 'ru'; onSubmit: (r: TaskResult) => void }) {
+function MatchingTask({ step, onSubmit }: { step: Step; onSubmit: (r: TaskResult) => void }) {
   const pairs = step.pairs ?? [];
   const [selected, setSelected] = useState<string | null>(null);
   const [matches, setMatches] = useState<Record<string, string>>({});
@@ -269,7 +288,7 @@ function MatchingTask({ step, lang, onSubmit }: { step: Step; lang: 'kz' | 'ru';
   return (
     <>
       <div className="task__prompt">
-        <p className="task__prompt-kz">{t('Форманы аудармасымен сәйкестендір', 'Соедини форму с её переводом', lang)}</p>
+        <p className="task__prompt-kz">Соедини форму с её переводом</p>
       </div>
       <div className="match">
         <div className="match__col">
@@ -300,12 +319,8 @@ function MatchingTask({ step, lang, onSubmit }: { step: Step; lang: 'kz' | 'ru';
         </div>
       </div>
       <div className="task__actions">
-        <button type="button" className="btn btn--ghost" onClick={() => { setMatches({}); setSelected(null); }}>
-          {t('Тазалау', 'Сбросить', lang)}
-        </button>
-        <button type="button" className="btn btn--primary" onClick={submit} disabled={!done}>
-          {t('Тексеру', 'Проверить', lang)}
-        </button>
+        <button type="button" className="btn btn--ghost" onClick={() => { setMatches({}); setSelected(null); }}>Сбросить</button>
+        <button type="button" className="btn btn--primary" onClick={submit} disabled={!done}>Проверить</button>
       </div>
     </>
   );
@@ -313,7 +328,7 @@ function MatchingTask({ step, lang, onSubmit }: { step: Step; lang: 'kz' | 'ru';
 
 // --- сборка предложения -------------------------------------------------------
 
-function WordOrderTask({ step, lang, onSubmit }: { step: Step; lang: 'kz' | 'ru'; onSubmit: (r: TaskResult) => void }) {
+function WordOrderTask({ step, onSubmit }: { step: Step; onSubmit: (r: TaskResult) => void }) {
   const tokens = step.tokens ?? step.answerKz.split(' ');
   const [built, setBuilt] = useState<number[]>([]);
 
@@ -327,10 +342,10 @@ function WordOrderTask({ step, lang, onSubmit }: { step: Step; lang: 'kz' | 'ru'
 
   return (
     <>
-      <Prompt step={step} lang={lang} />
+      <Prompt step={step} />
       <div className="assemble" aria-live="polite">
         {built.length === 0 ? (
-          <span className="assemble__empty">{t('Сөздерді басып, сөйлем құра', 'Нажимай на слова, чтобы собрать предложение', lang)}</span>
+          <span className="assemble__empty">Нажимай на слова, чтобы собрать предложение</span>
         ) : (
           built.map((tokenIndex, position) => (
             <button
@@ -358,12 +373,8 @@ function WordOrderTask({ step, lang, onSubmit }: { step: Step; lang: 'kz' | 'ru'
         ))}
       </div>
       <div className="task__actions">
-        <button type="button" className="btn btn--ghost" onClick={() => setBuilt([])} disabled={!built.length}>
-          {t('Тазалау', 'Сбросить', lang)}
-        </button>
-        <button type="button" className="btn btn--primary" onClick={submit} disabled={built.length !== tokens.length}>
-          {t('Тексеру', 'Проверить', lang)}
-        </button>
+        <button type="button" className="btn btn--ghost" onClick={() => setBuilt([])} disabled={!built.length}>Сбросить</button>
+        <button type="button" className="btn btn--primary" onClick={submit} disabled={built.length !== tokens.length}>Проверить</button>
       </div>
     </>
   );
@@ -376,7 +387,7 @@ function WordOrderTask({ step, lang, onSubmit }: { step: Step; lang: 'kz' | 'ru'
  * честно нельзя. Ученик пишет свободно, затем видит эталон и сам оценивает
  * ответ — приложение лишь подсказывает, сколько ключевых слов совпало.
  */
-function OpenTask({ step, lang, onSubmit }: { step: Step; lang: 'kz' | 'ru'; onSubmit: (r: TaskResult) => void }) {
+function OpenTask({ step, onSubmit }: { step: Step; onSubmit: (r: TaskResult) => void }) {
   const [value, setValue] = useState('');
   const [revealed, setRevealed] = useState(false);
 
@@ -390,16 +401,16 @@ function OpenTask({ step, lang, onSubmit }: { step: Step; lang: 'kz' | 'ru'; onS
 
   return (
     <>
-      <Prompt step={step} lang={lang} />
+      <Prompt step={step} />
       <textarea
         className="field field--area"
         rows={4}
         value={value}
         onChange={e => setValue(e.target.value)}
-        placeholder={t('Өз сөзіңмен жаз...', 'Напиши своими словами...', lang)}
-        aria-label={t('Жауап өрісі', 'Поле ответа', lang)}
+        placeholder="Напиши своими словами..."
+        aria-label="Поле ответа"
       />
-      <KazakhKeys onInsert={ch => setValue(v => v + ch)} lang={lang} />
+      <KazakhKeys onInsert={ch => setValue(v => v + ch)} />
 
       {!revealed ? (
         <div className="task__actions">
@@ -408,28 +419,22 @@ function OpenTask({ step, lang, onSubmit }: { step: Step; lang: 'kz' | 'ru'; onS
             className="btn btn--primary"
             onClick={() => setRevealed(true)}
             disabled={normalizeAnswer(value).length < 3}
-          >
-            {t('Үлгімен салыстыру', 'Сверить с эталоном', lang)}
-          </button>
+          >Сверить с эталоном</button>
         </div>
       ) : (
         <div className="selfcheck">
           <div className="selfcheck__model">
-            <span className="task__prompt-tag">{t('үлгі жауап', 'эталон', lang)}</span>
+            <span className="task__prompt-tag">эталон</span>
             <p>{step.answerKz}</p>
             <p className="task__prompt-ru">{step.answerRu}</p>
           </div>
           <p className="selfcheck__overlap">
-            {t('Кілт сөздердің сәйкестігі', 'Совпало ключевых слов', lang)}: <strong>{overlap}%</strong>
+            {'Совпало ключевых слов'}: <strong>{overlap}%</strong>
           </p>
-          <p className="selfcheck__question">{t('Жауабың дұрыс па?', 'Твой ответ по смыслу верный?', lang)}</p>
+          <p className="selfcheck__question">Твой ответ по смыслу верный?</p>
           <div className="task__actions">
-            <button type="button" className="btn btn--ghost" onClick={() => finish(false)}>
-              {t('Жоқ, қателестім', 'Нет, ошибся', lang)}
-            </button>
-            <button type="button" className="btn btn--primary" onClick={() => finish(true)}>
-              {t('Иә, дұрыс', 'Да, верно', lang)}
-            </button>
+            <button type="button" className="btn btn--ghost" onClick={() => finish(false)}>Нет, ошибся</button>
+            <button type="button" className="btn btn--primary" onClick={() => finish(true)}>Да, верно</button>
           </div>
         </div>
       )}

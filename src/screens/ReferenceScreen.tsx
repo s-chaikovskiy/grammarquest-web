@@ -1,14 +1,13 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../hooks/useApp';
-import { t } from '../utils/helpers';
+
 import { loadReference } from '../data';
 import type { ReferenceTopic } from '../types';
 
 export default function ReferenceScreen() {
   const navigate = useNavigate();
   const { state } = useApp();
-  const { lang } = state;
   const [category, setCategory] = useState<string | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
   const [reference, setReference] = useState<ReferenceTopic[] | null>(null);
@@ -16,28 +15,26 @@ export default function ReferenceScreen() {
   useEffect(() => { loadReference().then(setReference); }, []);
 
   const categories = useMemo(
-    () => [...new Set((reference ?? []).map(t => (lang === 'kz' ? t.categoryKz : t.categoryRu)))].sort(),
-    [lang, reference]
+    () => [...new Set((reference ?? []).map(t => t.categoryRu))].sort(),
+    [reference]
   );
 
   const topics = !reference
     ? []
     : category
-      ? reference.filter(t => (lang === 'kz' ? t.categoryKz : t.categoryRu) === category)
+      ? reference.filter(t => t.categoryRu === category)
       : reference;
 
   return (
     <div className="page">
       <div className="shell stack">
         <header style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <button className="btn btn--quiet" onClick={() => navigate('/menu')} aria-label={t('Артқа', 'Назад', lang)}>←</button>
-          <h1 className="t-head">{t('Анықтамалық', 'Справочник', lang)}</h1>
+          <button className="btn btn--quiet" onClick={() => navigate('/learn')} aria-label={'Назад'}>←</button>
+          <h1 className="t-head">Справочник</h1>
         </header>
 
-        <div className="tabs" role="group" aria-label={t('Санаттар', 'Категории', lang)}>
-          <button className={`tab${category === null ? ' tab--active' : ''}`} onClick={() => setCategory(null)}>
-            {t('Барлығы', 'Все', lang)}
-          </button>
+        <div className="tabs" role="group" aria-label={'Категории'}>
+          <button className={`tab${category === null ? ' tab--active' : ''}`} onClick={() => setCategory(null)}>Все</button>
           {categories.map(cat => (
             <button
               key={cat}
@@ -50,7 +47,7 @@ export default function ReferenceScreen() {
         </div>
 
         {reference === null && (
-          <p className="t-small">{t('Жүктелуде...', 'Загружаем справочник...', lang)}</p>
+          <p className="t-small">Загружаем справочник...</p>
         )}
 
         <ul style={{ listStyle: 'none' }}>
@@ -66,9 +63,9 @@ export default function ReferenceScreen() {
                 >
                   <span>
                     <span className="lesson-row__title" style={{ display: 'block' }}>
-                      {lang === 'kz' ? topic.titleKz : topic.titleRu}
+                      {topic.titleRu}
                     </span>
-                    <span className="lesson-row__sub">{lang === 'kz' ? topic.categoryKz : topic.categoryRu}</span>
+                    <span className="lesson-row__sub">{topic.categoryRu}</span>
                   </span>
                   <span className="t-small">{open ? '−' : '+'}</span>
                 </button>
@@ -81,7 +78,7 @@ export default function ReferenceScreen() {
 
                     {topic.examplesKz?.length ? (
                       <div className="panel stack--tight">
-                        <span className="t-small" style={{ fontWeight: 600 }}>{t('Мысалдар', 'Примеры', lang)}</span>
+                        <span className="t-small" style={{ fontWeight: 600 }}>Примеры</span>
                         {topic.examplesKz.map((ex, i) => (
                           <p key={i} className="t-body">
                             {ex}
@@ -94,7 +91,7 @@ export default function ReferenceScreen() {
                     {/* Типичные ошибки — самая полезная часть справочника, поэтому отдельным блоком. */}
                     {topic.mistakesKz?.length ? (
                       <div className="verdict verdict--no">
-                        <span className="t-small" style={{ fontWeight: 600 }}>{t('Жиі кездесетін қателер', 'Частые ошибки', lang)}</span>
+                        <span className="t-small" style={{ fontWeight: 600 }}>Частые ошибки</span>
                         {topic.mistakesKz.map((m, i) => (
                           <p key={i} className="t-body">
                             {m}

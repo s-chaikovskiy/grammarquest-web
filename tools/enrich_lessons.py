@@ -3,8 +3,9 @@
 Обогащение уроков GrammarQuest: превращает 187 одинаковых заданий «впиши текст»
 в шесть разных типов упражнений.
 
-Вход:  src/data/lessons.source.json  (исходный контент, руками не генерируем)
-Выход: src/data/lessons.json         (то, что читает приложение)
+Вход:  src/data/lessons.merged.json  (собирается tools/content/build.py)
+Выход: src/data/lessons.json          (то, что читает приложение)
+       src/data/vocabulary.json       (словарь, собранный из уроков)
 
 Скрипт детерминированный: один и тот же вход всегда даёт один и тот же выход,
 поэтому результат воспроизводим и его можно пересобрать после правки контента.
@@ -16,8 +17,9 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SRC = ROOT / "src" / "data" / "lessons.source.json"
+SRC = ROOT / "src" / "data" / "lessons.merged.json"
 DST = ROOT / "src" / "data" / "lessons.json"
+VOC = ROOT / "src" / "data" / "vocabulary.json"
 
 # --- казахская фонетика -------------------------------------------------------
 
@@ -145,8 +147,14 @@ def swap_suffix(word: str, families) -> list[str]:
     return out
 
 
-def make_distractors(answer: str, pool: list[str], rng: random.Random, need=3) -> list[str]:
-    """Три правдоподобных неверных варианта: сначала по правилу, потом из урока."""
+def make_distractors(answer: str, pool: list[str], rng: random.Random, need=3,
+                     hand: list[str] | None = None) -> list[str]:
+    """
+    Три правдоподобных неверных варианта.
+    Порядок источников: заданные вручную → по правилу → соседние ответы урока.
+    """
+    if hand and len(hand) >= need:
+        return hand[:need]
     words = answer.split()
     last = words[-1]
     prefix = " ".join(words[:-1])
@@ -254,16 +262,29 @@ def enrich():
                 # ученик пишет свободно, потом сверяется с эталоном и оценивает себя.
                 step["taskType"] = "open"
 
-            elif 3 <= wc <= 6:
-                tokens = words[:]
-                rng.shuffle(tokens)
-                if tokens == words and len(tokens) > 1:
-                    tokens.reverse()
-                step["taskType"] = "word_order"
-                step["tokens"] = tokens
+            elif 3 <= wc <= 6 and lesson["level"] > 1:
+                # Знаки препинания не должны становиться отдельными «словами»:
+                # собирать предложение из тире бессмысленно. Движок проверки
+                # пунктуацию игнорирует, поэтому выбросить её безопасно.
+                tokens = [w for w in words if any(ch.isalpha() for ch in w)]
+                if len(tokens) < 3:
+                    step["taskType"] = "input"
+                else:
+                    rng.shuffle(tokens)
+                    if tokens == [w for w in words if any(ch.isalpha() for ch in w)] and len(tokens) > 1:
+                        tokens.reverse()
+                    step["taskType"] = "word_order"
+                    step["tokens"] = tokens
+
+            elif lesson["level"] == 1 and 3 <= wc <= 6 and blank:
+                # На первом уровне сборка предложения слишком сложна:
+                # ученик ещё не знает порядка слов. Оставляем пропуск.
+                step["taskType"] = "fill_blank"
+                step["blank"] = blank
 
             elif i % 3 == 1 and wc <= 2:
-                options = make_distractors(answer, short_pool, rng)
+                options = make_distractors(answer, short_pool, rng,
+                                           hand=step.get("distractors"))
                 if len(options) >= 3:
                     options.append(answer)
                     rng.shuffle(options)
@@ -288,8 +309,20 @@ def enrich():
 
             stats[step["taskType"]] = stats.get(step["taskType"], 0) + 1
 
-    data["version"] = 2
+    # Короткое название для карточек: полные заголовки вроде «Числительные:
+    # количественные, порядковые, дробные и собирательные» в список не влезают.
+    for lesson in data["lessons"]:
+        for key in ("titleRu", "titleKz"):
+            short = lesson[key].split(":")[0].split("(")[0].strip()
+            lesson[key.replace("title", "short")] = short
+
+    for lesson in data["lessons"]:
+        for step in lesson["steps"]:
+            step.pop("distractors", None)   # служебное поле, приложению не нужно
+
+    data["version"] = 3
     DST.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
+    build_vocabulary(data)
 
     total = sum(stats.values())
     print(f"Обогащено шагов: {total}")
@@ -314,8 +347,11 @@ def validate(data):
                 if not any(fold(o) == fold(s["answerKz"]) for o in opts):
                     problems.append(f"{tag}: среди вариантов нет правильного")
             elif tt == "word_order":
-                if sorted(s["tokens"]) != sorted(s["answerKz"].split()):
+                expected = sorted(w for w in s["answerKz"].split() if any(c.isalpha() for c in w))
+                if sorted(s["tokens"]) != expected:
                     problems.append(f"{tag}: набор слов не совпадает с ответом")
+                if any(not any(c.isalpha() for c in tok) for tok in s["tokens"]):
+                    problems.append(f"{tag}: среди слов есть знак препинания")
                 if s["tokens"] == s["answerKz"].split():
                     problems.append(f"{tag}: слова не перемешаны")
             elif tt == "matching":
@@ -328,6 +364,50 @@ def validate(data):
                 if "..." not in s["blank"]["sentence"]:
                     problems.append(f"{tag}: в предложении нет пропуска")
     return problems
+
+
+def build_vocabulary(data):
+    """
+    Словарь собирается из самих уроков: каждый короткий ответ — это словарная
+    форма, которую ученик уже встречал. Отдельного словаря не ведём, чтобы
+    он не разошёлся с содержанием уроков.
+    """
+    entries = {}
+    for lesson in data["lessons"]:
+        for i, step in enumerate(lesson["steps"]):
+            kz = step["answerKz"].strip()
+            ru = step["answerRu"].strip().rstrip(".")
+            if not (1 <= len(kz.split()) <= 3) or "/" in kz:
+                continue
+            key = fold(kz)
+            entry = entries.setdefault(key, {
+                "kz": kz, "ru": ru,
+                "level": lesson["level"],
+                "unit": lesson["unit"],
+                "lessons": [],
+            })
+            entry["level"] = min(entry["level"], lesson["level"])
+            ref = {"lessonId": lesson["id"], "stepIndex": i}
+            if ref not in entry["lessons"]:
+                entry["lessons"].append(ref)
+
+    # Дополняем словами из заданий на сопоставление — там пары уже выверены.
+    for lesson in data["lessons"]:
+        for step in lesson["steps"]:
+            for pair in step.get("pairs", []):
+                key = fold(pair["left"])
+                if key not in entries:
+                    entries[key] = {"kz": pair["left"], "ru": pair["right"],
+                                    "level": lesson["level"], "unit": lesson["unit"],
+                                    "lessons": []}
+
+    words = sorted(entries.values(), key=lambda e: (e["level"], fold(e["kz"])))
+    VOC.write_text(json.dumps({"version": 1, "words": words}, ensure_ascii=False, indent=1),
+                   encoding="utf-8")
+    print(f"Словарь: {len(words)} слов "
+          f"(уровень 1 — {sum(1 for w in words if w['level'] == 1)}, "
+          f"2 — {sum(1 for w in words if w['level'] == 2)}, "
+          f"3 — {sum(1 for w in words if w['level'] == 3)})")
 
 
 if __name__ == "__main__":

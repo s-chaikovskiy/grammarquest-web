@@ -1,62 +1,95 @@
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../hooks/useApp';
-import { t, plural } from '../utils/helpers';
 import { playClickSound } from '../utils/sounds';
+import { plural } from '../utils/helpers';
 import Character from '../components/Character';
-import { lessons, totalSteps } from '../data';
+import { lessons, levels, LEVEL_IDS, lessonsOfLevel, totalSteps } from '../data';
+import type { LevelId } from '../data';
 
+/**
+ * Первый экран.
+ *
+ * Раньше здесь стоял выбор языка интерфейса — и он сбивал с толку: приложение
+ * с самого начала сделано для тех, кто говорит по-русски и учит казахский,
+ * так что выбирать было нечего. Вместо него — выбор уровня, который
+ * действительно меняет то, с чего начнётся обучение.
+ */
 export default function WelcomeScreen() {
   const navigate = useNavigate();
-  const { state, setLang } = useApp();
-  const { lang } = state;
+  const { state, updateSettings } = useApp();
   const started = Object.keys(state.progress).length > 0 || state.xp > 0;
 
-  return (
-    <div className="page" style={{ display: 'grid', alignContent: 'center' }}>
-      <div className="shell stack--loose">
-        <div className="stack--tight">
-          <Character name="teacher" size={96} />
-          <h1 className="t-title">GrammarQuest</h1>
-          <p className="t-body prose t-mut">
-            {t(
-              'Диалог арқылы қазақ тілінің грамматикасын үйрен.',
-              'Тренажёр казахской грамматики: диалог, правило, задание — и разбор каждой ошибки.',
-              lang
-            )}
-          </p>
-        </div>
+  const start = () => {
+    playClickSound();
+    navigate('/learn');
+  };
 
-        <dl className="panel" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(7rem, 1fr))', gap: '1rem' }}>
-          <Fact value={String(lessons.length)} label={t('сабақ', plural(lessons.length, 'урок', 'урока', 'уроков'), lang)} />
-          <Fact value={String(totalSteps)} label={t('тапсырма', plural(totalSteps, 'задание', 'задания', 'заданий'), lang)} />
-          <Fact value="7" label={t('түрі', 'типов упражнений', lang)} />
+  return (
+    <div className="page">
+      <div className="shell stack--loose">
+        <header className="stack--tight">
+          <Character name="girl" size={88} />
+          <h1 className="t-title">Қазақ тілі</h1>
+          <p className="t-body prose t-mut">
+            Тренажёр казахского языка для тех, кто говорит по-русски.
+            Диалог, правило, задание — и разбор каждой ошибки.
+          </p>
+        </header>
+
+        <dl className="panel" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(6.5rem, 1fr))', gap: '1rem' }}>
+          <Fact value={String(lessons.length)} label={plural(lessons.length, 'урок', 'урока', 'уроков')} />
+          <Fact value={String(totalSteps())} label={plural(totalSteps(), 'задание', 'задания', 'заданий')} />
+          <Fact value="7" label="типов упражнений" />
         </dl>
 
-        <div className="stack--tight">
-          <button
-            className="btn btn--primary btn--block"
-            onClick={() => { playClickSound(); navigate('/menu'); }}
-          >
-            {started ? t('Жалғастыру', 'Продолжить', lang) : t('Бастау', 'Начать', lang)}
-          </button>
+        {!started && (
+          <section className="stack--tight">
+            <h2 className="t-sub">С чего начать</h2>
+            <p className="t-small">
+              Уровень можно поменять в любой момент — это ориентир, а не ограничение.
+            </p>
+            <div className="stack--tight">
+              {LEVEL_IDS.map(id => (
+                <LevelCard
+                  key={id}
+                  id={id}
+                  selected={state.settings.level === id}
+                  onSelect={() => { playClickSound(); updateSettings({ level: id }); }}
+                />
+              ))}
+            </div>
+          </section>
+        )}
 
-          <div className="tabs" role="group" aria-label={t('Интерфейс тілі', 'Язык интерфейса', lang)}>
-            <button
-              className={`tab${lang === 'ru' ? ' tab--active' : ''}`}
-              onClick={() => setLang('ru')}
-            >
-              Русский
-            </button>
-            <button
-              className={`tab${lang === 'kz' ? ' tab--active' : ''}`}
-              onClick={() => setLang('kz')}
-            >
-              Қазақша
-            </button>
-          </div>
-        </div>
+        <button className="btn btn--primary btn--block" onClick={start}>
+          {started ? 'Продолжить' : 'Начать'}
+        </button>
       </div>
     </div>
+  );
+}
+
+function LevelCard({ id, selected, onSelect }: { id: LevelId; selected: boolean; onSelect: () => void }) {
+  const info = levels[String(id)];
+  const count = lessonsOfLevel(id).length;
+
+  return (
+    <button
+      type="button"
+      className={`option${selected ? ' option--picked' : ''}`}
+      style={{ alignItems: 'flex-start', flexDirection: 'column', gap: '0.25rem', minHeight: 'auto', padding: '1rem' }}
+      onClick={onSelect}
+      aria-pressed={selected}
+    >
+      <span style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'baseline' }}>
+        <strong>{info.titleRu}</strong>
+        <span className="t-small">{info.grades}</span>
+      </span>
+      <span className="t-small" style={{ fontWeight: 400 }}>{info.aboutRu}</span>
+      <span className="t-small" style={{ fontWeight: 400 }}>
+        {count} {plural(count, 'урок', 'урока', 'уроков')}
+      </span>
+    </button>
   );
 }
 

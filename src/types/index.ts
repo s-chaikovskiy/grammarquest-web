@@ -1,8 +1,6 @@
 import type { Card } from '../utils/srs';
 import type { AnswerEvent } from '../utils/metrics';
 
-export type Lang = 'kz' | 'ru';
-
 export type TaskType =
   | 'input'        // свободный ввод
   | 'choice'       // выбор из 4 вариантов
@@ -43,14 +41,46 @@ export interface Lesson {
   id: string;
   titleKz: string;
   titleRu: string;
+  /** Короткое название для карточек — полные заголовки в список не влезают. */
+  shortKz: string;
+  shortRu: string;
   character: string;
+  /** 1 «Начало», 2 «Уверенный», 3 «Свободный». */
+  level: 1 | 2 | 3;
+  /** Учебный блок внутри уровня: «Септіктер — падежи», «Времена глагола». */
+  unit: string;
+  /** Подсказка о классе, например «7–8». Не ограничение, а ориентир. */
+  grades: string;
+  /** Контент написан ассистентом и ждёт проверки учителем. */
+  needsReview?: boolean;
   tags?: string[];
   steps: Step[];
 }
 
+export interface LevelInfo {
+  titleRu: string;
+  titleKz: string;
+  grades: string;
+  aboutRu: string;
+}
+
+export interface VocabWord {
+  kz: string;
+  ru: string;
+  level: 1 | 2 | 3;
+  unit: string;
+  lessons: { lessonId: string; stepIndex: number }[];
+}
+
 export interface LessonsData {
   version: number;
+  levels: Record<string, LevelInfo>;
   lessons: Lesson[];
+}
+
+export interface VocabularyData {
+  version: number;
+  words: VocabWord[];
 }
 
 export interface ReferenceTopic {
@@ -95,6 +125,12 @@ export interface LessonProgress {
 
 export interface Settings {
   sound: boolean;
+  /** Выбранный уровень: 1 «Начало», 2 «Уверенный», 3 «Свободный». */
+  level: 1 | 2 | 3;
+  /** Сколько заданий в день ставит себе ученик. */
+  dailyGoal: number;
+  /** Проверять ответ сразу, без кнопки «Проверить». */
+  instantCheck: boolean;
   music: boolean;
   reducedMotion: boolean;
   /** Подпись ученика в выгрузке CSV. Персональные данные не собираем. */
@@ -112,7 +148,6 @@ export interface Achievement {
 }
 
 export interface AppState {
-  lang: Lang;
   progress: Record<string, LessonProgress>;
   xp: number;
   streak: number;
@@ -126,4 +161,6 @@ export interface AppState {
   settings: Settings;
   /** Дни, в которые были занятия, — для календаря серии. */
   activeDays: string[];
+  /** Личные рекорды: спринт — сколько верных ответов за 60 секунд. */
+  records: { sprint: number };
 }

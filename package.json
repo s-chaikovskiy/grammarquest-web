@@ -7,8 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "node tools/run-tests.mjs",
-    "data": "python3 tools/enrich_lessons.py && python3 tools/lint_content.py",
+    "test": "node_modules/.bin/esbuild tools/tests/answer.test.ts tools/tests/srs.test.ts tools/tests/morphology.test.ts --bundle --platform=node --format=esm --outdir=node_modules/.test --log-level=warning && node node_modules/.test/answer.test.js && node node_modules/.test/srs.test.js && node node_modules/.test/morphology.test.js",
+    "data": "python3 tools/content/build.py && python3 tools/enrich_lessons.py",
     "icons": "python3 tools/make_icon.py",
     "android": "npm run build && npx cap sync android"
   },

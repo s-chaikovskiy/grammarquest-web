@@ -1,0 +1,2137 @@
+{
+ "version": 1,
+ "words": [
+  {
+   "kz": "10",
+   "ru": "десять",
+   "level": 1,
+   "unit": "Первые слова",
+   "lessons": [
+    {
+     "lessonId": "kz_base_02_sandar",
+     "stepIndex": 1
+    }
+   ]
+  },
+  {
+   "kz": "3",
+   "ru": "три",
+   "level": 1,
+   "unit": "Первые слова",
+   "lessons": [
+    {
+     "lessonId": "kz_base_02_sandar",
+     "stepIndex": 0
+    }
+   ]
+  },
+  {
+   "kz": "ағамыз",
+   "ru": "наш старший брат",
+   "level": 1,
+   "unit": "Основы грамматики",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_15",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "әке",
+   "ru": "папа",
+   "level": 1,
+   "unit": "Мир вокруг",
+   "lessons": [
+    {
+     "lessonId": "kz_base_03_otbasy",
+     "stepIndex": 0
+    }
+   ]
+  },
+  {
+   "kz": "анам",
+   "ru": "моя мама",
+   "level": 1,
+   "unit": "Мир вокруг",
+   "lessons": [
+    {
+     "lessonId": "kz_base_03_otbasy",
+     "stepIndex": 1
+    }
+   ]
+  },
+  {
+   "kz": "аяғы",
+   "ru": "его нога",
+   "level": 1,
+   "unit": "Основы грамматики",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_15",
+     "stepIndex": 4
+    }
+   ]
+  },
+  {
+   "kz": "ба",
+   "ru": "ли",
+   "level": 1,
+   "unit": "Мир вокруг",
+   "lessons": [
+    {
+     "lessonId": "kz_base_03_otbasy",
+     "stepIndex": 4
+    }
+   ]
+  },
+  {
+   "kz": "бар",
+   "ru": "есть",
+   "level": 1,
+   "unit": "Первые слова",
+   "lessons": [
+    {
+     "lessonId": "kz_base_02_sandar",
+     "stepIndex": 5
+    }
+   ]
+  },
+  {
+   "kz": "Бұл үйдің",
+   "ru": "этого дома",
+   "level": 1,
+   "unit": "Основы грамматики",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_18",
+     "stepIndex": 2
+    }
+   ]
+  },
+  {
+   "kz": "дайындаймын",
+   "ru": "готовлю",
+   "level": 1,
+   "unit": "Каждый день",
+   "lessons": [
+    {
+     "lessonId": "kz_base_07_kun_tartibi",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "дәптер",
+   "ru": "тетрадь",
+   "level": 1,
+   "unit": "Мир вокруг",
+   "lessons": [
+    {
+     "lessonId": "kz_base_04_mektep",
+     "stepIndex": 0
+    }
+   ]
+  },
+  {
+   "kz": "достарың",
+   "ru": "твои друзья",
+   "level": 1,
+   "unit": "Основы грамматики",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_15",
+     "stepIndex": 2
+    }
+   ]
+  },
+  {
+   "kz": "ертең",
+   "ru": "завтра",
+   "level": 1,
+   "unit": "Каждый день",
+   "lessons": [
+    {
+     "lessonId": "kz_base_08_ana_rayy",
+     "stepIndex": 0
+    }
+   ]
+  },
+  {
+   "kz": "ешкім",
+   "ru": "никто",
+   "level": 1,
+   "unit": "Основы грамматики",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_18",
+     "stepIndex": 6
+    }
+   ]
+  },
+  {
+   "kz": "жаз",
+   "ru": "лето",
+   "level": 1,
+   "unit": "Каждый день",
+   "lessons": [
+    {
+     "lessonId": "kz_base_08_ana_rayy",
+     "stepIndex": 1
+    }
+   ]
+  },
+  {
+   "kz": "жақсы оқушыға",
+   "ru": "хорошему ученику",
+   "level": 1,
+   "unit": "Основы грамматики",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_16",
+     "stepIndex": 2
+    }
+   ]
+  },
+  {
+   "kz": "жаңа",
+   "ru": "неизменную — «жаңа»",
+   "level": 1,
+   "unit": "Основы грамматики",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_16",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "жаңа мектептің",
+   "ru": "новой школы",
+   "level": 1,
+   "unit": "Основы грамматики",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_16",
+     "stepIndex": 1
+    }
+   ]
+  },
+  {
+   "kz": "жастамын",
+   "ru": "лет мне",
+   "level": 1,
+   "unit": "Первые слова",
+   "lessons": [
+    {
+     "lessonId": "kz_base_01_tanysu",
+     "stepIndex": 4
+    }
+   ]
+  },
+  {
+   "kz": "жасыл қалам",
+   "ru": "зелёная ручка",
+   "level": 1,
+   "unit": "Мир вокруг",
+   "lessons": [
+    {
+     "lessonId": "kz_base_05_tuster",
+     "stepIndex": 1
+    }
+   ]
+  },
+  {
+   "kz": "жиырма",
+   "ru": "двадцать",
+   "level": 1,
+   "unit": "Первые слова",
+   "lessons": [
+    {
+     "lessonId": "kz_base_02_sandar",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "ішемін",
+   "ru": "пью",
+   "level": 1,
+   "unit": "Каждый день",
+   "lessons": [
+    {
+     "lessonId": "kz_base_06_tamaq",
+     "stepIndex": 1
+    },
+    {
+     "lessonId": "kzru_grammar_01",
+     "stepIndex": 4
+    }
+   ]
+  },
+  {
+   "kz": "ішесің",
+   "ru": "пьёшь",
+   "level": 1,
+   "unit": "Каждый день",
+   "lessons": [
+    {
+     "lessonId": "kz_base_06_tamaq",
+     "stepIndex": 2
+    }
+   ]
+  },
+  {
+   "kz": "ішпеймін",
+   "ru": "не пью",
+   "level": 1,
+   "unit": "Каждый день",
+   "lessons": [
+    {
+     "lessonId": "kz_base_06_tamaq",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "қазақ тілі",
+   "ru": "казахский язык",
+   "level": 1,
+   "unit": "Мир вокруг",
+   "lessons": [
+    {
+     "lessonId": "kz_base_04_mektep",
+     "stepIndex": 2
+    }
+   ]
+  },
+  {
+   "kz": "кешке",
+   "ru": "вечером",
+   "level": 1,
+   "unit": "Каждый день",
+   "lessons": [
+    {
+     "lessonId": "kz_base_07_kun_tartibi",
+     "stepIndex": 0
+    }
+   ]
+  },
+  {
+   "kz": "кім",
+   "ru": "кто",
+   "level": 1,
+   "unit": "Первые слова",
+   "lessons": [
+    {
+     "lessonId": "kz_base_01_tanysu",
+     "stepIndex": 1
+    }
+   ]
+  },
+  {
+   "kz": "кімді",
+   "ru": "кого",
+   "level": 1,
+   "unit": "Основы грамматики",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_18",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "көремін",
+   "ru": "люблю",
+   "level": 1,
+   "unit": "Мир вокруг",
+   "lessons": [
+    {
+     "lessonId": "kz_base_04_mektep",
+     "stepIndex": 4
+    },
+    {
+     "lessonId": "kz_base_08_ana_rayy",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "қуаныштымын",
+   "ru": "рад",
+   "level": 1,
+   "unit": "Первые слова",
+   "lessons": [
+    {
+     "lessonId": "kz_base_01_tanysu",
+     "stepIndex": 5
+    }
+   ]
+  },
+  {
+   "kz": "қызыл",
+   "ru": "красный",
+   "level": 1,
+   "unit": "Мир вокруг",
+   "lessons": [
+    {
+     "lessonId": "kz_base_05_tuster",
+     "stepIndex": 0
+    }
+   ]
+  },
+  {
+   "kz": "мектебі",
+   "ru": "его школа",
+   "level": 1,
+   "unit": "Основы грамматики",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_15",
+     "stepIndex": 1
+    }
+   ]
+  },
+  {
+   "kz": "мектептер, әжелер, балалар",
+   "ru": "школы, бабушки, дети",
+   "level": 1,
+   "unit": "Основы грамматики",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_14",
+     "stepIndex": 0
+    }
+   ]
+  },
+  {
+   "kz": "Мен оқушымын",
+   "ru": "Я ученик",
+   "level": 1,
+   "unit": "Первые слова",
+   "lessons": [
+    {
+     "lessonId": "kz_base_01_tanysu",
+     "stepIndex": 2
+    }
+   ]
+  },
+  {
+   "kz": "Мен, бұл, ол",
+   "ru": "я, этот, оно",
+   "level": 1,
+   "unit": "Основы грамматики",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_18",
+     "stepIndex": 0
+    }
+   ]
+  },
+  {
+   "kz": "нан",
+   "ru": "хлеб",
+   "level": 1,
+   "unit": "Каждый день",
+   "lessons": [
+    {
+     "lessonId": "kz_base_06_tamaq",
+     "stepIndex": 0
+    }
+   ]
+  },
+  {
+   "kz": "не",
+   "ru": "что",
+   "level": 1,
+   "unit": "Мир вокруг",
+   "lessons": [
+    {
+     "lessonId": "kz_base_05_tuster",
+     "stepIndex": 2
+    }
+   ]
+  },
+  {
+   "kz": "оған",
+   "ru": "ему",
+   "level": 1,
+   "unit": "Основы грамматики",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_18",
+     "stepIndex": 1
+    }
+   ]
+  },
+  {
+   "kz": "оқиды",
+   "ru": "учится",
+   "level": 1,
+   "unit": "Мир вокруг",
+   "lessons": [
+    {
+     "lessonId": "kz_base_03_otbasy",
+     "stepIndex": 2
+    }
+   ]
+  },
+  {
+   "kz": "оқимыз",
+   "ru": "учимся",
+   "level": 1,
+   "unit": "Мир вокруг",
+   "lessons": [
+    {
+     "lessonId": "kz_base_04_mektep",
+     "stepIndex": 1
+    },
+    {
+     "lessonId": "kzru_grammar_01",
+     "stepIndex": 5
+    }
+   ]
+  },
+  {
+   "kz": "оқушы",
+   "ru": "ученик",
+   "level": 1,
+   "unit": "Первые слова",
+   "lessons": [
+    {
+     "lessonId": "kz_base_02_sandar",
+     "stepIndex": 4
+    }
+   ]
+  },
+  {
+   "kz": "он төрт",
+   "ru": "четырнадцать",
+   "level": 1,
+   "unit": "Первые слова",
+   "lessons": [
+    {
+     "lessonId": "kz_base_02_sandar",
+     "stepIndex": 2
+    },
+    {
+     "lessonId": "kzru_grammar_11",
+     "stepIndex": 1
+    }
+   ]
+  },
+  {
+   "kz": "сағат онда",
+   "ru": "в десять часов",
+   "level": 1,
+   "unit": "Мир вокруг",
+   "lessons": [
+    {
+     "lessonId": "kz_base_04_mektep",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "Сенің сағатың қанша?",
+   "ru": "Сенің сағатың қанша?",
+   "level": 1,
+   "unit": "Основы грамматики",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_15",
+     "stepIndex": 5
+    }
+   ]
+  },
+  {
+   "kz": "суық",
+   "ru": "холодно",
+   "level": 1,
+   "unit": "Каждый день",
+   "lessons": [
+    {
+     "lessonId": "kz_base_08_ana_rayy",
+     "stepIndex": 2
+    }
+   ]
+  },
+  {
+   "kz": "таңғы ас",
+   "ru": "завтрак",
+   "level": 1,
+   "unit": "Каждый день",
+   "lessons": [
+    {
+     "lessonId": "kz_base_07_kun_tartibi",
+     "stepIndex": 2
+    }
+   ]
+  },
+  {
+   "kz": "тауықтар, балықтар, кілемдер",
+   "ru": "куры, рыбы, ковры",
+   "level": 1,
+   "unit": "Основы грамматики",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_14",
+     "stepIndex": 1
+    }
+   ]
+  },
+  {
+   "kz": "тілдер, көлдер",
+   "ru": "языки, озёра",
+   "level": 1,
+   "unit": "Основы грамматики",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_14",
+     "stepIndex": 2
+    }
+   ]
+  },
+  {
+   "kz": "тұрамын",
+   "ru": "живу",
+   "level": 1,
+   "unit": "Первые слова",
+   "lessons": [
+    {
+     "lessonId": "kz_base_01_tanysu",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "үйге",
+   "ru": "домой",
+   "level": 1,
+   "unit": "Каждый день",
+   "lessons": [
+    {
+     "lessonId": "kz_base_07_kun_tartibi",
+     "stepIndex": 1
+    }
+   ]
+  },
+  {
+   "kz": "үйім",
+   "ru": "мой дом",
+   "level": 1,
+   "unit": "Основы грамматики",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_15",
+     "stepIndex": 0
+    }
+   ]
+  },
+  {
+   "kz": "үлкен үй",
+   "ru": "большой дом",
+   "level": 1,
+   "unit": "Мир вокруг",
+   "lessons": [
+    {
+     "lessonId": "kz_base_03_otbasy",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "ұнайды",
+   "ru": "нравится",
+   "level": 1,
+   "unit": "Мир вокруг",
+   "lessons": [
+    {
+     "lessonId": "kz_base_05_tuster",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "футболшылар, теледидарлар",
+   "ru": "футболисты, телевизоры",
+   "level": 1,
+   "unit": "Основы грамматики",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_14",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "әзірлейміз",
+   "ru": "подготовим",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_03",
+     "stepIndex": 10
+    }
+   ]
+  },
+  {
+   "kz": "әзірлеп",
+   "ru": "готовлю (сейчас)",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_01",
+     "stepIndex": 8
+    },
+    {
+     "lessonId": "kzru_grammar_02",
+     "stepIndex": 10
+    }
+   ]
+  },
+  {
+   "kz": "Ән айтайық!",
+   "ru": "Давайте споём!",
+   "level": 2,
+   "unit": "Наклонения",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_04",
+     "stepIndex": 2
+    }
+   ]
+  },
+  {
+   "kz": "әңгімелесеміз",
+   "ru": "поговорим",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_03",
+     "stepIndex": 7
+    }
+   ]
+  },
+  {
+   "kz": "әңгімелесіп",
+   "ru": "разговаривали",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_02",
+     "stepIndex": 7
+    }
+   ]
+  },
+  {
+   "kz": "Асқа бармаңыз!",
+   "ru": "Не ходите на обед!",
+   "level": 2,
+   "unit": "Наклонения",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_04",
+     "stepIndex": 6
+    }
+   ]
+  },
+  {
+   "kz": "барады",
+   "ru": "ходит",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_01",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "бір оқушыға",
+   "ru": "одному ученику",
+   "level": 2,
+   "unit": "Числа и признаки",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_17",
+     "stepIndex": 2
+    }
+   ]
+  },
+  {
+   "kz": "бірнеше адамды",
+   "ru": "нескольких человек",
+   "level": 2,
+   "unit": "Числа и признаки",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_11",
+     "stepIndex": 7
+    }
+   ]
+  },
+  {
+   "kz": "боласың ба",
+   "ru": "будешь ли",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_03",
+     "stepIndex": 8
+    }
+   ]
+  },
+  {
+   "kz": "болдың ба",
+   "ru": "был ли ты",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_02",
+     "stepIndex": 8
+    }
+   ]
+  },
+  {
+   "kz": "дайындалып",
+   "ru": "готовимся (сейчас)",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_01",
+     "stepIndex": 10
+    }
+   ]
+  },
+  {
+   "kz": "Жазыңыз!",
+   "ru": "Пишите!",
+   "level": 2,
+   "unit": "Наклонения",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_04",
+     "stepIndex": 1
+    }
+   ]
+  },
+  {
+   "kz": "жазып",
+   "ru": "писал (в тот момент)",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_02",
+     "stepIndex": 2
+    },
+    {
+     "lessonId": "kzru_grammar_03",
+     "stepIndex": 2
+    }
+   ]
+  },
+  {
+   "kz": "жарты алманы",
+   "ru": "половину яблока",
+   "level": 2,
+   "unit": "Числа и признаки",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_17",
+     "stepIndex": 4
+    }
+   ]
+  },
+  {
+   "kz": "жатқанда",
+   "ru": "когда читал",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_02",
+     "stepIndex": 6
+    },
+    {
+     "lessonId": "kzru_grammar_03",
+     "stepIndex": 6
+    }
+   ]
+  },
+  {
+   "kz": "жетпіс",
+   "ru": "семьдесят",
+   "level": 2,
+   "unit": "Числа и признаки",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_11",
+     "stepIndex": 2
+    }
+   ]
+  },
+  {
+   "kz": "жүр",
+   "ru": "работает (в эти дни)",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_01",
+     "stepIndex": 2
+    }
+   ]
+  },
+  {
+   "kz": "Жылдам жүрсін!",
+   "ru": "Пусть идут быстрее!",
+   "level": 2,
+   "unit": "Наклонения",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_04",
+     "stepIndex": 4
+    }
+   ]
+  },
+  {
+   "kz": "Қазақстаннан келдім.",
+   "ru": "Я приехал из Казахстана",
+   "level": 2,
+   "unit": "Септіктер — падежи",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_13",
+     "stepIndex": 6
+    }
+   ]
+  },
+  {
+   "kz": "қайталап",
+   "ru": "повторяю (сейчас)",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_01",
+     "stepIndex": 11
+    }
+   ]
+  },
+  {
+   "kz": "Қарындашпен сызамын.",
+   "ru": "Я черчу карандашом",
+   "level": 2,
+   "unit": "Септіктер — падежи",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_13",
+     "stepIndex": 5
+    }
+   ]
+  },
+  {
+   "kz": "Қашпайық!",
+   "ru": "Давайте не будем убегать!",
+   "level": 2,
+   "unit": "Наклонения",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_04",
+     "stepIndex": 7
+    }
+   ]
+  },
+  {
+   "kz": "келді",
+   "ru": "пришёл",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_02",
+     "stepIndex": 1
+    }
+   ]
+  },
+  {
+   "kz": "келеді",
+   "ru": "придёт",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_03",
+     "stepIndex": 1
+    }
+   ]
+  },
+  {
+   "kz": "Келіңізші!",
+   "ru": "Приходите, пожалуйста!",
+   "level": 2,
+   "unit": "Наклонения",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_04",
+     "stepIndex": 10
+    }
+   ]
+  },
+  {
+   "kz": "келмедім",
+   "ru": "не пришёл",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_02",
+     "stepIndex": 5
+    }
+   ]
+  },
+  {
+   "kz": "келмеймін",
+   "ru": "не приду",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_03",
+     "stepIndex": 5
+    }
+   ]
+  },
+  {
+   "kz": "Кірме!",
+   "ru": "Не входи!",
+   "level": 2,
+   "unit": "Наклонения",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_04",
+     "stepIndex": 5
+    }
+   ]
+  },
+  {
+   "kz": "Кітап ашсын!",
+   "ru": "Пусть откроет книгу!",
+   "level": 2,
+   "unit": "Наклонения",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_04",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "Көп сөйлемесін!",
+   "ru": "Пусть не болтают!",
+   "level": 2,
+   "unit": "Наклонения",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_04",
+     "stepIndex": 9
+    }
+   ]
+  },
+  {
+   "kz": "Қызды көремін.",
+   "ru": "Я вижу девочку",
+   "level": 2,
+   "unit": "Септіктер — падежи",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_13",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "Мектепте оқимын.",
+   "ru": "Я учусь в школе",
+   "level": 2,
+   "unit": "Септіктер — падежи",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_13",
+     "stepIndex": 4
+    }
+   ]
+  },
+  {
+   "kz": "мұғалімнің кітабы",
+   "ru": "книга учителя",
+   "level": 2,
+   "unit": "Септіктер — падежи",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_13",
+     "stepIndex": 1
+    }
+   ]
+  },
+  {
+   "kz": "оқимын",
+   "ru": "прочитаю",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_03",
+     "stepIndex": 0
+    }
+   ]
+  },
+  {
+   "kz": "оқисың ба",
+   "ru": "будешь ли читать",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_03",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "оқу, қала, бала",
+   "ru": "учёба, город, ребёнок",
+   "level": 2,
+   "unit": "Септіктер — падежи",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_13",
+     "stepIndex": 0
+    }
+   ]
+  },
+  {
+   "kz": "оқыдым",
+   "ru": "прочитал",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_02",
+     "stepIndex": 0
+    }
+   ]
+  },
+  {
+   "kz": "оқыдың ба",
+   "ru": "читал ли ты",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_02",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "оқып жатырмын",
+   "ru": "читаю (прямо сейчас)",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_01",
+     "stepIndex": 0
+    }
+   ]
+  },
+  {
+   "kz": "ортаңғы бала",
+   "ru": "средний ребёнок",
+   "level": 2,
+   "unit": "Числа и признаки",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_11",
+     "stepIndex": 9
+    }
+   ]
+  },
+  {
+   "kz": "орындап отырмын",
+   "ru": "выполняю (сейчас)",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_01",
+     "stepIndex": 1
+    }
+   ]
+  },
+  {
+   "kz": "Паркке барамын.",
+   "ru": "Я иду в парк",
+   "level": 2,
+   "unit": "Септіктер — падежи",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_13",
+     "stepIndex": 2
+    }
+   ]
+  },
+  {
+   "kz": "соғып",
+   "ru": "дует",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_01",
+     "stepIndex": 6
+    }
+   ]
+  },
+  {
+   "kz": "сөйлесейік",
+   "ru": "поговорим",
+   "level": 2,
+   "unit": "Наклонения",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_04",
+     "stepIndex": 11
+    }
+   ]
+  },
+  {
+   "kz": "табамын",
+   "ru": "найду",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_03",
+     "stepIndex": 11
+    }
+   ]
+  },
+  {
+   "kz": "талқылайды",
+   "ru": "обсудят",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_03",
+     "stepIndex": 4
+    }
+   ]
+  },
+  {
+   "kz": "талқылап",
+   "ru": "обсуждали",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_02",
+     "stepIndex": 4
+    }
+   ]
+  },
+  {
+   "kz": "таптым",
+   "ru": "нашёл",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_02",
+     "stepIndex": 11
+    }
+   ]
+  },
+  {
+   "kz": "төртеу",
+   "ru": "четверо",
+   "level": 2,
+   "unit": "Числа и признаки",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_11",
+     "stepIndex": 6
+    }
+   ]
+  },
+  {
+   "kz": "төрттен үш",
+   "ru": "три четвёртых",
+   "level": 2,
+   "unit": "Числа и признаки",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_11",
+     "stepIndex": 5
+    }
+   ]
+  },
+  {
+   "kz": "тұр",
+   "ru": "разговаривает (сейчас)",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_01",
+     "stepIndex": 7
+    }
+   ]
+  },
+  {
+   "kz": "тұрады",
+   "ru": "встаёт",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_01",
+     "stepIndex": 9
+    }
+   ]
+  },
+  {
+   "kz": "Тыңда!",
+   "ru": "Слушай!",
+   "level": 2,
+   "unit": "Наклонения",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_04",
+     "stepIndex": 0
+    }
+   ]
+  },
+  {
+   "kz": "тыңдап",
+   "ru": "будет слушать",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_03",
+     "stepIndex": 9
+    }
+   ]
+  },
+  {
+   "kz": "тыңдап отыр",
+   "ru": "слушал",
+   "level": 2,
+   "unit": "Времена глагола",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_02",
+     "stepIndex": 9
+    }
+   ]
+  },
+  {
+   "kz": "Үйде отырмасын!",
+   "ru": "Пусть не сидит дома!",
+   "level": 2,
+   "unit": "Наклонения",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_04",
+     "stepIndex": 8
+    }
+   ]
+  },
+  {
+   "kz": "үш кітапқа",
+   "ru": "трём книгам",
+   "level": 2,
+   "unit": "Числа и признаки",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_11",
+     "stepIndex": 4
+    }
+   ]
+  },
+  {
+   "kz": "үш кітапты",
+   "ru": "три книги (винительный падеж)",
+   "level": 2,
+   "unit": "Числа и признаки",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_17",
+     "stepIndex": 1
+    }
+   ]
+  },
+  {
+   "kz": "үшеуміз",
+   "ru": "нас трое",
+   "level": 2,
+   "unit": "Числа и признаки",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_17",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "үшінші",
+   "ru": "третий",
+   "level": 2,
+   "unit": "Числа и признаки",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_11",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "үшінші оқушыға",
+   "ru": "третьему ученику",
+   "level": 2,
+   "unit": "Числа и признаки",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_17",
+     "stepIndex": 5
+    }
+   ]
+  },
+  {
+   "kz": "Ағаш тұрған жерде",
+   "ru": "Там, где стоит дерево",
+   "level": 3,
+   "unit": "Сложная речь",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_08",
+     "stepIndex": 6
+    }
+   ]
+  },
+  {
+   "kz": "айтыс",
+   "ru": "айтыс — состязание акынов",
+   "level": 3,
+   "unit": "Сложная речь",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_12",
+     "stepIndex": 1
+    }
+   ]
+  },
+  {
+   "kz": "ашылады",
+   "ru": "открывается",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_06",
+     "stepIndex": 6
+    }
+   ]
+  },
+  {
+   "kz": "балақай",
+   "ru": "малыш",
+   "level": 3,
+   "unit": "Сложная речь",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_12",
+     "stepIndex": 9
+    }
+   ]
+  },
+  {
+   "kz": "бестік",
+   "ru": "пятёрка",
+   "level": 3,
+   "unit": "Сложная речь",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_12",
+     "stepIndex": 4
+    }
+   ]
+  },
+  {
+   "kz": "білім алу үшін",
+   "ru": "чтобы получить знания",
+   "level": 3,
+   "unit": "Сложная речь",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_08",
+     "stepIndex": 5
+    }
+   ]
+  },
+  {
+   "kz": "бұзылмайды",
+   "ru": "не нарушаются",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_06",
+     "stepIndex": 10
+    }
+   ]
+  },
+  {
+   "kz": "дайындалады",
+   "ru": "готовится",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_06",
+     "stepIndex": 2
+    }
+   ]
+  },
+  {
+   "kz": "дәрісхана",
+   "ru": "аудитория, лекционный зал",
+   "level": 3,
+   "unit": "Сложная речь",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_12",
+     "stepIndex": 2
+    }
+   ]
+  },
+  {
+   "kz": "егер жаңбыр жауса",
+   "ru": "если пойдёт дождь",
+   "level": 3,
+   "unit": "Сложная речь",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_08",
+     "stepIndex": 9
+    }
+   ]
+  },
+  {
+   "kz": "Егер уақытым болса",
+   "ru": "Если у меня будет время",
+   "level": 3,
+   "unit": "Сложная речь",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_08",
+     "stepIndex": 2
+    }
+   ]
+  },
+  {
+   "kz": "ең әдемі",
+   "ru": "самый красивый",
+   "level": 3,
+   "unit": "Числа и признаки",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_10",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "жазылды",
+   "ru": "написано",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_06",
+     "stepIndex": 7
+    }
+   ]
+  },
+  {
+   "kz": "жақсырақ",
+   "ru": "лучше",
+   "level": 3,
+   "unit": "Числа и признаки",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_10",
+     "stepIndex": 1
+    },
+    {
+     "lessonId": "kzru_grammar_10",
+     "stepIndex": 9
+    }
+   ]
+  },
+  {
+   "kz": "Жалпы (күшейтпелі) дәреже",
+   "ru": "Положительная степень",
+   "level": 3,
+   "unit": "Числа и признаки",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_10",
+     "stepIndex": 0
+    }
+   ]
+  },
+  {
+   "kz": "ішіледі",
+   "ru": "пьётся",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_06",
+     "stepIndex": 4
+    }
+   ]
+  },
+  {
+   "kz": "кітап дүкені",
+   "ru": "книжный магазин",
+   "level": 3,
+   "unit": "Сложная речь",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_12",
+     "stepIndex": 7
+    }
+   ]
+  },
+  {
+   "kz": "көбірек",
+   "ru": "больше",
+   "level": 3,
+   "unit": "Числа и признаки",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_10",
+     "stepIndex": 6
+    }
+   ]
+  },
+  {
+   "kz": "компьютерлік",
+   "ru": "компьютерный",
+   "level": 3,
+   "unit": "Сложная речь",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_12",
+     "stepIndex": 8
+    }
+   ]
+  },
+  {
+   "kz": "қызару",
+   "ru": "краснеть",
+   "level": 3,
+   "unit": "Сложная речь",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_12",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "Мен саяхаттағым келеді.",
+   "ru": "Я хочу путешествовать",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_09",
+     "stepIndex": 6
+    }
+   ]
+  },
+  {
+   "kz": "өздерін",
+   "ru": "себя",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_07",
+     "stepIndex": 4
+    }
+   ]
+  },
+  {
+   "kz": "өзім үшін",
+   "ru": "для себя",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_07",
+     "stepIndex": 8
+    }
+   ]
+  },
+  {
+   "kz": "өзімді",
+   "ru": "себя",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_07",
+     "stepIndex": 0
+    }
+   ]
+  },
+  {
+   "kz": "өзіме",
+   "ru": "себе",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_07",
+     "stepIndex": 5
+    }
+   ]
+  },
+  {
+   "kz": "өзімізбен",
+   "ru": "собой",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_07",
+     "stepIndex": 7
+    }
+   ]
+  },
+  {
+   "kz": "өзімізді",
+   "ru": "себя",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_07",
+     "stepIndex": 2
+    }
+   ]
+  },
+  {
+   "kz": "өзін",
+   "ru": "себя",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_07",
+     "stepIndex": 1
+    }
+   ]
+  },
+  {
+   "kz": "өзін-өзі",
+   "ru": "самого себя",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_07",
+     "stepIndex": 10
+    }
+   ]
+  },
+  {
+   "kz": "өзіңді",
+   "ru": "себя",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_07",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "өзіңе",
+   "ru": "о себе",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_07",
+     "stepIndex": 9
+    },
+    {
+     "lessonId": "kzru_grammar_07",
+     "stepIndex": 11
+    }
+   ]
+  },
+  {
+   "kz": "өзінен",
+   "ru": "самого себя",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_07",
+     "stepIndex": 6
+    }
+   ]
+  },
+  {
+   "kz": "ойнатылады",
+   "ru": "проигрывается",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_06",
+     "stepIndex": 9
+    }
+   ]
+  },
+  {
+   "kz": "оқушы, оқытушы",
+   "ru": "ученик, преподаватель",
+   "level": 3,
+   "unit": "Сложная речь",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_12",
+     "stepIndex": 0
+    }
+   ]
+  },
+  {
+   "kz": "оқылады",
+   "ru": "читается",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_06",
+     "stepIndex": 0
+    }
+   ]
+  },
+  {
+   "kz": "оқымаса",
+   "ru": "если не прочитает",
+   "level": 3,
+   "unit": "Наклонения",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_05",
+     "stepIndex": 8
+    },
+    {
+     "lessonId": "kzru_grammar_05",
+     "stepIndex": 11
+    }
+   ]
+  },
+  {
+   "kz": "оқымасақ",
+   "ru": "если не прочитаем",
+   "level": 3,
+   "unit": "Наклонения",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_05",
+     "stepIndex": 9
+    }
+   ]
+  },
+  {
+   "kz": "оқымасам",
+   "ru": "если не прочитаю",
+   "level": 3,
+   "unit": "Наклонения",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_05",
+     "stepIndex": 6
+    }
+   ]
+  },
+  {
+   "kz": "оқымасаң",
+   "ru": "если не прочитаешь",
+   "level": 3,
+   "unit": "Наклонения",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_05",
+     "stepIndex": 7
+    }
+   ]
+  },
+  {
+   "kz": "оқымасаңыз",
+   "ru": "если не прочитаете",
+   "level": 3,
+   "unit": "Наклонения",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_05",
+     "stepIndex": 10
+    }
+   ]
+  },
+  {
+   "kz": "оқыса",
+   "ru": "если прочитает",
+   "level": 3,
+   "unit": "Наклонения",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_05",
+     "stepIndex": 2
+    },
+    {
+     "lessonId": "kzru_grammar_05",
+     "stepIndex": 5
+    }
+   ]
+  },
+  {
+   "kz": "оқысақ",
+   "ru": "если прочитаем",
+   "level": 3,
+   "unit": "Наклонения",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_05",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "оқысам",
+   "ru": "если прочитаю",
+   "level": 3,
+   "unit": "Наклонения",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_05",
+     "stepIndex": 0
+    }
+   ]
+  },
+  {
+   "kz": "оқысаң",
+   "ru": "если прочитаешь",
+   "level": 3,
+   "unit": "Наклонения",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_05",
+     "stepIndex": 1
+    }
+   ]
+  },
+  {
+   "kz": "оқысаңыз",
+   "ru": "если прочитаете",
+   "level": 3,
+   "unit": "Наклонения",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_05",
+     "stepIndex": 4
+    }
+   ]
+  },
+  {
+   "kz": "оқытушылығымызда",
+   "ru": "в нашем преподавании",
+   "level": 3,
+   "unit": "Сложная речь",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_12",
+     "stepIndex": 10
+    }
+   ]
+  },
+  {
+   "kz": "ол келеді",
+   "ru": "он придёт",
+   "level": 3,
+   "unit": "Сложная речь",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_08",
+     "stepIndex": 0
+    }
+   ]
+  },
+  {
+   "kz": "ол келетінін",
+   "ru": "что он придёт",
+   "level": 3,
+   "unit": "Сложная речь",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_08",
+     "stepIndex": 8
+    }
+   ]
+  },
+  {
+   "kz": "Сабақ біткен кезде",
+   "ru": "Когда закончится урок",
+   "level": 3,
+   "unit": "Сложная речь",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_08",
+     "stepIndex": 1
+    }
+   ]
+  },
+  {
+   "kz": "салынады",
+   "ru": "строится",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_06",
+     "stepIndex": 1
+    }
+   ]
+  },
+  {
+   "kz": "салынатын болады",
+   "ru": "будет построена",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_06",
+     "stepIndex": 11
+    }
+   ]
+  },
+  {
+   "kz": "сарғыш",
+   "ru": "желтоватый",
+   "level": 3,
+   "unit": "Сложная речь",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_12",
+     "stepIndex": 6
+    }
+   ]
+  },
+  {
+   "kz": "себебі ауырды",
+   "ru": "потому что заболел",
+   "level": 3,
+   "unit": "Сложная речь",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_08",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "сондықтан пойыз жөнелді",
+   "ru": "поэтому поезд ушёл",
+   "level": 3,
+   "unit": "Сложная речь",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_08",
+     "stepIndex": 4
+    }
+   ]
+  },
+  {
+   "kz": "талқыланады",
+   "ru": "обсуждается",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_06",
+     "stepIndex": 3
+    }
+   ]
+  },
+  {
+   "kz": "талқыланатын болады",
+   "ru": "будет обсуждаться",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_06",
+     "stepIndex": 8
+    }
+   ]
+  },
+  {
+   "kz": "тамаша",
+   "ru": "замечательный",
+   "level": 3,
+   "unit": "Числа и признаки",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_10",
+     "stepIndex": 7
+    }
+   ]
+  },
+  {
+   "kz": "тексеріледі",
+   "ru": "проверяются",
+   "level": 3,
+   "unit": "Залоги и виды",
+   "lessons": [
+    {
+     "lessonId": "kzru_grammar_06",
+     "stepIndex": 5
+    }
+   ]
+  }
+ ]
+}

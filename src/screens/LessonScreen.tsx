@@ -2,7 +2,7 @@ import { useState, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../hooks/useApp';
-import { t, getCharacterSvgName, getCharacterName } from '../utils/helpers';
+import { getCharacterName, getCharacterSvgName } from '../utils/helpers';
 import { playCorrectSound, playWrongSound, playClickSound } from '../utils/sounds';
 import { fireSuccess } from '../utils/confetti';
 import Character from '../components/Character';
@@ -41,14 +41,18 @@ export default function LessonScreen() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { state, recordAnswer, updateProgress } = useApp();
-  const { lang } = state;
 
   const lesson = getLessonById(id ?? '');
   const [stepIndex, setStepIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>('dialogue');
   const [result, setResult] = useState<TaskResult | null>(null);
   const [tally, setTally] = useState({ correct: 0, almost: 0, wrong: 0, xp: 0 });
+  /** Шаги, где ученик ошибся: из них собирается разбор в конце урока. */
+  const [mistakes, setMistakes] = useState<{ stepIndex: number; given: string }[]>([]);
   const taskShownAt = useRef<number>(Date.now());
+  /** Очередь повторного прохода по ошибкам; пустая — идёт обычный урок. */
+  const [redoQueue, setRedoQueue] = useState<number[]>([]);
+  const [redoPos, setRedoPos] = useState(0);
 
   const finishLesson = useCallback((final: typeof tally) => {
     if (!lesson) return;
@@ -66,10 +70,8 @@ export default function LessonScreen() {
     return (
       <div className="page">
         <div className="shell stack">
-          <h1 className="t-head">{t('Сабақ табылмады', 'Урок не найден', lang)}</h1>
-          <button className="btn btn--primary" onClick={() => navigate('/lessons')}>
-            {t('Сабақтарға', 'К урокам', lang)}
-          </button>
+          <h1 className="t-head">Урок не найден</h1>
+          <button className="btn btn--primary" onClick={() => navigate('/learn')}>К урокам</button>
         </div>
       </div>
     );
@@ -81,7 +83,8 @@ export default function LessonScreen() {
   const morph = result?.verdict !== 'wrong' ? splitMorph(step.answerKz, step.options) : null;
 
   const handleSubmit = (r: TaskResult) => {
-    const xp = xpFor(r.verdict, r.hintsUsed);
+    const isRedo = redoQueue.length > 0;
+    const xp = isRedo ? 0 : xpFor(r.verdict, r.hintsUsed);
     setResult(r);
     setPhase('verdict');
 
@@ -95,12 +98,19 @@ export default function LessonScreen() {
       xp,
     });
 
-    setTally(prev => ({
-      correct: prev.correct + (r.verdict === 'correct' || r.verdict === 'correct_kz' ? 1 : 0),
-      almost: prev.almost + (r.verdict === 'almost' ? 1 : 0),
-      wrong: prev.wrong + (r.verdict === 'wrong' ? 1 : 0),
-      xp: prev.xp + xp,
-    }));
+    // Итоги урока считаются один раз. Повторный проход по ошибкам их не
+    // меняет: иначе разбор задним числом улучшал бы результат урока.
+    if (!isRedo) {
+      setTally(prev => ({
+        correct: prev.correct + (r.verdict === 'correct' || r.verdict === 'correct_kz' ? 1 : 0),
+        almost: prev.almost + (r.verdict === 'almost' ? 1 : 0),
+        wrong: prev.wrong + (r.verdict === 'wrong' ? 1 : 0),
+        xp: prev.xp + xp,
+      }));
+      if (r.verdict === 'wrong') {
+        setMistakes(m => [...m, { stepIndex, given: r.userAnswer }]);
+      }
+    }
 
     if (r.verdict === 'wrong') {
       playWrongSound();
@@ -117,6 +127,23 @@ export default function LessonScreen() {
 
   const goNext = () => {
     playClickSound();
+
+    // Режим разбора ошибок идёт по своей очереди и не трогает прогресс урока.
+    if (redoQueue.length) {
+      const next = redoPos + 1;
+      setResult(null);
+      if (next >= redoQueue.length) {
+        setRedoQueue([]);
+        setPhase('summary');
+        return;
+      }
+      setRedoPos(next);
+      setStepIndex(redoQueue[next]);
+      setPhase('task');
+      taskShownAt.current = Date.now();
+      return;
+    }
+
     if (isLast) {
       setTally(final => { finishLesson(final); return final; });
       setPhase('summary');
@@ -125,6 +152,26 @@ export default function LessonScreen() {
     setStepIndex(i => i + 1);
     setResult(null);
     setPhase('dialogue');
+  };
+
+  /**
+   * Разбор ошибок.
+   *
+   * Урок не заканчивается на цифрах «столько-то верно»: ученик возвращается
+   * к тем заданиям, где ошибся, и решает их заново. Повторный проход не
+   * начисляет XP — он нужен, чтобы разобраться, а не чтобы набрать очки.
+   */
+  const redoMistakes = () => {
+    playClickSound();
+    const queue = mistakes.map(m => m.stepIndex);
+    if (!queue.length) return;
+    setRedoQueue(queue);
+    setRedoPos(0);
+    setStepIndex(queue[0]);
+    setMistakes([]);
+    setResult(null);
+    setPhase('task');
+    taskShownAt.current = Date.now();
   };
 
   const startTask = () => {
@@ -142,14 +189,14 @@ export default function LessonScreen() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <button
               className="btn btn--quiet"
-              onClick={() => { playClickSound(); navigate('/lessons'); }}
-              aria-label={t('Артқа', 'Назад', lang)}
+              onClick={() => { playClickSound(); navigate('/learn'); }}
+              aria-label="Назад"
             >
               ←
             </button>
             <div style={{ flex: 1 }}>
               <p className="t-small">
-                {t('Қадам', 'Шаг', lang)} {Math.min(stepIndex + 1, total)} / {total}
+                {'Шаг'} {Math.min(stepIndex + 1, total)} / {total}
               </p>
             </div>
             <span className="meta meta--gold">{tally.xp} XP</span>
@@ -172,52 +219,52 @@ export default function LessonScreen() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <Character name={getCharacterSvgName(lesson.character)} size={44} />
                   <span className="t-small" style={{ fontWeight: 600 }}>
-                    {getCharacterName(lesson.character, lang)}
+                    {getCharacterName(lesson.character)}
                   </span>
                 </div>
                 <p className="t-kz" style={{ whiteSpace: 'pre-line' }}>{step.dialogueKz}</p>
                 <hr className="divider" />
                 <p className="t-ru" style={{ whiteSpace: 'pre-line' }}>{step.dialogueRu}</p>
               </section>
-              <button className="btn btn--primary btn--block" onClick={() => { playClickSound(); setPhase('grammar'); }}>
-                {t('Ережеге', 'К правилу', lang)}
-              </button>
+              <button className="btn btn--primary btn--block" onClick={() => { playClickSound(); setPhase('grammar'); }}>К правилу</button>
             </Fade>
           )}
 
           {phase === 'grammar' && (
             <Fade key="grammar">
               <section className="panel panel--raised stack--tight">
-                <span className="task__badge">{t('Ереже', 'Правило', lang)}</span>
+                <span className="task__badge">Правило</span>
                 <p className="t-kz" style={{ whiteSpace: 'pre-line' }}>{step.grammarKz}</p>
                 <hr className="divider" />
                 <p className="t-ru" style={{ whiteSpace: 'pre-line' }}>{step.grammarRu}</p>
               </section>
               <section className="panel stack--tight">
-                <span className="t-small" style={{ fontWeight: 600 }}>
-                  {t('Мұғалімнің кеңесі', 'Совет учителя', lang)}
-                </span>
+                <span className="t-small" style={{ fontWeight: 600 }}>Совет учителя</span>
                 <p className="t-body">{step.teacherKz1}</p>
                 <p className="t-ru">{step.teacherRu1}</p>
               </section>
-              <button className="btn btn--primary btn--block" onClick={startTask}>
-                {t('Тапсырмаға', 'К заданию', lang)}
-              </button>
+              <button className="btn btn--primary btn--block" onClick={startTask}>К заданию</button>
             </Fade>
           )}
 
           {phase === 'task' && (
-            <TaskInput key={`task-${stepIndex}`} step={step} lang={lang} onSubmit={handleSubmit} onSkip={handleSkip} />
+            <TaskInput
+              key={`task-${stepIndex}`}
+              step={step}
+              onSubmit={handleSubmit}
+              onSkip={handleSkip}
+              instantCheck={state.settings.instantCheck}
+            />
           )}
 
           {phase === 'verdict' && result && (
             <Fade key="verdict">
               <section className={`verdict ${result.verdict === 'wrong' ? 'verdict--no' : 'verdict--ok'}`}>
-                <span className="verdict__title">{verdictTitle(result.verdict, lang)}</span>
+                <span className="verdict__title">{verdictTitle(result.verdict)}</span>
 
                 {result.verdict !== 'correct' && (
                   <div>
-                    <p className="t-small">{t('Дұрыс жауап', 'Правильный ответ', lang)}</p>
+                    <p className="t-small">Правильный ответ</p>
                     {morph ? (
                       <p className="morph">
                         <span className="morph__stem">{morph.stem}</span>
@@ -234,15 +281,13 @@ export default function LessonScreen() {
               </section>
 
               <section className="panel stack--tight">
-                <span className="t-small" style={{ fontWeight: 600 }}>
-                  {t('Мұғалім', 'Учитель', lang)}
-                </span>
+                <span className="t-small" style={{ fontWeight: 600 }}>Учитель</span>
                 <p className="t-body">{step.teacherKz2}</p>
                 <p className="t-ru">{step.teacherRu2}</p>
               </section>
 
               <button className="btn btn--primary btn--block" onClick={goNext}>
-                {isLast ? t('Қорытынды', 'Итоги урока', lang) : t('Келесі', 'Дальше', lang)}
+                {isLast ? 'Итоги урока' : 'Дальше'}
               </button>
             </Fade>
           )}
@@ -254,26 +299,40 @@ export default function LessonScreen() {
                 <p className="t-small">{lesson.titleKz}</p>
                 <hr className="divider" />
                 <dl className="stack--tight">
-                  <SummaryRow label={t('Дұрыс', 'Верно', lang)} value={`${tally.correct} / ${total}`} />
-                  <SummaryRow label={t('Дерлік дұрыс', 'Почти верно', lang)} value={String(tally.almost)} />
-                  <SummaryRow label={t('Қате', 'Ошибок', lang)} value={String(tally.wrong)} />
+                  <SummaryRow label={'Верно'} value={`${tally.correct} / ${total}`} />
+                  <SummaryRow label={'Почти верно'} value={String(tally.almost)} />
+                  <SummaryRow label={'Ошибок'} value={String(tally.wrong)} />
                   <SummaryRow label="XP" value={`+${tally.xp}`} />
                 </dl>
-                <p className="t-small">
-                  {t(
-                    'Қателескен тапсырмалар қайталауға түсті.',
-                    'Задания с ошибками добавлены в повторение — приложение вернёт их через день.',
-                    lang
-                  )}
-                </p>
+                <p className="t-small">Задания с ошибками добавлены в повторение — приложение вернёт их через день.</p>
               </section>
+
+              {mistakes.length > 0 && (
+                <section className="panel stack--tight">
+                  <h2 className="t-sub">Что не получилось</h2>
+                  {mistakes.map(({ stepIndex: si, given }) => {
+                    const m = lesson.steps[si];
+                    return (
+                      <div key={si} className="mistake">
+                        <p className="t-small">{m.taskRu}</p>
+                        <p className="mistake__given">
+                          {given ? `Ты написал: ${given}` : 'Задание пропущено'}
+                        </p>
+                        <p className="mistake__right">{m.answerKz}</p>
+                        <p className="t-ru">{m.answerRu}</p>
+                      </div>
+                    );
+                  })}
+                  <button className="btn btn--primary btn--block" onClick={redoMistakes}>
+                    Разобрать ошибки ({mistakes.length})
+                  </button>
+                  <p className="t-small">Повторный проход не начисляет XP — он нужен, чтобы разобраться.</p>
+                </section>
+              )}
+
               <div className="task__actions">
-                <button className="btn btn--ghost" onClick={() => navigate('/lessons')}>
-                  {t('Сабақтарға', 'К урокам', lang)}
-                </button>
-                <button className="btn btn--primary" onClick={() => navigate('/review')}>
-                  {t('Қайталау', 'Повторить', lang)}
-                </button>
+                <button className="btn btn--ghost" onClick={() => navigate('/learn')}>К урокам</button>
+                <button className="btn btn--primary" onClick={() => navigate('/review')}>Повторить</button>
               </div>
             </Fade>
           )}
@@ -283,12 +342,12 @@ export default function LessonScreen() {
   );
 }
 
-function verdictTitle(verdict: Verdict, lang: 'kz' | 'ru'): string {
+function verdictTitle(verdict: Verdict): string {
   switch (verdict) {
-    case 'correct': return t('Дұрыс!', 'Верно!', lang);
-    case 'correct_kz': return t('Грамматика дұрыс', 'Грамматика верна', lang);
-    case 'almost': return t('Дерлік дұрыс', 'Почти верно', lang);
-    default: return t('Қате', 'Не совпало', lang);
+    case 'correct': return 'Верно!';
+    case 'correct_kz': return 'Грамматика верна';
+    case 'almost': return 'Почти верно';
+    default: return 'Не совпало';
   }
 }
 

@@ -1,20 +1,18 @@
-import type { Lang } from '../types';
-
-export function t(kz: string, ru: string, lang: Lang): string {
-  return lang === 'kz' ? kz : ru;
-}
-
-export function getCharacterName(character: string, lang: Lang): string {
-  const names: Record<string, Record<Lang, string>> = {
-    'AUTO': { kz: 'Мұғалім', ru: 'Учитель' },
-    'AISHA': { kz: 'Айша', ru: 'Айша' },
-    'DIMA': { kz: 'Дима', ru: 'Дима' },
-    'TEACHER': { kz: 'Мұғалім', ru: 'Учитель' },
-    'GIRL': { kz: 'Айша', ru: 'Айша' },
-    'BOY': { kz: 'Дима', ru: 'Дима' },
+/**
+ * Интерфейс одноязычный — русский. Приложение с самого начала рассчитано на
+ * тех, кто говорит по-русски и учит казахский, поэтому выбор языка интерфейса
+ * только сбивал с толку. Казахский живёт в содержании уроков, а не в кнопках.
+ */
+export function getCharacterName(character: string): string {
+  const names: Record<string, string> = {
+    AUTO: 'Учитель',
+    TEACHER: 'Учитель',
+    AISHA: 'Айша',
+    DIMA: 'Дима',
+    GIRL: 'Айша',
+    BOY: 'Дима',
   };
-  const entry = names[character.toUpperCase()] || names['AUTO'];
-  return entry[lang];
+  return names[character.toUpperCase()] ?? 'Учитель';
 }
 
 export function getCharacterSvgName(character: string): 'teacher' | 'girl' | 'boy' {

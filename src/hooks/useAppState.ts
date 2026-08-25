@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import type { Lang, AppState, LessonProgress, Settings } from '../types';
+import type { AppState, LessonProgress, Settings } from '../types';
 import { achievements, getLevelFromXp } from '../data/achievements';
 import { newCard, reviewCard, dueQueue, forecast, todayISO } from '../utils/srs';
 import type { Card } from '../utils/srs';
@@ -12,13 +12,15 @@ const STATE_VERSION = 2;
 
 const defaultSettings: Settings = {
   sound: true,
+  level: 1,
+  dailyGoal: 10,
+  instantCheck: true,
   music: false,
   reducedMotion: false,
   participantId: '',
 };
 
 const defaultState: AppState = {
-  lang: 'ru',
   progress: {},
   xp: 0,
   streak: 0,
@@ -29,6 +31,7 @@ const defaultState: AppState = {
   events: [],
   settings: defaultSettings,
   activeDays: [],
+  records: { sprint: 0 },
 };
 
 /**
@@ -49,6 +52,7 @@ function loadState(): AppState {
       cards: parsed.cards ?? {},
       events: parsed.events ?? [],
       activeDays: parsed.activeDays ?? [],
+      records: { ...defaultState.records, ...(parsed.records ?? {}) },
     };
     state.level = getLevelFromXp(state.xp);
     return state;
@@ -108,8 +112,6 @@ export function useAppState() {
 
   useEffect(() => { saveState(state); }, [state]);
 
-  const setLang = useCallback((lang: Lang) => setState(s => ({ ...s, lang })), []);
-
   const updateSettings = useCallback((patch: Partial<Settings>) => {
     setState(s => ({ ...s, settings: { ...s.settings, ...patch } }));
   }, []);
@@ -155,7 +157,14 @@ export function useAppState() {
   }, []);
 
   const resetProgress = useCallback(() => {
-    setState(s => ({ ...defaultState, lang: s.lang, settings: s.settings }));
+    setState(s => ({ ...defaultState, settings: s.settings }));
+  }, []);
+
+  /** Обновляет рекорд, только если он действительно побит. */
+  const setRecord = useCallback((key: keyof AppState['records'], value: number) => {
+    setState(s => (value > s.records[key]
+      ? { ...s, records: { ...s.records, [key]: value } }
+      : s));
   }, []);
 
   const exportCsv = useCallback(() => {
@@ -175,5 +184,5 @@ export function useAppState() {
     rescueRate: keyboardRescueRate(state.events),
   }), [state.cards, state.events]);
 
-  return { state, setLang, updateSettings, recordAnswer, updateProgress, resetProgress, exportCsv, ...derived };
+  return { state, updateSettings, recordAnswer, updateProgress, resetProgress, setRecord, exportCsv, ...derived };
 }

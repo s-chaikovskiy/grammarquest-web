@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../hooks/useApp';
-import { t } from '../utils/helpers';
+
 import { foldKazakh, normalizeAnswer } from '../utils/answer';
 import { loadRules } from '../data';
 import type { Rule } from '../types';
@@ -9,7 +9,6 @@ import type { Rule } from '../types';
 export default function RulesScreen() {
   const navigate = useNavigate();
   const { state } = useApp();
-  const { lang } = state;
   const [query, setQuery] = useState('');
   const [openId, setOpenId] = useState<string | null>(null);
   const [rules, setRules] = useState<Rule[] | null>(null);
@@ -33,8 +32,8 @@ export default function RulesScreen() {
     <div className="page">
       <div className="shell stack">
         <header style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <button className="btn btn--quiet" onClick={() => navigate('/menu')} aria-label={t('Артқа', 'Назад', lang)}>←</button>
-          <h1 className="t-head">{t('Ережелер', 'Правила', lang)}</h1>
+          <button className="btn btn--quiet" onClick={() => navigate('/learn')} aria-label={'Назад'}>←</button>
+          <h1 className="t-head">Правила</h1>
         </header>
 
         <input
@@ -42,14 +41,14 @@ export default function RulesScreen() {
           className="field"
           value={query}
           onChange={e => setQuery(e.target.value)}
-          placeholder={t('Ережеден іздеу...', 'Поиск по правилам...', lang)}
-          aria-label={t('Іздеу', 'Поиск', lang)}
+          placeholder="Поиск по правилам..."
+          aria-label="Поиск"
         />
 
         {rules === null ? (
-          <p className="t-small">{t('Жүктелуде...', 'Загружаем правила...', lang)}</p>
+          <p className="t-small">Загружаем правила...</p>
         ) : found.length === 0 ? (
-          <p className="t-small">{t('Ештеңе табылмады', 'Ничего не нашлось. Попробуй другое слово.', lang)}</p>
+          <p className="t-small">Ничего не нашлось. Попробуй другое слово.</p>
         ) : (
           <ul style={{ listStyle: 'none' }}>
             {found.map(rule => {
@@ -64,9 +63,9 @@ export default function RulesScreen() {
                   >
                     <span>
                       <span className="lesson-row__title" style={{ display: 'block' }}>
-                        {lang === 'kz' ? rule.titleKz : rule.titleRu}
+                        {rule.titleRu}
                       </span>
-                      <span className="lesson-row__sub">{lang === 'kz' ? rule.titleRu : rule.titleKz}</span>
+                      <span className="lesson-row__sub">{rule.titleKz}</span>
                     </span>
                     <span className="t-small">{open ? '−' : '+'}</span>
                   </button>

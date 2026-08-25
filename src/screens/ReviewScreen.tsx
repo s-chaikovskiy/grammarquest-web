@@ -2,7 +2,7 @@ import { useState, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useApp } from '../hooks/useApp';
-import { t, pluralize } from '../utils/helpers';
+import { pluralize } from '../utils/helpers';
 import { playCorrectSound, playWrongSound, playClickSound } from '../utils/sounds';
 import TaskInput, { type TaskResult } from '../components/TaskInput';
 import { getLessonById } from '../data';
@@ -18,7 +18,6 @@ import type { Step } from '../types';
 export default function ReviewScreen() {
   const navigate = useNavigate();
   const { state, due, forecast, recordAnswer } = useApp();
-  const { lang } = state;
 
   // Очередь фиксируется на входе: если пересчитывать её после каждого ответа,
   // карточка, отвеченная неверно, тут же выпрыгнет снова.
@@ -66,10 +65,10 @@ export default function ReviewScreen() {
     <div className="page">
       <div className="shell stack">
         <header style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <button className="btn btn--quiet" onClick={() => navigate('/menu')} aria-label={t('Артқа', 'Назад', lang)}>
+          <button className="btn btn--quiet" onClick={() => navigate('/learn')} aria-label={'Назад'}>
             ←
           </button>
-          <h1 className="t-head" style={{ flex: 1 }}>{t('Қайталау', 'Повторение', lang)}</h1>
+          <h1 className="t-head" style={{ flex: 1 }}>Повторение</h1>
           {!finished && (
             <span className="t-small">{position + 1} / {queue.length}</span>
           )}
@@ -80,9 +79,8 @@ export default function ReviewScreen() {
             reviewed={position}
             tally={tally}
             forecast={forecast}
-            lang={lang}
-            onLessons={() => navigate('/lessons')}
-            onMenu={() => navigate('/menu')}
+            onLessons={() => navigate('/learn')}
+            onMenu={() => navigate('/learn')}
           />
         ) : (
           <>
@@ -92,7 +90,7 @@ export default function ReviewScreen() {
 
             {card.lapses > 0 && (
               <p className="t-small">
-                {t('Бұл тапсырманы бұрын ұмытқансың', 'Это задание уже забывалось', lang)} · {card.lapses}×
+                {'Это задание уже забывалось'} · {card.lapses}×
               </p>
             )}
 
@@ -101,8 +99,7 @@ export default function ReviewScreen() {
                 <TaskInput
                   key={card.id}
                   step={step}
-                  lang={lang}
-                  onSubmit={handleSubmit}
+                        onSubmit={handleSubmit}
                   onSkip={() => handleSubmit({ verdict: 'wrong', userAnswer: '', hintsUsed: 0 })}
                 />
               )}
@@ -117,11 +114,11 @@ export default function ReviewScreen() {
                 >
                   <section className={`verdict ${result.verdict === 'wrong' ? 'verdict--no' : 'verdict--ok'}`}>
                     <span className="verdict__title">
-                      {result.verdict === 'wrong' ? t('Қате', 'Не совпало', lang) : t('Дұрыс!', 'Верно!', lang)}
+                      {result.verdict === 'wrong' ? 'Не совпало' : 'Верно!'}
                     </span>
                     {result.verdict !== 'correct' && (
                       <div>
-                        <p className="t-small">{t('Дұрыс жауап', 'Правильный ответ', lang)}</p>
+                        <p className="t-small">Правильный ответ</p>
                         <p className="verdict__answer">{step.answerKz}</p>
                         <p className="t-ru">{step.answerRu}</p>
                       </div>
@@ -129,7 +126,7 @@ export default function ReviewScreen() {
                     {result.note && <p className="t-small">{result.note}</p>}
                   </section>
                   <button className="btn btn--primary btn--block" onClick={next}>
-                    {position + 1 >= queue.length ? t('Қорытынды', 'Итоги', lang) : t('Келесі', 'Дальше', lang)}
+                    {position + 1 >= queue.length ? 'Итоги' : 'Дальше'}
                   </button>
                 </motion.div>
               )}
@@ -141,11 +138,10 @@ export default function ReviewScreen() {
   );
 }
 
-function EmptyOrDone({ reviewed, tally, forecast, lang, onLessons, onMenu }: {
+function EmptyOrDone({ reviewed, tally, forecast, onLessons, onMenu }: {
   reviewed: number;
   tally: { correct: number; wrong: number };
   forecast: number[];
-  lang: 'kz' | 'ru';
   onLessons: () => void;
   onMenu: () => void;
 }) {
@@ -154,43 +150,27 @@ function EmptyOrDone({ reviewed, tally, forecast, lang, onLessons, onMenu }: {
   if (reviewed === 0) {
     return (
       <section className="panel panel--raised stack--tight">
-        <h2 className="t-sub">{t('Бүгінге қайталау жоқ', 'На сегодня повторять нечего', lang)}</h2>
-        <p className="t-small">
-          {t(
-            'Тапсырмалар сабақтан кейін қайталауға түседі.',
-            'Задания попадают сюда после уроков: приложение возвращает их ровно тогда, когда их пора вспомнить.',
-            lang
-          )}
-        </p>
+        <h2 className="t-sub">На сегодня повторять нечего</h2>
+        <p className="t-small">Задания попадают сюда после уроков: приложение возвращает их ровно тогда, когда их пора вспомнить.</p>
         {upcoming > 0 && (
           <p className="t-small">
-            {t('Жақын күндері', 'В ближайшие дни', lang)}: {lang === 'kz' ? `${upcoming} тапсырма` : pluralize(upcoming, 'задание', 'задания', 'заданий')}
+            {'В ближайшие дни'}: {pluralize(upcoming, 'задание', 'задания', 'заданий')}
           </p>
         )}
-        <button className="btn btn--primary btn--block" onClick={onLessons}>
-          {t('Сабаққа өту', 'Перейти к урокам', lang)}
-        </button>
+        <button className="btn btn--primary btn--block" onClick={onLessons}>Перейти к урокам</button>
       </section>
     );
   }
 
   return (
     <section className="panel panel--raised stack--tight">
-      <h2 className="t-sub">{t('Қайталау аяқталды', 'Повторение завершено', lang)}</h2>
+      <h2 className="t-sub">Повторение завершено</h2>
       <p className="t-body">
-        {t('Дұрыс', 'Верно', lang)}: <strong>{tally.correct}</strong> / {reviewed}
+        {'Верно'}: <strong>{tally.correct}</strong> / {reviewed}
       </p>
-      <p className="t-small">
-        {t(
-          'Қателескендері ертең қайта келеді.',
-          'То, что не вспомнилось, вернётся завтра. Остальное — через несколько дней.',
-          lang
-        )}
-      </p>
-      <p className="t-small">{t('Бүгін', 'Сегодня', lang)}: {todayISO()}</p>
-      <button className="btn btn--primary btn--block" onClick={onMenu}>
-        {t('Мәзірге', 'В меню', lang)}
-      </button>
+      <p className="t-small">То, что не вспомнилось, вернётся завтра. Остальное — через несколько дней.</p>
+      <p className="t-small">{'Сегодня'}: {todayISO()}</p>
+      <button className="btn btn--primary btn--block" onClick={onMenu}>В меню</button>
     </section>
   );
 }
