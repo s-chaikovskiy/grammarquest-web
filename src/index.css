@@ -989,3 +989,140 @@ p { text-wrap: pretty; }
   .rise, .rise--soft { animation: none; }
   .node__dot:active { transform: none; }
 }
+
+/* =============================================================================
+   Глубина и материальность
+
+   Взято из ощущения 3D-галерей, но средствами вёрстки: слоистые тени,
+   перспектива, движение с инерцией. Настоящий WebGL сюда не годится —
+   минимальная сцена весит больше всего приложения и требует видеокарты,
+   которой на школьном компьютере нет.
+
+   Принцип распределения: там, где ученик работает, — спокойно;
+   там, где он побеждает, — насыщенно.
+   ========================================================================== */
+
+:root {
+  /* Тень в три слоя вместо одной: близкий контакт, средний охват, дальний
+     рассеянный. Так поверхность выглядит лежащей на фоне, а не наклеенной. */
+  --lift-1:
+    0 1px 2px oklch(0.25 0.02 255 / 0.05),
+    0 2px 6px oklch(0.25 0.02 255 / 0.04),
+    0 8px 20px oklch(0.25 0.02 255 / 0.03);
+  --lift-2:
+    0 1px 2px oklch(0.25 0.02 255 / 0.06),
+    0 4px 12px oklch(0.25 0.02 255 / 0.06),
+    0 16px 36px oklch(0.25 0.02 255 / 0.05);
+}
+
+:root[data-theme='dark'], :root:not([data-theme='light']) {
+  --lift-1: 0 1px 2px oklch(0 0 0 / 0.4), 0 4px 12px oklch(0 0 0 / 0.28);
+  --lift-2: 0 2px 4px oklch(0 0 0 / 0.45), 0 12px 32px oklch(0 0 0 / 0.38);
+}
+
+.panel--raised { box-shadow: var(--lift-1); }
+.flashcard { box-shadow: var(--lift-2); }
+.tabbar { box-shadow: 0 -1px 0 var(--border), 0 -8px 24px oklch(0.25 0.02 255 / 0.04); }
+
+/* --- узел пути как физический объект --------------------------------------
+   Текущий узел приподнят над дорожкой и при нажатии проваливается,
+   а не просто уменьшается. Разница едва заметна глазом, но палец её
+   чувствует — именно это и создаёт ощущение материальности. */
+
+.node__dot {
+  box-shadow: var(--lift-1);
+  transition: transform 180ms var(--ease-out-quart),
+              box-shadow 180ms var(--ease-out-quart),
+              background var(--dur-base) var(--ease-out-quart),
+              border-color var(--dur-base) var(--ease-out-quart);
+}
+.node--current .node__dot { transform: translateY(-2px); }
+.node__dot:active { transform: translateY(1px) scale(0.96); box-shadow: none; }
+
+/* --- появление по мере прокрутки -------------------------------------------
+   То самое «scroll» из галереи, но без единой строчки JS: узлы дорожки
+   проявляются, когда попадают в поле зрения. Где браузер этого не умеет,
+   всё просто видно сразу — содержимое никогда не зависит от анимации. */
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .node {
+      animation: node-enter linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 42%;
+    }
+    @keyframes node-enter {
+      from { opacity: 0.35; transform: translateY(14px) scale(0.97); }
+      to { opacity: 1; transform: none; }
+    }
+  }
+}
+
+/* --- перспектива на портрете ------------------------------------------------
+   Лёгкий наклон вслед за курсором. На телефоне не срабатывает вовсе:
+   там нет наведения, и трогать палец лишний раз незачем. */
+
+@media (hover: hover) and (pointer: fine) {
+  .tilt {
+    transform: perspective(700px)
+               rotateX(calc(var(--ty, 0) * -6deg))
+               rotateY(calc(var(--tx, 0) * 6deg));
+    transition: transform 260ms var(--ease-out-quart);
+    will-change: transform;
+  }
+}
+
+/* --- момент победы ---------------------------------------------------------
+   Единственное место, где движение работает на впечатление, а не на смысл:
+   урок пройден. Здесь можно позволить себе размах — он не мешает работать,
+   потому что работа уже закончена. */
+
+@keyframes trophy-in {
+  0% { transform: scale(0.6) rotate(-8deg); opacity: 0; }
+  60% { transform: scale(1.06) rotate(2deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+@keyframes glow-sweep {
+  0% { background-position: -140% 0; }
+  100% { background-position: 240% 0; }
+}
+
+.summary-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  overflow: hidden;
+  animation: trophy-in 520ms var(--ease-out-quart);
+}
+
+/* Цвет соответствует результату: зелёный достаётся тем, кто его заслужил. */
+.summary-hero--perfect { border-color: var(--success); background: var(--success-wash); }
+.summary-hero--good { border-color: var(--accent); background: var(--accent-wash); }
+.summary-hero--weak { border-color: var(--gold-ink); background: var(--gold-wash); }
+
+/* Блик проходит по карточке один раз — как отражение по стеклу. */
+.summary-hero--perfect::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 38%,
+              oklch(1 0 0 / 0.22) 50%, transparent 62%);
+  background-size: 220% 100%;
+  animation: glow-sweep 1100ms var(--ease-out-quart) 240ms both;
+  pointer-events: none;
+}
+
+.summary-hero__figure { flex-shrink: 0; }
+.summary-hero__text { min-width: 0; }
+.summary-hero__score { font-size: var(--text-2xl); font-weight: 700; letter-spacing: -0.02em; }
+
+@media (prefers-reduced-motion: reduce) {
+  .summary-hero, .summary-hero--perfect::after { animation: none; }
+  .summary-hero--perfect::after { display: none; }
+  .node--current .node__dot, .node__dot:active { transform: none; }
+}

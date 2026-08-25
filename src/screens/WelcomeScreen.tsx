@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useTilt } from '../hooks/useTilt';
 import { useApp } from '../hooks/useApp';
 import { playClickSound } from '../utils/sounds';
 import { plural } from '../utils/helpers';
@@ -16,6 +17,7 @@ import type { LevelId } from '../data';
  */
 export default function WelcomeScreen() {
   const navigate = useNavigate();
+  const tilt = useTilt<HTMLDivElement>();
   const { state, updateSettings } = useApp();
   const started = Object.keys(state.progress).length > 0 || state.xp > 0;
 
@@ -28,7 +30,9 @@ export default function WelcomeScreen() {
     <div className="page">
       <div className="shell stack--loose">
         <header className="stack--tight">
-          <Character name="girl" size={88} />
+          <div ref={tilt} className="tilt" style={{ width: 'fit-content' }}>
+            <Character name="girl" size={88} />
+          </div>
           <h1 className="t-title">Қазақ тілі</h1>
           <p className="t-body prose t-mut">
             Тренажёр казахского языка для тех, кто говорит по-русски.

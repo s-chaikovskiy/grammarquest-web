@@ -321,6 +321,36 @@ export default function LessonScreen() {
 
           {phase === 'summary' && (
             <Fade key="summary">
+              {/* Момент победы: единственное место, где движение работает
+                  на впечатление. Мешать оно не может — работа уже закончена. */}
+              {(() => {
+                // Вид итога соответствует результату. Праздновать ноль верных
+                // зелёным цветом — нечестная обратная связь: ученик перестаёт
+                // доверять оценке, а вместе с ней и похвале за настоящий успех.
+                const share = total ? tally.correct / total : 0;
+                const tone = share === 1 ? 'perfect' : share >= 0.7 ? 'good' : 'weak';
+                const caption = {
+                  perfect: 'Без единой ошибки',
+                  good: 'Хороший результат',
+                  weak: 'Пока тяжело — стоит разобрать ошибки ниже',
+                }[tone];
+                return (
+                  <section className={`summary-hero summary-hero--${tone}`}>
+                    <div className="summary-hero__figure">
+                      <Character
+                        name={getCharacterSvgName(lesson.character)}
+                        size={64}
+                        emotion={tone === 'weak' ? 'finger_up' : 'like'}
+                      />
+                    </div>
+                    <div className="summary-hero__text">
+                      <p className="summary-hero__score">{tally.correct} / {total}</p>
+                      <p className="t-small">{caption}</p>
+                    </div>
+                  </section>
+                );
+              })()}
+
               <section className="panel panel--raised stack--tight">
                 <h1 className="t-head">{lesson.titleRu}</h1>
                 <p className="t-small">{lesson.titleKz}</p>
