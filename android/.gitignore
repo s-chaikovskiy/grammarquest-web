@@ -90,7 +90,11 @@ lint/tmp/
 *.hprof
 
 # Cordova plugins for Capacitor
-capacitor-cordova-android-plugins
+# Изменено намеренно: Capacitor пишет этот файл из расчёта, что каталог
+# android/ генерируется заново на каждой машине. У нас нативный проект
+# хранится в репозитории, и модуль нужен — на него ссылается
+# settings.gradle, без него Gradle падает на конфигурации.
+capacitor-cordova-android-plugins/build/
 
 # Copied web assets
 app/src/main/assets/public

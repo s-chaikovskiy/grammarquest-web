@@ -19,10 +19,9 @@ android/build/
 android/app/build/
 android/.gradle/
 android/local.properties
-android/app/src/main/assets/public/
-android/app/src/main/assets/capacitor.config.json
-android/app/src/main/assets/capacitor.plugins.json
-android/capacitor-cordova-android-plugins/
+android/app/src/main/assets/*
+!android/app/src/main/assets/.gitkeep
+android/capacitor-cordova-android-plugins/build/
 ios/
 
 # Временный TTF, который make_icon.py распаковывает из woff2
