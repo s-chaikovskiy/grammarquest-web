@@ -681,7 +681,10 @@ p { text-wrap: pretty; }
   box-shadow: 0 0 0 6px var(--accent-wash);
 }
 .node--open .node__dot, .node--locked .node__dot { font-variant-numeric: tabular-nums; }
-.node--locked .node__dot { opacity: 0.6; }
+/* «Сюда рано» показывается пунктиром, а не прозрачностью: узел остаётся
+   нажимаемым, а гашение прозрачностью роняет контраст цифры незаметно —
+   цвет-то рассчитан, прозрачность накладывается поверх него. */
+.node--locked .node__dot { border-style: dashed; }
 .node--locked .node__title { color: var(--ink-2); }
 
 .node__body { min-width: 0; }
@@ -1052,8 +1055,8 @@ p { text-wrap: pretty; }
       animation-range: entry 0% entry 42%;
     }
     @keyframes node-enter {
-      from { opacity: 0.35; transform: translateY(14px) scale(0.97); }
-      to { opacity: 1; transform: none; }
+      from { transform: translateY(14px) scale(0.97); }
+      to { transform: none; }
     }
   }
 }
@@ -1326,3 +1329,43 @@ p { text-wrap: pretty; }
 .dialogue__who { font-size: var(--text-sm); font-weight: 650; color: var(--ink-2); }
 .dialogue__say { display: flex; align-items: flex-start; gap: 0.5rem; }
 .dialogue__say .t-kz { flex: 1; min-width: 0; }
+
+/* --- награды --------------------------------------------------------------- */
+/* Значок здесь — содержание, а не иконка интерфейса: в панели навигации эмодзи
+   выглядят по-разному на каждой платформе, а в списке наград это не мешает. */
+
+.awards { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+
+.award {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  /* Прозрачности здесь нет намеренно: она гасит текст ниже нормы контраста,
+     причём незаметно — цвет рассчитан, а прозрачность накладывается поверх.
+     Неполученная награда отличается приглушённым цветом, который проверен. */
+  color: var(--ink-2);
+}
+.award--got { color: var(--ink); }
+
+.award__mark {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  font-size: 1.125rem;
+  line-height: 1;
+  color: var(--ink-2);
+}
+.award--got .award__mark {
+  border-color: var(--gold-ink);
+  background: var(--gold-wash);
+}
+
+.award__body { display: flex; flex-direction: column; min-width: 0; }
+.award__body strong { font-size: var(--text-base); font-weight: 600; color: inherit; }

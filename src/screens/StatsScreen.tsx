@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../hooks/useApp';
 
 import { byTaskType } from '../utils/metrics';
+import { achievements } from '../data/achievements';
 
 const TASK_LABELS: Record<string, [string, string]> = {
   choice: ['Таңдау', 'Выбор формы'],
@@ -26,6 +27,7 @@ export default function StatsScreen() {
   const { settings } = state;
   const [confirmReset, setConfirmReset] = useState(false);
 
+  const earned = achievements.filter(a => state.achievements.includes(a.id));
   const perType = byTaskType(state.events);
   const answered = state.events.length;
   const correct = state.events.filter(e => e.verdict !== 'wrong').length;
@@ -134,6 +136,33 @@ export default function StatsScreen() {
             )}
           </>
         )}
+
+        {/* Достижения начислялись и сохранялись, но нигде не показывались —
+            ровно та же беда, за которую критикуется прежняя версия.
+            Значок здесь содержание, а не иконка интерфейса: в панели навигации
+            эмодзи выглядят по-разному на каждой платформе и ломают ряд,
+            а в списке наград они читаются одинаково везде. */}
+        <section className="panel stack--tight">
+          <h2 className="t-sub">Награды</h2>
+          <p className="t-small">
+            Получено {earned.length} из {achievements.length}
+          </p>
+          <ul className="awards">
+            {achievements.map(a => {
+              const got = state.achievements.includes(a.id);
+              return (
+                <li key={a.id} className={`award${got ? ' award--got' : ''}`}>
+                  <span className="award__mark" aria-hidden>{got ? a.icon : '·'}</span>
+                  <span className="award__body">
+                    <strong>{a.titleRu}</strong>
+                    <span className="t-small">{a.descriptionRu}</span>
+                  </span>
+                  <span className="sr-only">{got ? 'получено' : 'ещё не получено'}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
 
         <section className="panel stack--tight">
           <h2 className="t-sub">Настройки</h2>

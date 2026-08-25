@@ -1,14 +1,10 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useApp } from '../hooks/useApp';
 
 import { loadReference } from '../data';
 import type { ReferenceTopic } from '../types';
 import ScreenHeader from '../components/ScreenHeader';
 
 export default function ReferenceScreen() {
-  const navigate = useNavigate();
-  const { state } = useApp();
   const [category, setCategory] = useState<string | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
   const [reference, setReference] = useState<ReferenceTopic[] | null>(null);

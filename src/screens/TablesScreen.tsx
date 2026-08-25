@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { declension, plural, possessive, presentTense, pastTense, isBack, lastSound } from '../utils/morphology';
 import { vocabulary } from '../data';
 import ScreenHeader from '../components/ScreenHeader';
@@ -23,7 +22,6 @@ const SOUND_LABEL: Record<string, string> = {
  * и подпись, почему выбрано именно оно.
  */
 export default function TablesScreen() {
-  const navigate = useNavigate();
   const [mode, setMode] = useState<Mode>('noun');
   const [word, setWord] = useState('кітап');
   const [verb, setVerb] = useState('жаз');

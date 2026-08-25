@@ -1,6 +1,4 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useApp } from '../hooks/useApp';
 
 import { foldKazakh, normalizeAnswer } from '../utils/answer';
 import { loadRules } from '../data';
@@ -8,8 +6,6 @@ import type { Rule } from '../types';
 import ScreenHeader from '../components/ScreenHeader';
 
 export default function RulesScreen() {
-  const navigate = useNavigate();
-  const { state } = useApp();
   const [query, setQuery] = useState('');
   const [openId, setOpenId] = useState<string | null>(null);
   const [rules, setRules] = useState<Rule[] | null>(null);

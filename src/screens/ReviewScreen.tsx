@@ -17,7 +17,7 @@ import ScreenHeader from '../components/ScreenHeader';
  */
 export default function ReviewScreen() {
   const navigate = useNavigate();
-  const { state, due, forecast, recordAnswer } = useApp();
+  const { due, forecast, recordAnswer } = useApp();
 
   // Очередь фиксируется на входе: если пересчитывать её после каждого ответа,
   // карточка, отвеченная неверно, тут же выпрыгнет снова.

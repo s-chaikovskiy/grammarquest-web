@@ -1,4 +1,19 @@
 import type { Achievement } from '../types';
+import lessonsData from './lessons.json';
+
+/**
+ * Сколько всего уроков в курсе.
+ *
+ * Раньше здесь стояло число 18 — столько уроков было, когда достижения
+ * писались. Курс вырос до 26, и «заверши все уроки» срабатывало на 18-м.
+ * Считаем по самому курсу, чтобы условие не расходилось с содержанием.
+ */
+const TOTAL_LESSONS = (lessonsData as { lessons: unknown[] }).lessons.length;
+
+/** Сколько уроков пройдено целиком. */
+function finished(progress: Record<string, { completedSteps: number; totalSteps: number }>): number {
+  return Object.values(progress).filter(p => p.completedSteps >= p.totalSteps).length;
+}
 
 export const achievements: Achievement[] = [
   {
@@ -17,7 +32,7 @@ export const achievements: Achievement[] = [
     descriptionKz: '5 сабақты аяқта',
     descriptionRu: 'Заверши 5 уроков',
     icon: '🌿',
-    condition: (state) => Object.values(state.progress).filter(p => p.completedSteps === p.totalSteps).length >= 5,
+    condition: (state) => finished(state.progress) >= 5,
   },
   {
     id: 'ten_lessons',
@@ -26,16 +41,16 @@ export const achievements: Achievement[] = [
     descriptionKz: '10 сабақты аяқта',
     descriptionRu: 'Заверши 10 уроков',
     icon: '🌳',
-    condition: (state) => Object.values(state.progress).filter(p => p.completedSteps === p.totalSteps).length >= 10,
+    condition: (state) => finished(state.progress) >= 10,
   },
   {
     id: 'all_lessons',
     titleKz: 'Шебер',
     titleRu: 'Мастер',
     descriptionKz: 'Барлық сабақтарды аяқта',
-    descriptionRu: 'Заверши все уроки',
+    descriptionRu: `Заверши все ${TOTAL_LESSONS} уроков`,
     icon: '🏆',
-    condition: (state) => Object.values(state.progress).filter(p => p.completedSteps === p.totalSteps).length >= 18,
+    condition: (state) => finished(state.progress) >= TOTAL_LESSONS,
   },
   {
     id: 'streak_3',
