@@ -240,7 +240,15 @@ def build(lang: str):
     hh = row_h(cw, [(t, None, [b]) for t, b in T["s15_ways"]], item_size=11)
     for i, (tag, body) in enumerate(T["s15_ways"]):
         card(s, ML + i * (cw + gap), yy, cw, hh, tag, None, [body], dark=True, item_size=11)
-    y2 = kpi_row(s, T["s15_kpi"], yy + hh + 0.44, dark=True, size=34, label_size=8)
+    # QR слева, показатели справа: жюри достаточно навести телефон.
+    qy = yy + hh + 0.44
+    qs = 1.34
+    qr(s, f"https://{SITE}", ML, qy, qs)
+    b = block(s, wrap(T["s15_qr"], TEXT, 9.5, qs + 0.5), ML, qy + qs + 0.14, qs + 0.5,
+              TEXT, 9.5, SOFT_D, leading=13.5)
+    kx = ML + qs + 0.62
+    kpi_row(s, T["s15_kpi"], qy + 0.06, dark=True, size=32, label_size=8,
+            x0=kx, w_total=CW - (qs + 0.62))
     footnote(s, T["s15_note"], dark=True)
     notes(s, T["s15_notes"])
 

@@ -940,3 +940,32 @@ def card_h(w, tag, head, items, head_size=15, item_size=10.5, pad=0.28, marker="
 def row_h(w, specs, **kw):
     """единая высота для ряда карточек — по самой высокой"""
     return max(card_h(w, t, h, i, **kw) for t, h, i in specs)
+
+
+def qr(slide, data, x, y, size):
+    """
+    QR-код прямо на слайде.
+
+    Жюри не будет набирать адрес руками. Код рисуется в память и вставляется
+    картинкой: отдельного файла в репозитории не появляется, а пересборка
+    всегда даёт код, ведущий туда же, куда и подпись рядом.
+    """
+    import io
+    import qrcode
+    from qrcode.image.pil import PilImage
+
+    code = qrcode.QRCode(box_size=10, border=1,
+                         error_correction=qrcode.constants.ERROR_CORRECT_M)
+    code.add_data(data)
+    code.make(fit=True)
+    # Всегда тёмные модули на белом, даже на тёмном слайде. Инвертированный
+    # код красивее вписывается, но часть камер его не берёт, а на защите
+    # важнее, чтобы сработало с первого раза.
+    img = code.make_image(image_factory=PilImage, fill_color="#1B222B", back_color="#FFFFFF")
+
+    buf = io.BytesIO()
+    img.get_image().save(buf, format="PNG")
+    buf.seek(0)
+    slide.shapes.add_picture(buf, Emu(int(x * EMU_IN)), Emu(int(y * EMU_IN)),
+                             Emu(int(size * EMU_IN)), Emu(int(size * EMU_IN)))
+    return y + size
