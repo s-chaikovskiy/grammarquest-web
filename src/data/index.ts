@@ -1,22 +1,27 @@
 import lessonsData from './lessons.json';
-import rulesData from './rules.json';
-import referenceData from './reference.json';
 import type { LessonsData, ReferenceData, Rule } from '../types';
 
 export const lessons = (lessonsData as LessonsData).lessons;
-export const reference = (referenceData as ReferenceData).topics;
-export const rules = rulesData as Rule[];
 
 export function getLessonById(id: string) {
   return lessons.find(l => l.id === id);
 }
 
-export function getLessonsByTag(tag: string) {
-  return lessons.filter(l => l.tags?.includes(tag));
+export const totalSteps = lessons.reduce((sum, l) => sum + l.steps.length, 0);
+
+/**
+ * Правила и справочник грузятся отдельно, по требованию.
+ *
+ * Вместе эти два файла занимают около 250 КБ. Они нужны только на своих
+ * экранах, и держать их в основном бандле значит заставлять телефон
+ * скачивать справочник ради того, чтобы открыть первый урок.
+ */
+export async function loadRules(): Promise<Rule[]> {
+  const module = await import('./rules.json');
+  return module.default as Rule[];
 }
 
-export function getAllTags(): string[] {
-  const tags = new Set<string>();
-  lessons.forEach(l => l.tags?.forEach(t => tags.add(t)));
-  return Array.from(tags);
+export async function loadReference(): Promise<ReferenceData['topics']> {
+  const module = await import('./reference.json');
+  return (module.default as ReferenceData).topics;
 }

@@ -1,22 +1,46 @@
-const audioContext = typeof window !== 'undefined' ? new (window.AudioContext || (window as any).webkitAudioContext)() : null;
+/**
+ * Звуковая обратная связь на Web Audio API.
+ *
+ * Контекст создаётся лениво, при первом звуке: браузеры (особенно Safari
+ * на iOS) не дают запустить AudioContext до действия пользователя, а
+ * создание его на старте модуля оставляло контекст в состоянии suspended.
+ */
+let ctx: AudioContext | null = null;
+let enabled = true;
+
+/** Переключатель из настроек: беззвучный режим не должен ничего запускать. */
+export function setSoundEnabled(value: boolean) {
+  enabled = value;
+}
+
+function getContext(): AudioContext | null {
+  if (typeof window === 'undefined') return null;
+  const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  if (!Ctor) return null;
+  if (!ctx) ctx = new Ctor();
+  if (ctx.state === 'suspended') void ctx.resume();
+  return ctx;
+}
 
 function playTone(frequency: number, duration: number, type: OscillatorType = 'sine', volume = 0.3) {
-  if (!audioContext) return;
-  
-  const oscillator = audioContext.createOscillator();
-  const gainNode = audioContext.createGain();
-  
+  if (!enabled) return;
+  const audio = getContext();
+  if (!audio) return;
+
+  const oscillator = audio.createOscillator();
+  const gainNode = audio.createGain();
+
   oscillator.connect(gainNode);
-  gainNode.connect(audioContext.destination);
-  
+  gainNode.connect(audio.destination);
+
   oscillator.frequency.value = frequency;
   oscillator.type = type;
-  
-  gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
-  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
-  
-  oscillator.start(audioContext.currentTime);
-  oscillator.stop(audioContext.currentTime + duration);
+
+  gainNode.gain.setValueAtTime(volume, audio.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.01, audio.currentTime + duration);
+
+  oscillator.start(audio.currentTime);
+  oscillator.stop(audio.currentTime + duration);
 }
 
 export function playCorrectSound() {
@@ -155,7 +179,7 @@ export function setBackgroundMusicVolume(volume: number) {
 let melodyInterval: number | null = null;
 
 function playBackgroundMelody() {
-  if (!audioContext) return;
+  if (!getContext()) return;
   
   const notes = [
     { freq: 261.63, duration: 0.5 }, // C4

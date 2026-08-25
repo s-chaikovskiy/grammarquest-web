@@ -11,3 +11,11 @@ yarn-error.log*
 .vite
 tsconfig.tsbuildinfo
 .vercel
+
+# Проект Android генерируется командой `npx cap add android` при каждой сборке —
+# держать сотни служебных файлов в репозитории незачем.
+android/
+ios/
+
+# Временный TTF, который make_icon.py распаковывает из woff2
+resources/.golos.ttf

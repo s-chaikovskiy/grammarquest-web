@@ -1,52 +1,51 @@
-import { motion } from 'framer-motion';
-
 interface CharacterProps {
   name: 'teacher' | 'girl' | 'boy';
   size?: number;
-  isSpeaking?: boolean;
   emotion?: 'neutral' | 'finger_up' | 'like';
 }
 
-const characterMap: Record<string, Record<string, string>> = {
+/**
+ * Портреты персонажей.
+ *
+ * Файлы — WebP 320 px: исходные PNG были 1024×1024 по 1,6 МБ (11 МБ на всех),
+ * хотя на экране портрет занимает 44–96 px. Пересборка: tools/optimize_characters.py.
+ */
+const SOURCES: Record<string, Record<string, string>> = {
   teacher: {
-    neutral: '/characters/teacher.png',
-    finger_up: '/characters/teacher_finger_up.png',
-    like: '/characters/teacher_like.png',
+    neutral: '/characters/teacher.webp',
+    finger_up: '/characters/teacher_finger_up.webp',
+    like: '/characters/teacher_like.webp',
   },
   girl: {
-    neutral: '/characters/aisha.png',
-    finger_up: '/characters/aisha_finger_up.png',
-    like: '/characters/aisha_finger_up.png',
+    neutral: '/characters/aisha.webp',
+    finger_up: '/characters/aisha_finger_up.webp',
+    like: '/characters/aisha_finger_up.webp',
   },
   boy: {
-    neutral: '/characters/dima.png',
-    finger_up: '/characters/dima_finger_up.png',
-    like: '/characters/dima_finger_up.png',
+    neutral: '/characters/dima.webp',
+    finger_up: '/characters/dima_finger_up.webp',
+    like: '/characters/dima_finger_up.webp',
   },
 };
 
-export default function Character({ name, size = 120, isSpeaking = false, emotion = 'neutral' }: CharacterProps) {
-  const src = characterMap[name]?.[emotion] || characterMap[name]?.neutral || '/characters/teacher.png';
+const ALT: Record<string, string> = {
+  teacher: 'Учитель',
+  girl: 'Айша',
+  boy: 'Дима',
+};
+
+export default function Character({ name, size = 96, emotion = 'neutral' }: CharacterProps) {
+  const src = SOURCES[name]?.[emotion] ?? SOURCES.teacher.neutral;
 
   return (
-    <motion.img
+    <img
       src={src}
-      alt={name}
+      alt={ALT[name] ?? ''}
       width={size}
       height={size}
-      style={{ 
-        objectFit: 'contain',
-        filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))'
-      }}
-      animate={{
-        y: isSpeaking ? [0, -4, 0] : 0,
-        rotate: isSpeaking ? [0, 1, -1, 0] : 0,
-      }}
-      transition={{
-        duration: 0.8,
-        repeat: isSpeaking ? Infinity : 0,
-        ease: 'easeInOut',
-      }}
+      loading="lazy"
+      decoding="async"
+      style={{ objectFit: 'contain', flexShrink: 0 }}
     />
   );
 }

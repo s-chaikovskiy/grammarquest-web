@@ -1,191 +1,114 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../hooks/useApp';
 import { t } from '../utils/helpers';
-import { playClickSound } from '../utils/sounds';
-import { reference } from '../data';
+import { loadReference } from '../data';
+import type { ReferenceTopic } from '../types';
 
 export default function ReferenceScreen() {
   const navigate = useNavigate();
   const { state } = useApp();
   const { lang } = state;
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [category, setCategory] = useState<string | null>(null);
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [reference, setReference] = useState<ReferenceTopic[] | null>(null);
 
-  const categories = [...new Set(reference.map(r => r.categoryKz))];
+  useEffect(() => { loadReference().then(setReference); }, []);
+
+  const categories = useMemo(
+    () => [...new Set((reference ?? []).map(t => (lang === 'kz' ? t.categoryKz : t.categoryRu)))].sort(),
+    [lang, reference]
+  );
+
+  const topics = !reference
+    ? []
+    : category
+      ? reference.filter(t => (lang === 'kz' ? t.categoryKz : t.categoryRu) === category)
+      : reference;
 
   return (
-    <div className="min-h-[100dvh] relative overflow-hidden">
-      {/* Mesh gradient background */}
-      <div className="mesh-bg" />
-      <div className="absolute top-0 left-0 w-96 h-96 bg-[#8B5CF6]/10 rounded-full blur-3xl" />
+    <div className="page">
+      <div className="shell stack">
+        <header style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <button className="btn btn--quiet" onClick={() => navigate('/menu')} aria-label={t('Артқа', 'Назад', lang)}>←</button>
+          <h1 className="t-head">{t('Анықтамалық', 'Справочник', lang)}</h1>
+        </header>
 
-      <div className="relative z-10 px-6 md:px-12 lg:px-24 py-12">
-        <div className="max-w-4xl mx-auto space-y-12">
-          
-          {/* Header */}
-          <motion.header
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-6"
-          >
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => { playClickSound(); navigate('/menu'); }}
-              className="glass glass-hover w-14 h-14 flex items-center justify-center rounded-2xl"
+        <div className="tabs" role="group" aria-label={t('Санаттар', 'Категории', lang)}>
+          <button className={`tab${category === null ? ' tab--active' : ''}`} onClick={() => setCategory(null)}>
+            {t('Барлығы', 'Все', lang)}
+          </button>
+          {categories.map(cat => (
+            <button
+              key={cat}
+              className={`tab${category === cat ? ' tab--active' : ''}`}
+              onClick={() => setCategory(cat)}
             >
-              <span className="text-2xl">←</span>
-            </motion.button>
-            <div>
-              <h1 className="text-heading text-[#FFFFFF]">{t('Анықтама', 'Справочник', lang)}</h1>
-              <p className="text-caption text-[#6B6B7B] font-medium mt-1">{reference.length} {t('тақырып', 'тем', lang)}</p>
-            </div>
-          </motion.header>
-
-          {/* Categories */}
-          {categories.map((category, ci) => (
-            <motion.section
-              key={category}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: ci * 0.1 }}
-              className="space-y-4"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#8B5CF6]/20 flex items-center justify-center">
-                  <span className="text-[#8B5CF6] text-xl font-bold">{ci + 1}</span>
-                </div>
-                <h2 className="text-caption text-[#8B5CF6] uppercase tracking-wider font-medium">
-                  {category}
-                </h2>
-              </div>
-              
-              <div className="space-y-3">
-                {reference.filter(r => r.categoryKz === category).map((topic, i) => {
-                  const isExpanded = expandedId === topic.id;
-                  
-                  return (
-                    <motion.div
-                      key={topic.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: (ci * 5 + i) * 0.02, ease: [0.16, 1, 0.3, 1] }}
-                      className="card-premium overflow-hidden"
-                    >
-                      <button
-                        onClick={() => { playClickSound(); setExpandedId(isExpanded ? null : topic.id); }}
-                        className="w-full flex items-center gap-4 p-5 text-left glass-hover transition-colors"
-                      >
-                        <motion.div
-                          animate={{ rotate: isExpanded ? 45 : 0 }}
-                          className="flex-shrink-0 w-8 h-8 rounded-lg bg-[#8B5CF6]/20 flex items-center justify-center"
-                        >
-                          <span className="text-[#8B5CF6] text-sm font-bold">+</span>
-                        </motion.div>
-                        
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-small font-semibold text-[#FFFFFF] truncate mb-1">
-                            {topic.titleKz}
-                          </h3>
-                          <p className="text-caption text-[#A0A0B0] truncate">
-                            {topic.titleRu}
-                          </p>
-                        </div>
-                      </button>
-
-                      <AnimatePresence>
-                        {isExpanded && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                            className="overflow-hidden"
-                          >
-                            <div className="px-5 pb-5 space-y-4">
-                              <div className="bg-[#10B981]/10 rounded-2xl p-5 border border-[#10B981]/30">
-                                <div className="text-caption text-[#10B981] uppercase tracking-wider mb-3 font-medium">
-                                  {t('Қазақша', 'На казахском', lang)}
-                                </div>
-                                <p className="text-small text-[#FFFFFF] whitespace-pre-line">
-                                  {topic.bodyKz}
-                                </p>
-                              </div>
-                              
-                              <div className="bg-[#3B82F6]/10 rounded-2xl p-5 border border-[#3B82F6]/30">
-                                <div className="text-caption text-[#3B82F6] uppercase tracking-wider mb-3 font-medium">
-                                  {t('Орысша', 'На русском', lang)}
-                                </div>
-                                <p className="text-small text-[#FFFFFF] whitespace-pre-line">
-                                  <span className="text-[#3B82F6] not-italic mr-2">перевод:</span>
-                                  {topic.bodyRu}
-                                </p>
-                              </div>
-
-                              {(topic.examplesKz?.length || topic.examplesRu?.length) && (
-                                <div className="bg-[#F59E0B]/10 rounded-2xl p-5 border border-[#F59E0B]/30">
-                                  <div className="text-caption text-[#F59E0B] uppercase tracking-wider mb-3 font-medium">
-                                    {t('Мысалдар', 'Примеры', lang)}
-                                  </div>
-                                  <ul className="space-y-2">
-                                    {topic.examplesKz?.map((ex, idx) => (
-                                      <li key={idx} className="text-small text-[#FFFFFF] flex gap-3">
-                                        <span className="text-[#F59E0B]">•</span>
-                                        <span>{ex}</span>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                  {topic.examplesRu && (
-                                    <ul className="space-y-2 mt-3 pt-3 border-t border-[#1C1C24]">
-                                      {topic.examplesRu.map((ex, idx) => (
-                                        <li key={idx} className="text-caption text-[#A0A0B0] flex gap-2">
-                                          <span className="text-[#6B6B7B] text-[10px]">перевод:</span>
-                                          <span>{ex}</span>
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  )}
-                                </div>
-                              )}
-
-                              {(topic.mistakesKz?.length || topic.mistakesRu?.length) && (
-                                <div className="bg-[#EF4444]/10 rounded-2xl p-5 border border-[#EF4444]/30">
-                                  <div className="text-caption text-[#EF4444] uppercase tracking-wider mb-3 font-medium">
-                                    {t('Қателер', 'Ошибки', lang)}
-                                  </div>
-                                  <ul className="space-y-2">
-                                    {topic.mistakesKz?.map((m, idx) => (
-                                      <li key={idx} className="text-small text-[#FFFFFF] flex gap-3">
-                                        <span className="text-[#EF4444]">✗</span>
-                                        <span>{m}</span>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                  {topic.mistakesRu && (
-                                    <ul className="space-y-2 mt-3 pt-3 border-t border-[#1C1C24]">
-                                      {topic.mistakesRu.map((m, idx) => (
-                                        <li key={idx} className="text-caption text-[#A0A0B0] flex gap-2">
-                                          <span className="text-[#6B6B7B] text-[10px]">перевод:</span>
-                                          <span>{m}</span>
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </motion.section>
+              {cat}
+            </button>
           ))}
-
         </div>
+
+        {reference === null && (
+          <p className="t-small">{t('Жүктелуде...', 'Загружаем справочник...', lang)}</p>
+        )}
+
+        <ul style={{ listStyle: 'none' }}>
+          {topics.map(topic => {
+            const open = openId === topic.id;
+            return (
+              <li key={topic.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                <button
+                  className="lesson-row"
+                  style={{ gridTemplateColumns: '1fr auto', borderBottom: 'none' }}
+                  onClick={() => setOpenId(open ? null : topic.id)}
+                  aria-expanded={open}
+                >
+                  <span>
+                    <span className="lesson-row__title" style={{ display: 'block' }}>
+                      {lang === 'kz' ? topic.titleKz : topic.titleRu}
+                    </span>
+                    <span className="lesson-row__sub">{lang === 'kz' ? topic.categoryKz : topic.categoryRu}</span>
+                  </span>
+                  <span className="t-small">{open ? '−' : '+'}</span>
+                </button>
+
+                {open && (
+                  <div className="stack--tight" style={{ padding: '0 0.5rem 1.25rem' }}>
+                    <p className="t-kz prose" style={{ whiteSpace: 'pre-line' }}>{topic.bodyKz}</p>
+                    <hr className="divider" />
+                    <p className="t-ru prose" style={{ whiteSpace: 'pre-line' }}>{topic.bodyRu}</p>
+
+                    {topic.examplesKz?.length ? (
+                      <div className="panel stack--tight">
+                        <span className="t-small" style={{ fontWeight: 600 }}>{t('Мысалдар', 'Примеры', lang)}</span>
+                        {topic.examplesKz.map((ex, i) => (
+                          <p key={i} className="t-body">
+                            {ex}
+                            {topic.examplesRu?.[i] && <span className="t-ru"> — {topic.examplesRu[i]}</span>}
+                          </p>
+                        ))}
+                      </div>
+                    ) : null}
+
+                    {/* Типичные ошибки — самая полезная часть справочника, поэтому отдельным блоком. */}
+                    {topic.mistakesKz?.length ? (
+                      <div className="verdict verdict--no">
+                        <span className="t-small" style={{ fontWeight: 600 }}>{t('Жиі кездесетін қателер', 'Частые ошибки', lang)}</span>
+                        {topic.mistakesKz.map((m, i) => (
+                          <p key={i} className="t-body">
+                            {m}
+                            {topic.mistakesRu?.[i] && <span className="t-ru"> — {topic.mistakesRu[i]}</span>}
+                          </p>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
       </div>
     </div>
   );

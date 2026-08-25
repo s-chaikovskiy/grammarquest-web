@@ -1,367 +1,331 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useRef, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useApp } from '../hooks/useApp';
-import { t, checkAnswer, getCharacterSvgName } from '../utils/helpers';
-import { playCorrectSound, playWrongSound, playClickSound, playTransitionSound } from '../utils/sounds';
+import { t, getCharacterSvgName, getCharacterName } from '../utils/helpers';
+import { playCorrectSound, playWrongSound, playClickSound } from '../utils/sounds';
 import { fireSuccess } from '../utils/confetti';
 import Character from '../components/Character';
-import TaskInput from '../components/TaskInput';
-import AnimatedBackground from '../components/AnimatedBackground';
+import TaskInput, { type TaskResult } from '../components/TaskInput';
 import { getLessonById } from '../data';
 import type { Step } from '../types';
+import type { Verdict } from '../utils/answer';
 
-type Phase = 'dialogue' | 'grammar' | 'task' | 'result';
+type Phase = 'dialogue' | 'grammar' | 'task' | 'verdict' | 'summary';
+
+/** Сколько XP стоит ответ. Подсказка уменьшает награду, но не обнуляет её. */
+function xpFor(verdict: Verdict, hintsUsed: number): number {
+  const base = { correct: 10, correct_kz: 8, almost: 6, wrong: 0 }[verdict];
+  return Math.max(verdict === 'wrong' ? 0 : 2, base - hintsUsed * 2);
+}
+
+/**
+ * Делит форму на основу и окончание по общему началу всех вариантов ответа.
+ * Работает только там, где варианты отличаются именно окончанием, — тогда
+ * подсветка показывает настоящую морфему, а не произвольные последние буквы.
+ */
+function splitMorph(answer: string, options?: string[]): { stem: string; suffix: string } | null {
+  if (!options || options.length < 2) return null;
+  let prefix = options[0];
+  for (const o of options.slice(1)) {
+    let i = 0;
+    while (i < prefix.length && i < o.length && prefix[i].toLowerCase() === o[i].toLowerCase()) i++;
+    prefix = prefix.slice(0, i);
+  }
+  if (prefix.length < 3 || prefix.length >= answer.length) return null;
+  if (!answer.toLowerCase().startsWith(prefix.toLowerCase())) return null;
+  return { stem: answer.slice(0, prefix.length), suffix: answer.slice(prefix.length) };
+}
 
 export default function LessonScreen() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { state, updateProgress } = useApp();
+  const { state, recordAnswer, updateProgress } = useApp();
   const { lang } = state;
 
-  const lesson = getLessonById(id || '');
+  const lesson = getLessonById(id ?? '');
   const [stepIndex, setStepIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>('dialogue');
-  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [score, setScore] = useState(0);
+  const [result, setResult] = useState<TaskResult | null>(null);
+  const [tally, setTally] = useState({ correct: 0, almost: 0, wrong: 0, xp: 0 });
+  const taskShownAt = useRef<number>(Date.now());
+
+  const finishLesson = useCallback((final: typeof tally) => {
+    if (!lesson) return;
+    updateProgress(lesson.id, {
+      lessonId: lesson.id,
+      completedSteps: lesson.steps.length,
+      totalSteps: lesson.steps.length,
+      score: final.xp,
+      correct: final.correct,
+      lastPlayed: new Date().toISOString(),
+    });
+  }, [lesson, updateProgress]);
 
   if (!lesson) {
     return (
-      <div className="min-h-[100dvh] flex items-center justify-center">
-        <p className="text-body text-[#A0A0B0]">{t('Сабақ табылмады', 'Урок не найден', lang)}</p>
+      <div className="page">
+        <div className="shell stack">
+          <h1 className="t-head">{t('Сабақ табылмады', 'Урок не найден', lang)}</h1>
+          <button className="btn btn--primary" onClick={() => navigate('/lessons')}>
+            {t('Сабақтарға', 'К урокам', lang)}
+          </button>
+        </div>
       </div>
     );
   }
 
   const step: Step = lesson.steps[stepIndex];
-  const totalSteps = lesson.steps.length;
-  const isLastStep = stepIndex === totalSteps - 1;
+  const total = lesson.steps.length;
+  const isLast = stepIndex === total - 1;
+  const morph = result?.verdict !== 'wrong' ? splitMorph(step.answerKz, step.options) : null;
 
-  const handleNext = () => {
-    playTransitionSound();
-    if (isLastStep) {
-      updateProgress(lesson.id, {
-        lessonId: lesson.id,
-        completedSteps: totalSteps,
-        totalSteps,
-        score,
-        lastPlayed: new Date().toISOString(),
-      });
-      navigate('/lessons');
-      return;
-    }
-    setStepIndex(i => i + 1);
-    setPhase('dialogue');
-    setIsCorrect(null);
-  };
+  const handleSubmit = (r: TaskResult) => {
+    const xp = xpFor(r.verdict, r.hintsUsed);
+    setResult(r);
+    setPhase('verdict');
 
-  const handleTaskAnswer = (answer: string) => {
-    const correct = checkAnswer(answer, step.answerKz);
-    setIsCorrect(correct);
-    if (correct) {
-      setScore(s => s + 10);
-      playCorrectSound();
-      fireSuccess();
-    } else {
+    recordAnswer({
+      lessonId: lesson.id,
+      stepIndex,
+      taskType: step.taskType ?? 'input',
+      verdict: r.verdict,
+      msToAnswer: Date.now() - taskShownAt.current,
+      hintsUsed: r.hintsUsed,
+      xp,
+    });
+
+    setTally(prev => ({
+      correct: prev.correct + (r.verdict === 'correct' || r.verdict === 'correct_kz' ? 1 : 0),
+      almost: prev.almost + (r.verdict === 'almost' ? 1 : 0),
+      wrong: prev.wrong + (r.verdict === 'wrong' ? 1 : 0),
+      xp: prev.xp + xp,
+    }));
+
+    if (r.verdict === 'wrong') {
       playWrongSound();
+    } else {
+      playCorrectSound();
+      if (r.verdict === 'correct') fireSuccess();
     }
-    setPhase('result');
   };
 
   const handleSkip = () => {
     playClickSound();
-    setIsCorrect(false);
-    setPhase('result');
+    handleSubmit({ verdict: 'wrong', userAnswer: '', hintsUsed: 0 });
   };
 
-  const renderDialogue = () => (
-    <motion.div
-      key="dialogue"
-      initial={{ opacity: 0, x: 50 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -50 }}
-      transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-      className="space-y-6"
-    >
-      <div className="card-premium p-8">
-        <div className="flex items-center gap-4 mb-6">
-          <motion.div 
-            className="w-20 h-20 rounded-2xl bg-[#6366F1]/20 flex items-center justify-center"
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <Character name={getCharacterSvgName(lesson.character)} size={64} isSpeaking={true} />
-          </motion.div>
-          <div>
-            <div className="text-caption text-[#6366F1] uppercase tracking-wider font-medium">
-              {t('Диалог', 'Диалог', lang)}
-            </div>
-            <div className="text-small text-[#A0A0B0] font-medium">
-              {lesson.character === 'aisha' ? 'Айша' : lesson.character === 'dima' ? 'Дима' : 'Мұғалім'}
-            </div>
-          </div>
-        </div>
-        
-        <motion.div 
-          className="bg-[#1C1C24] rounded-2xl p-6 mb-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <p className="text-body text-[#FFFFFF] whitespace-pre-line">
-            {step.dialogueKz}
-          </p>
-        </motion.div>
-        
-        <div className="border-t border-[#1C1C24] pt-4">
-          <p className="text-small text-[#A0A0B0] italic whitespace-pre-line">
-            <span className="text-[#6366F1] font-medium not-italic mr-2">перевод:</span>
-            {step.dialogueRu}
-          </p>
-        </div>
-      </div>
+  const goNext = () => {
+    playClickSound();
+    if (isLast) {
+      setTally(final => { finishLesson(final); return final; });
+      setPhase('summary');
+      return;
+    }
+    setStepIndex(i => i + 1);
+    setResult(null);
+    setPhase('dialogue');
+  };
 
-      <motion.button
-        whileHover={{ y: -2, boxShadow: '0 0 40px rgba(99, 102, 241, 0.6)' }}
-        whileTap={{ y: 2 }}
-        onClick={() => { playClickSound(); setPhase('grammar'); }}
-        className="btn-premium w-full py-5 text-white text-body"
-      >
-        {t('Ережені көру', 'Правило', lang)} →
-      </motion.button>
-    </motion.div>
-  );
+  const startTask = () => {
+    playClickSound();
+    taskShownAt.current = Date.now();
+    setPhase('task');
+  };
 
-  const renderGrammar = () => (
-    <motion.div
-      key="grammar"
-      initial={{ opacity: 0, x: 50 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -50 }}
-      transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-      className="space-y-6"
-    >
-      <div className="card-premium p-8">
-        <div className="flex items-center gap-3 mb-6">
-          <motion.div 
-            className="w-14 h-14 rounded-2xl bg-[#3B82F6]/20 flex items-center justify-center"
-            animate={{ rotate: [0, 5, -5, 0] }}
-            transition={{ duration: 3, repeat: Infinity }}
-          >
-            <span className="text-3xl"></span>
-          </motion.div>
-          <div className="text-caption text-[#3B82F6] uppercase tracking-wider font-medium">
-            {t('Грамматика', 'Грамматика', lang)}
-          </div>
-        </div>
-        
-        <div className="bg-[#1C1C24] rounded-2xl p-6 mb-4">
-          <p className="text-body text-[#FFFFFF] whitespace-pre-line">
-            {step.grammarKz}
-          </p>
-        </div>
-        
-        <div className="border-t border-[#1C1C24] pt-4">
-          <p className="text-small text-[#A0A0B0] italic whitespace-pre-line">
-            <span className="text-[#3B82F6] font-medium not-italic mr-2">перевод:</span>
-            {step.grammarRu}
-          </p>
-        </div>
-      </div>
-
-      <div className="card-premium p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <motion.div 
-            className="w-12 h-12 rounded-2xl bg-[#F59E0B]/20 flex items-center justify-center"
-            animate={{ y: [0, -3, 0] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <Character name="teacher" size={32} />
-          </motion.div>
-          <div className="text-caption text-[#F59E0B] uppercase tracking-wider font-medium">
-            {t('Мұғалім', 'Учитель', lang)}
-          </div>
-        </div>
-        <div className="bg-[#1C1C24] rounded-2xl p-4">
-          <p className="text-small text-[#FFFFFF] mb-2">
-            {step.teacherKz1}
-          </p>
-          <p className="text-caption text-[#A0A0B0] italic">
-            <span className="text-[#F59E0B] not-italic mr-2 font-medium">перевод:</span>
-            {step.teacherRu1}
-          </p>
-        </div>
-      </div>
-
-      <motion.button
-        whileHover={{ y: -2, boxShadow: '0 0 40px rgba(59, 130, 246, 0.6)' }}
-        whileTap={{ y: 2 }}
-        onClick={() => { playClickSound(); setPhase('task'); }}
-        className="w-full py-5 bg-[#3B82F6] text-white font-bold rounded-2xl text-body"
-      >
-        {t('Тапсырма', 'Задание', lang)} →
-      </motion.button>
-    </motion.div>
-  );
-
-  const renderTask = () => (
-    <TaskInput
-      step={step}
-      lang={lang}
-      onAnswer={handleTaskAnswer}
-      onSkip={handleSkip}
-    />
-  );
-
-  const renderResult = () => (
-    <motion.div
-      key="result"
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-      className="space-y-8 flex flex-col items-center"
-    >
-      <motion.div
-        initial={{ scale: 0, rotate: -180 }}
-        animate={{ scale: 1, rotate: 0 }}
-        transition={{ type: 'spring', damping: 15, stiffness: 200 }}
-        className="text-9xl"
-      >
-        {isCorrect ? '🎉' : '😔'}
-      </motion.div>
-
-      <div className="text-center space-y-4">
-        <motion.h2 
-          className={`text-heading ${isCorrect ? 'text-[#10B981]' : 'text-[#EF4444]'}`}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          {isCorrect ? t('Дұрыс!', 'Правильно!', lang) : t('Қате', 'Не совсем', lang)}
-        </motion.h2>
-        
-        {!isCorrect && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="space-y-3"
-          >
-            <p className="text-small text-[#A0A0B0] font-medium">
-              {t('Дұрыс жауап:', 'Правильный ответ:', lang)}
-            </p>
-            <motion.div 
-              className="bg-[#10B981]/10 rounded-2xl px-6 py-4 border border-[#10B981]/30"
-              animate={{ boxShadow: ['0 0 0px rgba(16, 185, 129, 0)', '0 0 30px rgba(16, 185, 129, 0.3)', '0 0 0px rgba(16, 185, 129, 0)'] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <p className="text-display text-[#10B981]">{step.answerKz}</p>
-            </motion.div>
-            <p className="text-small text-[#A0A0B0] italic">
-              <span className="text-[#10B981] not-italic mr-2 font-medium">перевод:</span>
-              {step.answerRu}
-            </p>
-          </motion.div>
-        )}
-        
-        {isCorrect && (
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.4, type: 'spring', damping: 15, stiffness: 200 }}
-            className="bg-[#10B981]/10 rounded-2xl px-8 py-4 border border-[#10B981]/30"
-          >
-            <p className="text-heading text-[#10B981] font-bold">+10 XP </p>
-          </motion.div>
-        )}
-      </div>
-
-      <div className="w-full card-premium p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#F59E0B]/20 flex items-center justify-center">
-            <Character name="teacher" size={32} />
-          </div>
-          <div className="text-caption text-[#F59E0B] uppercase tracking-wider font-medium">
-            {t('Мұғалім', 'Учитель', lang)}
-          </div>
-        </div>
-        <div className="bg-[#1C1C24] rounded-2xl p-4">
-          <p className="text-small text-[#FFFFFF] mb-2">
-            {step.teacherKz2}
-          </p>
-          <p className="text-caption text-[#A0A0B0] italic">
-            <span className="text-[#F59E0B] not-italic mr-2 font-medium">перевод:</span>
-            {step.teacherRu2}
-          </p>
-        </div>
-      </div>
-
-      <motion.button
-        whileHover={{ y: -2, boxShadow: '0 0 40px rgba(99, 102, 241, 0.6)' }}
-        whileTap={{ y: 2 }}
-        onClick={handleNext}
-        className="btn-premium w-full py-5 text-white text-body"
-      >
-        {isLastStep ? t('Аяқтау', 'Завершить', lang) : t('Келесі', 'Далее', lang)} →
-      </motion.button>
-    </motion.div>
-  );
+  const answered = stepIndex + (phase === 'verdict' || phase === 'summary' ? 1 : 0);
 
   return (
-    <div className="min-h-[100dvh] relative overflow-hidden">
-      <AnimatedBackground />
-
-      <div className="relative z-10 px-6 md:px-12 lg:px-24 py-8">
-        <div className="max-w-4xl mx-auto space-y-8">
-          
-          {/* Header */}
-          <motion.div 
-            className="flex items-center gap-6"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+    <div className="page">
+      <div className="shell stack">
+        <header className="stack--tight">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <button
+              className="btn btn--quiet"
               onClick={() => { playClickSound(); navigate('/lessons'); }}
-              className="glass glass-hover w-14 h-14 flex items-center justify-center rounded-2xl"
+              aria-label={t('Артқа', 'Назад', lang)}
             >
-              <span className="text-2xl">←</span>
-            </motion.button>
-            
-            <div className="flex-1">
-              <div className="text-caption text-[#6B6B7B] uppercase tracking-wider mb-2 font-medium">
-                {t('Сабақ', 'Урок', lang)} {stepIndex + 1} / {totalSteps}
-              </div>
-              <div className="h-2 bg-[#1C1C24] rounded-full overflow-hidden">
-                <motion.div
-                  animate={{ width: `${((stepIndex + (phase !== 'dialogue' ? 1 : 0)) / totalSteps) * 100}%` }}
-                  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                  className="h-full bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] rounded-full"
-                />
-              </div>
+              ←
+            </button>
+            <div style={{ flex: 1 }}>
+              <p className="t-small">
+                {t('Қадам', 'Шаг', lang)} {Math.min(stepIndex + 1, total)} / {total}
+              </p>
             </div>
-            
-            <motion.div 
-              whileHover={{ scale: 1.05 }}
-              className="glass flex items-center gap-2 px-4 py-2.5 rounded-xl"
-            >
-              <span className="text-xl">💎</span>
-              <span className="text-body text-[#FFFFFF] font-bold">{score}</span>
-            </motion.div>
-          </motion.div>
+            <span className="meta meta--gold">{tally.xp} XP</span>
+          </div>
+          <div
+            className="progress"
+            role="progressbar"
+            aria-valuenow={answered}
+            aria-valuemin={0}
+            aria-valuemax={total}
+          >
+            <div className="progress__fill" style={{ width: `${(answered / total) * 100}%` }} />
+          </div>
+        </header>
 
-          {/* Content */}
-          <AnimatePresence mode="wait">
-            {phase === 'dialogue' && renderDialogue()}
-            {phase === 'grammar' && renderGrammar()}
-            {phase === 'task' && renderTask()}
-            {phase === 'result' && renderResult()}
-          </AnimatePresence>
+        <PhaseSwitch phase={phase}>
+          {phase === 'dialogue' && (
+            <Fade key="dialogue">
+              <section className="panel panel--raised stack--tight">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <Character name={getCharacterSvgName(lesson.character)} size={44} />
+                  <span className="t-small" style={{ fontWeight: 600 }}>
+                    {getCharacterName(lesson.character, lang)}
+                  </span>
+                </div>
+                <p className="t-kz" style={{ whiteSpace: 'pre-line' }}>{step.dialogueKz}</p>
+                <hr className="divider" />
+                <p className="t-ru" style={{ whiteSpace: 'pre-line' }}>{step.dialogueRu}</p>
+              </section>
+              <button className="btn btn--primary btn--block" onClick={() => { playClickSound(); setPhase('grammar'); }}>
+                {t('Ережеге', 'К правилу', lang)}
+              </button>
+            </Fade>
+          )}
 
-        </div>
+          {phase === 'grammar' && (
+            <Fade key="grammar">
+              <section className="panel panel--raised stack--tight">
+                <span className="task__badge">{t('Ереже', 'Правило', lang)}</span>
+                <p className="t-kz" style={{ whiteSpace: 'pre-line' }}>{step.grammarKz}</p>
+                <hr className="divider" />
+                <p className="t-ru" style={{ whiteSpace: 'pre-line' }}>{step.grammarRu}</p>
+              </section>
+              <section className="panel stack--tight">
+                <span className="t-small" style={{ fontWeight: 600 }}>
+                  {t('Мұғалімнің кеңесі', 'Совет учителя', lang)}
+                </span>
+                <p className="t-body">{step.teacherKz1}</p>
+                <p className="t-ru">{step.teacherRu1}</p>
+              </section>
+              <button className="btn btn--primary btn--block" onClick={startTask}>
+                {t('Тапсырмаға', 'К заданию', lang)}
+              </button>
+            </Fade>
+          )}
+
+          {phase === 'task' && (
+            <TaskInput key={`task-${stepIndex}`} step={step} lang={lang} onSubmit={handleSubmit} onSkip={handleSkip} />
+          )}
+
+          {phase === 'verdict' && result && (
+            <Fade key="verdict">
+              <section className={`verdict ${result.verdict === 'wrong' ? 'verdict--no' : 'verdict--ok'}`}>
+                <span className="verdict__title">{verdictTitle(result.verdict, lang)}</span>
+
+                {result.verdict !== 'correct' && (
+                  <div>
+                    <p className="t-small">{t('Дұрыс жауап', 'Правильный ответ', lang)}</p>
+                    {morph ? (
+                      <p className="morph">
+                        <span className="morph__stem">{morph.stem}</span>
+                        <span className="morph__suffix">{morph.suffix}</span>
+                      </p>
+                    ) : (
+                      <p className="verdict__answer">{step.answerKz}</p>
+                    )}
+                    <p className="t-ru">{step.answerRu}</p>
+                  </div>
+                )}
+
+                {result.note && <p className="t-small">{result.note}</p>}
+              </section>
+
+              <section className="panel stack--tight">
+                <span className="t-small" style={{ fontWeight: 600 }}>
+                  {t('Мұғалім', 'Учитель', lang)}
+                </span>
+                <p className="t-body">{step.teacherKz2}</p>
+                <p className="t-ru">{step.teacherRu2}</p>
+              </section>
+
+              <button className="btn btn--primary btn--block" onClick={goNext}>
+                {isLast ? t('Қорытынды', 'Итоги урока', lang) : t('Келесі', 'Дальше', lang)}
+              </button>
+            </Fade>
+          )}
+
+          {phase === 'summary' && (
+            <Fade key="summary">
+              <section className="panel panel--raised stack--tight">
+                <h1 className="t-head">{lesson.titleRu}</h1>
+                <p className="t-small">{lesson.titleKz}</p>
+                <hr className="divider" />
+                <dl className="stack--tight">
+                  <SummaryRow label={t('Дұрыс', 'Верно', lang)} value={`${tally.correct} / ${total}`} />
+                  <SummaryRow label={t('Дерлік дұрыс', 'Почти верно', lang)} value={String(tally.almost)} />
+                  <SummaryRow label={t('Қате', 'Ошибок', lang)} value={String(tally.wrong)} />
+                  <SummaryRow label="XP" value={`+${tally.xp}`} />
+                </dl>
+                <p className="t-small">
+                  {t(
+                    'Қателескен тапсырмалар қайталауға түсті.',
+                    'Задания с ошибками добавлены в повторение — приложение вернёт их через день.',
+                    lang
+                  )}
+                </p>
+              </section>
+              <div className="task__actions">
+                <button className="btn btn--ghost" onClick={() => navigate('/lessons')}>
+                  {t('Сабақтарға', 'К урокам', lang)}
+                </button>
+                <button className="btn btn--primary" onClick={() => navigate('/review')}>
+                  {t('Қайталау', 'Повторить', lang)}
+                </button>
+              </div>
+            </Fade>
+          )}
+        </PhaseSwitch>
       </div>
     </div>
   );
+}
+
+function verdictTitle(verdict: Verdict, lang: 'kz' | 'ru'): string {
+  switch (verdict) {
+    case 'correct': return t('Дұрыс!', 'Верно!', lang);
+    case 'correct_kz': return t('Грамматика дұрыс', 'Грамматика верна', lang);
+    case 'almost': return t('Дерлік дұрыс', 'Почти верно', lang);
+    default: return t('Қате', 'Не совпало', lang);
+  }
+}
+
+function SummaryRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+      <dt className="t-small">{label}</dt>
+      <dd style={{ fontWeight: 650, fontVariantNumeric: 'tabular-nums' }}>{value}</dd>
+    </div>
+  );
+}
+
+/**
+ * Смена фазы урока.
+ *
+ * Анимируется только появление нового экрана — анимации ухода нет намеренно.
+ * AnimatePresence снимает предыдущий экран лишь после того, как доиграет его
+ * exit-анимация, а на неактивной вкладке браузер тормозит requestAnimationFrame:
+ * анимация не завершается, экран не размонтируется, и урок либо застревает,
+ * либо накапливает мёртвые узлы. Содержимое урока не должно зависеть от того,
+ * успела ли отработать анимация.
+ */
+function PhaseSwitch({ phase, children }: { phase: string; children: React.ReactNode }) {
+  return (
+    <motion.div
+      key={phase}
+      className="stack"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2, ease: [0.25, 1, 0.5, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/** Обёртка содержимого одной фазы. Появление анимирует PhaseSwitch. */
+function Fade({ children }: { children: React.ReactNode }) {
+  return <div className="stack">{children}</div>;
 }

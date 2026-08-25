@@ -9,19 +9,28 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['characters/*.png', 'favicon.ico'],
+      includeAssets: ['characters/*.webp', 'icons/*.png', 'fonts/*.woff2'],
       manifest: {
-        name: 'GrammarQuest — Казахский язык',
+        name: 'GrammarQuest — тренажёр казахской грамматики',
         short_name: 'GrammarQuest',
-        description: 'Интерактивный квест для изучения казахского языка',
-        theme_color: '#1a1a2e',
-        background_color: '#1a1a2e',
+        description: 'Диалоги, правила и семь типов упражнений по казахской грамматике. Работает офлайн.',
+        lang: 'ru',
+        theme_color: '#0064B9',
+        background_color: '#0064B9',
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',
         icons: [
-          { src: '/characters/app_icon.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+          { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/icons/icon-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
         ]
+      },
+      workbox: {
+        // Данные уроков лежат внутри бандла, поэтому кэшируем всё сразу:
+        // после первой загрузки приложение полностью работает офлайн.
+        globPatterns: ['**/*.{js,css,html,woff2,webp,png,svg}'],
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       }
     })
   ]

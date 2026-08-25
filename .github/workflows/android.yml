@@ -1,0 +1,82 @@
+# Сборка Android-приложения в облаке.
+#
+# Локально Android SDK не нужен: раннер GitHub уже содержит JDK и SDK.
+# После пуша в main через несколько минут готовый .apk лежит в артефактах
+# сборки, а для тега вида v1.0 — ещё и в разделе Releases, откуда его
+# можно скачать по прямой ссылке или QR-коду.
+
+name: Android APK
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:        # кнопка «запустить вручную» во вкладке Actions
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Установить зависимости
+        run: npm ci
+
+      - name: Проверить типы
+        run: npx tsc --noEmit
+
+      - name: Прогнать тесты
+        run: npm test
+
+      - name: Собрать веб-часть
+        run: npm run build
+
+      - name: Создать проект Android
+        # Папка android/ не хранится в репозитории: она целиком генерируется
+        # из конфигурации, и держать её в git значило бы дублировать сотни
+        # служебных файлов.
+        run: |
+          npx cap add android
+          npx cap sync android
+
+      - name: Сгенерировать иконки и заставку
+        run: npx capacitor-assets generate --android
+
+      - name: Собрать APK
+        working-directory: android
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Переименовать APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk GrammarQuest.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GrammarQuest-APK
+          path: GrammarQuest.apk
+          retention-days: 90
+
+      - name: Опубликовать в Releases
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: GrammarQuest.apk
+          body: |
+            Установка на Android:
+            1. Скачайте GrammarQuest.apk по ссылке ниже.
+            2. Откройте файл на телефоне.
+            3. Разрешите установку из этого источника, когда система спросит.
+
+            Приложение работает полностью офлайн — интернет нужен только для скачивания.

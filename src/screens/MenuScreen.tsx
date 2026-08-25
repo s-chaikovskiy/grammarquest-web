@@ -1,237 +1,115 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useApp } from '../hooks/useApp';
-import { t, formatXp } from '../utils/helpers';
-import { playClickSound, startBackgroundMusic, stopBackgroundMusic, setBackgroundMusicVolume } from '../utils/sounds';
+import { t, pluralize, plural } from '../utils/helpers';
+import { playClickSound } from '../utils/sounds';
 import { lessons } from '../data';
-import TiltCard from '../components/TiltCard';
-import AnimatedBackground from '../components/AnimatedBackground';
-
-const menuItems = [
-  {
-    id: 'lessons',
-    icon: '📖',
-    titleKz: 'Сабақтар',
-    titleRu: 'Уроки',
-    subtitleKz: 'Диалогтар арқылы үйрен',
-    subtitleRu: 'Учись через диалоги',
-    path: '/lessons',
-    color: '#6366F1',
-  },
-  {
-    id: 'review',
-    icon: '🔄',
-    titleKz: 'Қайталау',
-    titleRu: 'Повторение',
-    subtitleKz: 'Ескі тақырыптарды қайтала',
-    subtitleRu: 'Повтори старые темы',
-    path: '/review',
-    color: '#F59E0B',
-  },
-  {
-    id: 'rules',
-    icon: '📐',
-    titleKz: 'Ережелер',
-    titleRu: 'Правила',
-    subtitleKz: 'Грамматика',
-    subtitleRu: 'Грамматические правила',
-    path: '/rules',
-    color: '#3B82F6',
-  },
-  {
-    id: 'reference',
-    icon: '📋',
-    titleKz: 'Анықтама',
-    titleRu: 'Справочник',
-    subtitleKz: 'Толық анықтамалық',
-    subtitleRu: 'Полный справочник',
-    path: '/reference',
-    color: '#8B5CF6',
-  },
-];
+import { achievements, getXpProgress } from '../data/achievements';
 
 export default function MenuScreen() {
   const navigate = useNavigate();
-  const { state } = useApp();
-  const { lang, xp, streak } = state;
-  const [musicEnabled, setMusicEnabled] = useState(false);
+  const { state, due, forecast } = useApp();
+  const { lang } = state;
 
-  const completedLessons = Object.values(state.progress).filter(p => p.completedSteps === p.totalSteps).length;
-  const progress = (completedLessons / lessons.length) * 100;
+  const completed = Object.values(state.progress).filter(p => p.completedSteps >= p.totalSteps).length;
+  const levelProgress = getXpProgress(state.xp);
+  const earned = achievements.filter(a => state.achievements.includes(a.id));
+  const upcoming = forecast.slice(1).reduce((a, b) => a + b, 0);
 
-  useEffect(() => {
-    if (musicEnabled) {
-      startBackgroundMusic();
-      setBackgroundMusicVolume(0.15);
-    } else {
-      stopBackgroundMusic();
-    }
-  }, [musicEnabled]);
+  const go = (path: string) => { playClickSound(); navigate(path); };
 
   return (
-    <div className="min-h-[100dvh] relative overflow-hidden">
-      <AnimatedBackground />
-
-      <div className="relative z-10 px-6 md:px-12 lg:px-24 py-12">
-        <div className="max-w-7xl mx-auto space-y-12">
-          
-          {/* Header */}
-          <motion.header
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-between"
-          >
-            <div>
-              <h1 className="text-heading text-[#FFFFFF]">GrammarQuest</h1>
-              <p className="text-body text-[#A0A0B0] mt-2">
-                {t('Сабақты таңда', 'Выбери раздел', lang)}
-              </p>
-            </div>
-            
-            <div className="flex gap-3">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => { playClickSound(); setMusicEnabled(!musicEnabled); }}
-                className="glass glass-hover flex items-center justify-center w-12 h-12 rounded-xl"
-              >
-                <span className="text-xl">{musicEnabled ? '🔊' : '🔇'}</span>
-              </motion.button>
-              <motion.div 
-                whileHover={{ scale: 1.05 }}
-                className="glass flex items-center gap-2 px-4 py-2.5 rounded-xl"
-              >
-                <span className="text-xl">⚡</span>
-                <span className="text-body text-[#FFFFFF] font-bold">{streak}</span>
-              </motion.div>
-              <motion.div 
-                whileHover={{ scale: 1.05 }}
-                className="glass flex items-center gap-2 px-4 py-2.5 rounded-xl"
-              >
-                <span className="text-xl">💎</span>
-                <span className="text-body text-[#FFFFFF] font-bold">{formatXp(xp)}</span>
-              </motion.div>
-            </div>
-          </motion.header>
-
-          {/* Progress Section */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="card-premium p-8"
-          >
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <div className="text-caption text-[#6B6B7B] uppercase tracking-wider mb-2 font-medium">
-                  {t('Прогресс', 'Прогресс', lang)}
-                </div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-display text-[#FFFFFF]">{completedLessons}</span>
-                  <span className="text-heading text-[#6B6B7B]">/ {lessons.length}</span>
-                </div>
-              </div>
-              <motion.div 
-                className="text-6xl"
-                animate={{ rotate: [0, 10, -10, 0] }}
-                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-              >
-                {completedLessons === 0 ? '🌱' : completedLessons < 5 ? '🌿' : completedLessons < 10 ? '' : ''}
-              </motion.div>
-            </div>
-            
-            <div className="h-2 bg-[#1C1C24] rounded-full overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className="h-full bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] rounded-full relative overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-white/20 animate-pulse" />
-              </motion.div>
-            </div>
-            <div className="text-caption text-[#A0A0B0] mt-3 text-center font-medium">
-              {Math.round(progress)}% {t('аяқталды', 'завершено', lang)}
-            </div>
-          </motion.section>
-
-          {/* Menu grid - Bento style with 3D cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {menuItems.map((item, i) => (
-              <TiltCard
-                key={item.id}
-                className="group relative p-8 text-left overflow-hidden cursor-pointer"
-                onClick={() => { playClickSound(); navigate(item.path); }}
-              >
-                {/* Gradient overlay on hover */}
-                <div 
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{ background: `radial-gradient(circle at 50% 50%, ${item.color}20, transparent 70%)` }}
-                />
-                
-                <div className="relative z-10">
-                  <div className="flex items-start justify-between mb-6">
-                    <motion.div 
-                      className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl"
-                      style={{ backgroundColor: `${item.color}20` }}
-                      whileHover={{ scale: 1.1, rotate: 5 }}
-                    >
-                      {item.icon}
-                    </motion.div>
-                    <motion.span 
-                      className="text-3xl text-[#6B6B7B] group-hover:text-[#FFFFFF] transition-colors"
-                      animate={{ x: [0, 5, 0] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                    >
-                      →
-                    </motion.span>
-                  </div>
-                  
-                  <h2 className="text-heading text-[#FFFFFF] mb-2">{item.titleKz}</h2>
-                  <p className="text-small text-[#A0A0B0] mb-4">{item.titleRu}</p>
-                  <p className="text-caption text-[#6B6B7B] font-medium">{t(item.subtitleKz, item.subtitleRu, lang)}</p>
-                </div>
-              </TiltCard>
-            ))}
+    <div className="page">
+      <motion.div
+        className="shell stack"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.22, ease: [0.25, 1, 0.5, 1] }}
+      >
+        <header className="stack--tight">
+          <h1 className="t-head">{t('Мәзір', 'Главное', lang)}</h1>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <span className="meta meta--accent">{t('Деңгей', 'Уровень', lang)} {state.level}</span>
+            <span className="meta meta--gold">{state.xp} XP</span>
+            {state.streak > 0 && (
+              <span className="meta">{t('Қатарынан', 'Серия', lang)}: {state.streak} {t('күн', 'дн.', lang)}</span>
+            )}
           </div>
+          <div className="progress" role="progressbar" aria-valuenow={Math.round(levelProgress)} aria-valuemin={0} aria-valuemax={100}>
+            <div className="progress__fill" style={{ width: `${levelProgress}%` }} />
+          </div>
+          <p className="t-small">
+            {t('Келесі деңгейге', 'До следующего уровня', lang)}: {100 - Math.round(levelProgress)} XP
+          </p>
+        </header>
 
-          {/* Stats Section */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4"
-          >
-            {[
-              { icon: '🔥', label: t('Күн', 'Дней', lang), value: streak, color: '#F59E0B' },
-              { icon: '💎', label: 'XP', value: formatXp(xp), color: '#6366F1' },
-              { icon: '📚', label: t('Сабақ', 'Уроков', lang), value: completedLessons, color: '#3B82F6' },
-              { icon: '', label: t('Деңгей', 'Уровень', lang), value: state.level, color: '#8B5CF6' },
-            ].map((stat, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.6 + i * 0.1 }}
-                whileHover={{ scale: 1.05, y: -5 }}
-                className="card-premium p-6 text-center"
-              >
-                <motion.div 
-                  className="text-4xl mb-2"
-                  animate={{ y: [0, -5, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, delay: i * 0.2 }}
-                >
-                  {stat.icon}
-                </motion.div>
-                <div className="text-heading text-[#FFFFFF]">{stat.value}</div>
-                <div className="text-caption text-[#6B6B7B] font-medium">{stat.label}</div>
-              </motion.div>
-            ))}
-          </motion.section>
+        {/* Повторение вынесено наверх: если карточки просрочены, это важнее нового урока. */}
+        {due.length > 0 && (
+          <section className="panel panel--raised stack--tight">
+            <h2 className="t-sub">{t('Бүгін қайталау', 'Сегодня к повторению', lang)}</h2>
+            <p className="t-small">
+              {lang === 'kz' ? `${due.length} тапсырма` : pluralize(due.length, 'задание', 'задания', 'заданий')}
+              {due.some(c => c.lapses > 0) && ` · ${t('оның ішінде ұмытылғандары', 'среди них уже забытые', lang)}`}
+            </p>
+            <button className="btn btn--primary btn--block" onClick={() => go('/review')}>
+              {t('Қайталауды бастау', 'Начать повторение', lang)}
+            </button>
+          </section>
+        )}
 
-        </div>
-      </div>
+        <nav className="panel" style={{ padding: '0.25rem 1rem' }}>
+          <ul style={{ listStyle: 'none' }}>
+            <NavRow
+              title={t('Сабақтар', 'Уроки', lang)}
+              sub={`${completed} ${t('өтілді', 'пройдено', lang)} / ${lessons.length}`}
+              onClick={() => go('/lessons')}
+            />
+            <NavRow
+              title={t('Қайталау', 'Повторение', lang)}
+              sub={due.length > 0
+                ? `${lang === 'kz' ? due.length + ' тапсырма' : pluralize(due.length, 'задание', 'задания', 'заданий')} ${t('бүгін', 'на сегодня', lang)}`
+                : upcoming > 0
+                  ? `${t('жақын күндері', 'в ближайшие дни', lang)}: ${lang === 'kz' ? upcoming : pluralize(upcoming, 'задание', 'задания', 'заданий')}`
+                  : t('бос', 'пока пусто', lang)}
+              onClick={() => go('/review')}
+            />
+            <NavRow title={t('Ережелер', 'Правила', lang)} sub={t('33 ереже', '33 правила', lang)} onClick={() => go('/rules')} />
+            <NavRow title={t('Анықтамалық', 'Справочник', lang)} sub={t('22 тақырып', '22 темы', lang)} onClick={() => go('/reference')} />
+            <NavRow title={t('Статистика', 'Статистика', lang)} sub={t('прогресс және баптаулар', 'прогресс и настройки', lang)} onClick={() => go('/stats')} last />
+          </ul>
+        </nav>
+
+        {earned.length > 0 && (
+          <section className="panel stack--tight">
+            <h2 className="t-sub">{t('Жетістіктер', 'Достижения', lang)} · {earned.length} / {achievements.length}</h2>
+            <ul style={{ listStyle: 'none', display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {earned.map(a => (
+                <li key={a.id} className="tab" style={{ cursor: 'default' }}>
+                  {lang === 'kz' ? a.titleKz : a.titleRu}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </motion.div>
     </div>
+  );
+}
+
+function NavRow({ title, sub, onClick, last }: { title: string; sub: string; onClick: () => void; last?: boolean }) {
+  return (
+    <li>
+      <button
+        className="lesson-row"
+        style={{ gridTemplateColumns: '1fr auto', borderBottom: last ? 'none' : undefined }}
+        onClick={onClick}
+      >
+        <span>
+          <span className="lesson-row__title" style={{ display: 'block' }}>{title}</span>
+          <span className="lesson-row__sub">{sub}</span>
+        </span>
+        <span className="t-small">→</span>
+      </button>
+    </li>
   );
 }
