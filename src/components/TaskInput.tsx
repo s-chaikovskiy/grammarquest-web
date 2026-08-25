@@ -32,8 +32,8 @@ export default function TaskInput({ step, lang, onSubmit, onSkip }: Props) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ y: 12 }}
+      animate={{ y: 0 }}
       transition={{ type: 'spring', damping: 26, stiffness: 220 }}
       className="task"
     >

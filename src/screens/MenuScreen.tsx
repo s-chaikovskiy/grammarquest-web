@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useApp } from '../hooks/useApp';
 import { t, pluralize, plural } from '../utils/helpers';
 import { playClickSound } from '../utils/sounds';
@@ -20,12 +19,7 @@ export default function MenuScreen() {
 
   return (
     <div className="page">
-      <motion.div
-        className="shell stack"
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.22, ease: [0.25, 1, 0.5, 1] }}
-      >
+      <div className="shell stack">
         <header className="stack--tight">
           <h1 className="t-head">{t('Мәзір', 'Главное', lang)}</h1>
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
@@ -91,7 +85,7 @@ export default function MenuScreen() {
             </ul>
           </section>
         )}
-      </motion.div>
+      </div>
     </div>
   );
 }

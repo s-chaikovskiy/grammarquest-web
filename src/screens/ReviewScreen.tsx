@@ -111,8 +111,8 @@ export default function ReviewScreen() {
                 <motion.div
                   key={`${card.id}-verdict`}
                   className="stack"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  initial={{ y: 10 }}
+                  animate={{ y: 0 }}
                   transition={{ duration: 0.2, ease: [0.25, 1, 0.5, 1] }}
                 >
                   <section className={`verdict ${result.verdict === 'wrong' ? 'verdict--no' : 'verdict--ok'}`}>

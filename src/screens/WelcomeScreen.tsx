@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useApp } from '../hooks/useApp';
 import { t, plural } from '../utils/helpers';
 import { playClickSound } from '../utils/sounds';
@@ -14,12 +13,7 @@ export default function WelcomeScreen() {
 
   return (
     <div className="page" style={{ display: 'grid', alignContent: 'center' }}>
-      <motion.div
-        className="shell stack--loose"
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.28, ease: [0.25, 1, 0.5, 1] }}
-      >
+      <div className="shell stack--loose">
         <div className="stack--tight">
           <Character name="teacher" size={96} />
           <h1 className="t-title">GrammarQuest</h1>
@@ -61,7 +55,7 @@ export default function WelcomeScreen() {
             </button>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

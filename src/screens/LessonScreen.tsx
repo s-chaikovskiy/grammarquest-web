@@ -316,8 +316,8 @@ function PhaseSwitch({ phase, children }: { phase: string; children: React.React
     <motion.div
       key={phase}
       className="stack"
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ y: 10 }}
+      animate={{ y: 0 }}
       transition={{ duration: 0.2, ease: [0.25, 1, 0.5, 1] }}
     >
       {children}
