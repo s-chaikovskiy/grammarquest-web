@@ -31,6 +31,33 @@ export default defineConfig({
         // после первой загрузки приложение полностью работает офлайн.
         globPatterns: ['**/*.{js,css,html,woff2,webp,png,svg}'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+
+        // Страницу НЕ отдаём из кэша в первую очередь.
+        //
+        // По умолчанию workbox привязывает навигацию к сохранённому index.html
+        // и отдаёт его, не заглядывая в сеть. Из-за этого после выкладки
+        // вернувшийся посетитель видел старую версию приложения: старый
+        // index.html тянул за собой старые файлы, и обновление приходило
+        // только со следующего захода. Никакая правка внутри приложения это
+        // вылечить не может — до нового кода браузер попросту не доходит.
+        navigateFallback: null,
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
+
+        runtimeCaching: [
+          {
+            // Сама страница: сначала сеть, кэш — запасной путь.
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'pages',
+              // Без интернета ждать сеть смысла нет — быстро уходим в кэш.
+              networkTimeoutSeconds: 3,
+              expiration: { maxEntries: 8 },
+            },
+          },
+        ],
       }
     })
   ]
