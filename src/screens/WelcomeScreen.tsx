@@ -1,23 +1,32 @@
 import { useNavigate } from 'react-router-dom';
-import { useTilt } from '../hooks/useTilt';
 import { useApp } from '../hooks/useApp';
 import { playClickSound } from '../utils/sounds';
 import { plural } from '../utils/helpers';
-import Character from '../components/Character';
 import { lessons, levels, LEVEL_IDS, lessonsOfLevel, totalSteps } from '../data';
 import type { LevelId } from '../data';
 
 /**
  * Первый экран.
  *
- * Раньше здесь стоял выбор языка интерфейса — и он сбивал с толку: приложение
- * с самого начала сделано для тех, кто говорит по-русски и учит казахский,
- * так что выбирать было нечего. Вместо него — выбор уровня, который
- * действительно меняет то, с чего начнётся обучение.
+ * Построен вокруг одной мысли, а не вокруг набора блоков.
+ *
+ * Мысль такая: девяти казахских букв нет на русской клавиатуре, и именно
+ * из-за них ученик получал «неверно» за правильный ответ. Это и находка
+ * проекта, и причина, по которой он существует. Поэтому экран открывается
+ * не портретом и не заголовком, а самими буквами — сеткой три на три,
+ * где «қ» выделена: она стоит на иконке приложения.
+ *
+ * Прежняя раскладка — портрет, заголовок, абзац, карточка с цифрами, две
+ * кнопки — собиралась из готовых блоков и выглядела как любое другое
+ * приложение. Полировка теней этого не меняет: экран становится интересным
+ * от идеи, а не от отделки.
  */
+
+/** Порядок как в алфавите. «қ» помечена: она на иконке приложения. */
+const LETTERS = ['ә', 'ғ', 'қ', 'ң', 'ө', 'ұ', 'ү', 'һ', 'і'];
+
 export default function WelcomeScreen() {
   const navigate = useNavigate();
-  const tilt = useTilt<HTMLDivElement>();
   const { state, updateSettings } = useApp();
   const started = Object.keys(state.progress).length > 0 || state.xp > 0;
 
@@ -29,30 +38,41 @@ export default function WelcomeScreen() {
   return (
     <div className="page">
       <div className="shell stack--loose">
+
+        {/* Буквы — не украшение, а сам довод. Их девять, и сетка три на три
+            получается ровной без подгонки. */}
+        <section className="alphabet">
+          <ul className="alphabet__grid" aria-hidden>
+            {LETTERS.map(ch => (
+              <li key={ch} className={`alphabet__cell${ch === 'қ' ? ' alphabet__cell--key' : ''}`}>
+                {ch}
+              </li>
+            ))}
+          </ul>
+          <p className="alphabet__note">
+            Девять букв казахского алфавита, которых&nbsp;нет на русской клавиатуре.
+            <strong> С них всё и началось.</strong>
+          </p>
+        </section>
+
         <header className="stack--tight">
-          <div ref={tilt} className="tilt" style={{ width: 'fit-content' }}>
-            <Character name="girl" size={88} />
-          </div>
-          {/* Имя приложения объяснено прямо здесь: «тіл» — язык, «ашар» — откроет.
-              Название, которое надо гуглить, работает против продукта. */}
           <h1 className="wordmark">
-            <span className="wordmark__glyph" aria-hidden>қ</span>
-            <span className="wordmark__text">
-              <span className="wordmark__name">Тілашар</span>
-              <span className="wordmark__tag">Казахский язык — шаг за шагом</span>
-            </span>
+            <span className="wordmark__name">Тілашар</span>
+            <span className="wordmark__tag">Казахский язык — шаг за шагом</span>
           </h1>
           <p className="t-body prose t-mut">
-            «Тіл» — язык, «ашар» — откроет. Тілашар учит казахскому тех,
+            «Тіл» — язык, «ашар» — откроет. Приложение учит казахскому тех,
             кто говорит по-русски: диалог, правило, задание — и разбор каждой ошибки.
           </p>
         </header>
 
-        <dl className="panel" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(6.5rem, 1fr))', gap: '1rem' }}>
-          <Fact value={String(lessons.length)} label={plural(lessons.length, 'урок', 'урока', 'уроков')} />
-          <Fact value={String(totalSteps())} label={plural(totalSteps(), 'задание', 'задания', 'заданий')} />
-          <Fact value="7" label="типов упражнений" />
-        </dl>
+        {/* Цифры строкой, а не карточкой: это подпись к продукту,
+            а не показатели, за которыми возвращаются. */}
+        <p className="facts">
+          <span><b>{lessons.length}</b> {plural(lessons.length, 'урок', 'урока', 'уроков')}</span>
+          <span><b>{totalSteps()}</b> {plural(totalSteps(), 'задание', 'задания', 'заданий')}</span>
+          <span><b>7</b> типов упражнений</span>
+        </p>
 
         {!started && (
           <section className="stack--tight">
@@ -110,14 +130,5 @@ function LevelCard({ id, selected, onSelect }: { id: LevelId; selected: boolean;
         {count} {plural(count, 'урок', 'урока', 'уроков')}
       </span>
     </button>
-  );
-}
-
-function Fact({ value, label }: { value: string; label: string }) {
-  return (
-    <div>
-      <dt className="t-head" style={{ fontVariantNumeric: 'tabular-nums' }}>{value}</dt>
-      <dd className="t-small">{label}</dd>
-    </div>
   );
 }
