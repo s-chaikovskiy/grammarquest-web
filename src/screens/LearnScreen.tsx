@@ -55,7 +55,7 @@ export default function LearnScreen() {
       <header className="stack--tight">
         {/* Заголовок первого уровня: без него разметка страницы начиналась
             сразу с H2, и экранный диктор не мог назвать, где находится. */}
-        <h1 className="t-head">{levels[String(level)].titleRu}</h1>
+        <h1 className="t-display">{levels[String(level)].titleRu}</h1>
         <div className="tabs" role="group" aria-label="Уровень">
           {LEVEL_IDS.map(id => (
             <button
@@ -93,7 +93,7 @@ export default function LearnScreen() {
         {units.map(({ unit, lessons: unitLessons }, unitIndex) => {
           const doneHere = unitLessons.filter(isDone).length;
           return (
-            <section key={unit} className="chapter">
+            <section key={unit} className="chapter panel panel--tray">
               {/* Глава пути. Раньше здесь был безымянный заголовок тонким серым:
                   блоки не отличались друг от друга, и путь читался одним
                   длинным столбцом без структуры. */}
@@ -140,7 +140,22 @@ export default function LearnScreen() {
                           <span className="step__sub">{lesson.shortKz}</span>
                         </span>
                         <span className="step__tail" aria-hidden>
-                          {st === 'current' && <span className="step__cta">Начать</span>}
+                          {st === 'current' && (
+                            /* Стрелка не стоит голой рядом с надписью: у неё
+                               свой кружок, вложенный в кнопку. Так у элемента
+                               появляется внутренняя структура, а при наведении
+                               кружок сдвигается внутри неподвижной кнопки. */
+                            <span className="cta">
+                              Начать
+                              <span className="cta__ring" aria-hidden>
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none"
+                                     stroke="currentColor" strokeWidth="2.4"
+                                     strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M5 12h13M12 5l7 7-7 7" />
+                                </svg>
+                              </span>
+                            </span>
+                          )}
                           {st === 'done' && accuracy !== null && (
                             <span className="step__score">{accuracy}%</span>
                           )}

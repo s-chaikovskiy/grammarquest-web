@@ -49,10 +49,20 @@
   --text-lg: 1.375rem;
   --text-xl: 1.75rem;
   --text-2xl: 2.25rem;
+  --text-3xl: 2.875rem;
 
-  --radius-sm: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
+  /* Радиусы концентрические: внутренний = внешний минус толщина оправы.
+     Если этого не соблюдать, вложенная карточка выглядит вклеенной, а не
+     вставленной — глаз ловит несовпадение дуг раньше, чем осознаёт причину. */
+  --radius-sm: 0.625rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.75rem;        /* внешняя оправа */
+  --radius-core: 1.375rem;     /* = xl минус 0.375rem оправы */
+
+  /* Тяжёлая кривая: разгон резкий, торможение долгое. Движение читается
+     как масса, а не как переключение состояния. */
+  --ease-physical: cubic-bezier(0.32, 0.72, 0, 1);
 
   /* Экспоненциальный ease-out: быстрый старт, мягкая остановка, без отскока. */
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
@@ -86,6 +96,20 @@
   --shadow-sm: 0 1px 2px oklch(0.25 0.02 255 / 0.06);
   --shadow-md: 0 4px 12px oklch(0.25 0.02 255 / 0.08);
 
+  /* Рассеянный ambient вместо жёсткой рамки. Серая линия в 1px — самый
+     заметный признак наспех собранного интерфейса: она обводит объект,
+     но не отделяет его от плоскости. Тень отделяет. */
+  --ambient: 0 1px 2px oklch(0.28 0.03 255 / 0.05),
+             0 10px 28px -10px oklch(0.28 0.03 255 / 0.13);
+  --ambient-lift: 0 2px 5px oklch(0.28 0.03 255 / 0.06),
+                  0 22px 52px -18px oklch(0.28 0.03 255 / 0.20);
+  /* Волосяная линия внутрь: не крадёт пиксель у содержимого и не спорит с тенью. */
+  --hairline: inset 0 0 0 1px oklch(0.28 0.03 255 / 0.07);
+  /* Блик по верхней кромке — от него поверхность читается как физическая. */
+  --top-light: inset 0 1px 0 oklch(1 0 0 / 0.85);
+  /* Цвет оправы, в которую вложена карточка. */
+  --tray: oklch(0.945 0.008 250);
+
   /* Семантическая шкала слоёв — никаких z-index: 9999. */
   --z-sticky: 100;
   --z-overlay: 200;
@@ -117,6 +141,16 @@
     --gold-wash: oklch(0.82 0.13 82 / 0.16);
     --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.4);
     --shadow-md: 0 4px 14px oklch(0 0 0 / 0.45);
+
+    /* На тёмном ambient должен быть глубже, а блик — почти незаметным:
+       белая кромка, скопированная со светлой темы, выглядит как обводка. */
+    --ambient: 0 1px 2px oklch(0 0 0 / 0.5),
+               0 10px 28px -10px oklch(0 0 0 / 0.55);
+    --ambient-lift: 0 2px 5px oklch(0 0 0 / 0.55),
+                    0 22px 52px -18px oklch(0 0 0 / 0.6);
+    --hairline: inset 0 0 0 1px oklch(1 0 0 / 0.07);
+    --top-light: inset 0 1px 0 oklch(1 0 0 / 0.06);
+    --tray: oklch(0.225 0.019 255);
   }
 }
 
@@ -141,6 +175,13 @@
   --gold-wash: oklch(0.82 0.13 82 / 0.16);
   --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.4);
   --shadow-md: 0 4px 14px oklch(0 0 0 / 0.45);
+  --ambient: 0 1px 2px oklch(0 0 0 / 0.5),
+             0 10px 28px -10px oklch(0 0 0 / 0.55);
+  --ambient-lift: 0 2px 5px oklch(0 0 0 / 0.55),
+                  0 22px 52px -18px oklch(0 0 0 / 0.6);
+  --hairline: inset 0 0 0 1px oklch(1 0 0 / 0.07);
+  --top-light: inset 0 1px 0 oklch(1 0 0 / 0.06);
+  --tray: oklch(0.225 0.019 255);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -193,6 +234,15 @@ p { text-wrap: pretty; }
 /* --- типографика ---------------------------------------------------------- */
 
 .t-title { font-size: var(--text-2xl); font-weight: 700; letter-spacing: -0.025em; }
+/* Заголовок экрана. Крупный кегль с плотным трекингом — единственная
+   бесплатная роскошь в интерфейсе: он не весит ничего и сразу задаёт
+   разницу между «страницей» и «продуктом». */
+.t-display {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+}
 .t-head { font-size: var(--text-xl); font-weight: 650; letter-spacing: -0.02em; }
 .t-sub { font-size: var(--text-lg); font-weight: 600; }
 .t-body { font-size: var(--text-base); }
@@ -205,14 +255,30 @@ p { text-wrap: pretty; }
 
 /* --- поверхности ---------------------------------------------------------- */
 
+/* Карточка.
+   Рамки в 1px нет намеренно: она обводит объект, но не отделяет его от
+   плоскости, и весь экран превращается в сетку прямоугольников. Вместо неё
+   волосяная линия внутрь, рассеянная тень и блик по верхней кромке —
+   поверхность начинает читаться как предмет, лежащий на фоне. */
 .panel {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 0;
   border-radius: var(--radius-lg);
-  padding: 1.25rem;
+  padding: 1.375rem;
+  box-shadow: var(--hairline), var(--ambient), var(--top-light);
 }
-.panel--flat { box-shadow: none; }
-.panel--raised { box-shadow: var(--shadow-sm); }
+.panel--flat { box-shadow: var(--hairline); }
+.panel--raised { box-shadow: var(--hairline), var(--ambient-lift), var(--top-light); }
+
+/* Оправа: карточка лежит не на фоне, а в лотке — как стекло в металлической
+   рамке. Радиусы концентрические, поэтому дуги совпадают. */
+.panel--tray {
+  border-radius: var(--radius-core);
+  box-shadow:
+    0 0 0 0.375rem var(--tray),
+    0 0 0 calc(0.375rem + 1px) oklch(0.28 0.03 255 / 0.06),
+    var(--hairline), var(--ambient-lift), var(--top-light);
+}
 
 .divider { height: 1px; background: var(--border); border: 0; }
 
@@ -464,10 +530,11 @@ p { text-wrap: pretty; }
 /* --- прогресс ------------------------------------------------------------- */
 
 .progress {
-  height: 0.375rem;
-  background: var(--surface-2);
+  height: 0.4375rem;
+  background: var(--tray);
   border-radius: 999px;
   overflow: hidden;
+  box-shadow: inset 0 1px 2px oklch(0.28 0.03 255 / 0.09);
 }
 .progress__fill {
   height: 100%;
@@ -537,19 +604,27 @@ p { text-wrap: pretty; }
   align-items: center;
   min-height: 2.75rem;             /* цель для пальца — 44 px */
   padding: 0.4375rem 0.875rem;
-  background: transparent;
-  border: 1px solid var(--border);
+  background: var(--surface);
+  border: 0;
   border-radius: 999px;
   color: var(--ink-2);
   font: inherit;
   font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
-  transition: background var(--dur-fast) var(--ease-out-quart),
-              color var(--dur-fast) var(--ease-out-quart);
+  box-shadow: var(--hairline), var(--ambient);
+  transition: background var(--dur-base) var(--ease-physical),
+              color var(--dur-base) var(--ease-physical),
+              transform var(--dur-fast) var(--ease-physical);
 }
-.tab:hover { color: var(--ink); background: var(--surface-2); }
-.tab--active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.tab:hover { color: var(--ink); }
+.tab:active { transform: scale(0.97); }
+.tab--active {
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: var(--ambient-lift);
+}
+@media (prefers-reduced-motion: reduce) { .tab:active { transform: none; } }
 
 .sr-only {
   position: absolute;
@@ -584,7 +659,7 @@ p { text-wrap: pretty; }
   z-index: var(--z-sticky);
   padding-bottom: env(safe-area-inset-bottom);
   background: var(--surface);
-  border-top: 1px solid var(--border);
+  border-top: 0;
 }
 
 /* Содержимое панели держится той же колонки, что и текст страницы.
@@ -937,9 +1012,8 @@ p { text-wrap: pretty; }
   --lift-2: 0 2px 4px oklch(0 0 0 / 0.45), 0 12px 32px oklch(0 0 0 / 0.38);
 }
 
-.panel--raised { box-shadow: var(--lift-1); }
-.flashcard { box-shadow: var(--lift-2); }
-.tabbar { box-shadow: 0 -1px 0 var(--border), 0 -8px 24px oklch(0.25 0.02 255 / 0.04); }
+.flashcard { box-shadow: var(--hairline), var(--ambient-lift), var(--top-light); }
+.tabbar { box-shadow: 0 -1px 0 oklch(0.28 0.03 255 / 0.07), 0 -12px 32px -8px oklch(0.28 0.03 255 / 0.09); }
 
 /* --- появление по мере прокрутки -------------------------------------------
    То самое «scroll» из галереи, но без единой строчки JS: шаги дорожки
@@ -990,10 +1064,11 @@ p { text-wrap: pretty; }
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1.25rem;
-  border: 1px solid var(--border);
+  padding: 1.375rem;
+  border: 0;
   border-radius: var(--radius-lg);
   background: var(--surface-2);
+  box-shadow: var(--hairline), var(--ambient-lift);
   overflow: hidden;
   isolation: isolate;
   animation: trophy-in 520ms var(--ease-out-quart);
@@ -1220,7 +1295,7 @@ p { text-wrap: pretty; }
 .dialogue__line { display: flex; gap: 0.75rem; align-items: flex-start; }
 .dialogue__line + .dialogue__line {
   padding-top: 1rem;
-  border-top: 1px solid var(--border);
+  box-shadow: inset 0 1px 0 oklch(0.28 0.03 255 / 0.07);
 }
 
 .dialogue__body { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 0.25rem; }
@@ -1254,8 +1329,9 @@ p { text-wrap: pretty; }
   width: 2.25rem;
   height: 2.25rem;
   border-radius: 50%;
-  border: 1px solid var(--border);
+  border: 0;
   background: var(--surface-2);
+  box-shadow: var(--hairline);
   font-size: 1.125rem;
   line-height: 1;
   color: var(--ink-2);
@@ -1279,7 +1355,8 @@ p { text-wrap: pretty; }
   gap: 0.75rem;
   padding-bottom: 0.875rem;
   margin-bottom: 0.25rem;
-  border-bottom: 1px solid var(--border);
+  /* Волосяная линия вместо сплошной рамки: она отделяет, но не режет. */
+  box-shadow: 0 1px 0 oklch(0.28 0.03 255 / 0.07);
 }
 
 .appbar__mark {
@@ -1325,7 +1402,7 @@ p { text-wrap: pretty; }
 
 .path { display: flex; flex-direction: column; gap: 1.75rem; }
 
-.chapter { display: flex; flex-direction: column; gap: 0.875rem; }
+.chapter { display: flex; flex-direction: column; gap: 0.875rem; padding: 1.125rem 1.125rem 1.375rem; }
 
 /* Заголовок главы прижат к левому краю колонки и не выходит на линию пути:
    кружок с номером рядом с кружками шагов читался как ещё один шаг. */
@@ -1334,7 +1411,7 @@ p { text-wrap: pretty; }
   align-items: baseline;
   gap: 0.75rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 0 oklch(0.28 0.03 255 / 0.07);
 }
 
 .chapter__title {
@@ -1399,10 +1476,11 @@ p { text-wrap: pretty; }
   font: inherit;
   text-align: left;
   cursor: pointer;
-  transition: background var(--dur-fast) var(--ease-out-quart);
+  transition: background var(--dur-base) var(--ease-physical),
+              transform var(--dur-fast) var(--ease-physical);
 }
 .step__hit:hover { background: var(--surface-2); }
-.step__hit:active { transform: translateY(1px); }
+.step__hit:active { transform: scale(0.985); }
 
 .step__dot {
   flex-shrink: 0;
@@ -1427,14 +1505,32 @@ p { text-wrap: pretty; }
 
 .step__tail { flex-shrink: 0; display: flex; align-items: center; }
 
-.step__cta {
-  padding: 0.375rem 0.75rem;
+/* Кнопка со вложенным кружком. */
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.375rem 0.375rem 0.875rem;
   border-radius: 999px;
   background: var(--accent);
   color: var(--on-accent);
   font-size: var(--text-sm);
   font-weight: 650;
+  white-space: nowrap;
 }
+
+.cta__ring {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: oklch(1 0 0 / 0.18);
+  transition: transform var(--dur-base) var(--ease-physical);
+}
+.step__hit:hover .cta__ring { transform: translateX(2px); }
+@media (prefers-reduced-motion: reduce) { .cta__ring { transition: none; } }
 
 .step__score {
   font-size: var(--text-sm);
