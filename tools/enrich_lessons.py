@@ -382,19 +382,41 @@ def build_vocabulary(data):
     он не разошёлся с содержанием уроков.
     """
     entries = {}
+
+    def unfit(kz: str, ru: str) -> bool:
+        """
+        Годится ли пара в словарь.
+
+        Отсеиваем то, что словарной статьёй не является:
+        цифры (учить надо «үш», а не «3»), перечисления через запятую —
+        они попадают из ответов вида «мектептер, әжелер, балалар» и в игре
+        на перевод выглядят как одно длинное слово, — и пары, где перевод
+        совпал с оригиналом: такая карточка ничему не учит.
+        """
+        if not kz or not ru:
+            return True
+        if not (1 <= len(kz.split()) <= 3) or "/" in kz:
+            return True
+        if not any(ch.isalpha() for ch in kz):
+            return True
+        if "," in kz or "," in ru:
+            return True
+        if fold(kz) == fold(ru):
+            return True
+        return False
+
     for lesson in data["lessons"]:
         for i, step in enumerate(lesson["steps"]):
             kz = step["answerKz"].strip()
             ru = step["answerRu"].strip().rstrip(".")
-            if not (1 <= len(kz.split()) <= 3) or "/" in kz:
-                continue
-            # Цифры — не словарные слова: карточка «10 → десять» ничему не учит,
-            # учить надо казахское «он».
-            if not any(ch.isalpha() for ch in kz):
+            if unfit(kz, ru):
                 continue
             key = fold(kz)
             entry = entries.setdefault(key, {
                 "kz": kz, "ru": ru,
+                # Одно слово или оборот из нескольких. Игра на перевод берёт
+                # только слова: «жақсы оқушыға» в качестве «слова» сбивает.
+                "phrase": len(kz.split()) > 1,
                 "level": lesson["level"],
                 "unit": lesson["unit"],
                 "lessons": [],
@@ -404,21 +426,31 @@ def build_vocabulary(data):
             if ref not in entry["lessons"]:
                 entry["lessons"].append(ref)
 
-    # Дополняем словами из заданий на сопоставление — там пары уже выверены.
+    # Дополняем словами из заданий на сопоставление.
+    #
+    # Раньше здесь не было ни одной проверки — «пары уже выверены» оказалось
+    # неверным допущением: именно отсюда в словарь попали цифра «3» и
+    # перечисления через запятую. Условия те же, что и выше.
     for lesson in data["lessons"]:
         for step in lesson["steps"]:
             for pair in step.get("pairs", []):
-                key = fold(pair["left"])
+                kz, ru = pair["left"].strip(), pair["right"].strip()
+                if unfit(kz, ru):
+                    continue
+                key = fold(kz)
                 if key not in entries:
-                    entries[key] = {"kz": pair["left"], "ru": pair["right"],
+                    entries[key] = {"kz": kz, "ru": ru,
+                                    "phrase": len(kz.split()) > 1,
                                     "level": lesson["level"], "unit": lesson["unit"],
                                     "lessons": []}
 
     words = sorted(entries.values(), key=lambda e: (e["level"], fold(e["kz"])))
     VOC.write_text(json.dumps({"version": 1, "words": words}, ensure_ascii=False, indent=1),
                    encoding="utf-8")
-    print(f"Словарь: {len(words)} слов "
-          f"(уровень 1 — {sum(1 for w in words if w['level'] == 1)}, "
+    single = sum(1 for w in words if not w.get("phrase"))
+    print(f"Словарь: {len(words)} статей — {single} слов, {len(words) - single} оборотов")
+    print(f"  по уровням: "
+          f"1 — {sum(1 for w in words if w['level'] == 1)}, "
           f"2 — {sum(1 for w in words if w['level'] == 2)}, "
           f"3 — {sum(1 for w in words if w['level'] == 3)})")
 

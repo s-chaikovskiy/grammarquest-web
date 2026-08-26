@@ -30,8 +30,16 @@ export default function SprintScreen() {
   const navigate = useNavigate();
   const { state, setRecord, recordAnswer } = useApp();
 
+  /*
+   * В игру идут только отдельные слова.
+   *
+   * Словарь собирается из ответов уроков, и среди них есть обороты
+   * («жақсы оқушыға») и целые перечисления. Показанные как «слово», они
+   * сбивают: игра на скорость требует узнавания, а не разбора.
+   */
   const pool = useMemo(
-    () => vocabulary.filter(w => w.level <= state.settings.level && w.ru && w.lessons.length > 0),
+    () => vocabulary.filter(w =>
+      !w.phrase && w.level <= state.settings.level && w.ru && w.lessons.length > 0),
     [state.settings.level]
   );
 

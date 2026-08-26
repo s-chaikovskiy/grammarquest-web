@@ -67,6 +67,8 @@ export interface LevelInfo {
 export interface VocabWord {
   kz: string;
   ru: string;
+  /** Оборот из нескольких слов, а не одно слово. Игра на перевод их не берёт. */
+  phrase?: boolean;
   level: 1 | 2 | 3;
   unit: string;
   lessons: { lessonId: string; stepIndex: number }[];
