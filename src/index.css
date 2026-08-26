@@ -75,6 +75,9 @@
   --accent-wash: oklch(0.5 0.16 250 / 0.08);
   --on-accent: oklch(1 0 0);
   --success: oklch(0.5 0.14 155);
+  /* Текст на зелёной заливке. В светлой теме зелёный тёмный — нужен белый;
+     в тёмной он светлый, и белая галочка на нём почти не видна. */
+  --on-success: oklch(1 0 0);
   --success-wash: oklch(0.5 0.14 155 / 0.1);
   --error: oklch(0.51 0.19 25);
   --error-wash: oklch(0.51 0.19 25 / 0.09);
@@ -106,6 +109,7 @@
     --accent-wash: oklch(0.72 0.14 250 / 0.16);
     --on-accent: oklch(0.18 0.02 255);
     --success: oklch(0.76 0.15 158);
+  --on-success: oklch(0.2 0.03 158);
     --success-wash: oklch(0.76 0.15 158 / 0.16);
     --error: oklch(0.7 0.17 25);
     --error-wash: oklch(0.7 0.17 25 / 0.16);
@@ -129,6 +133,7 @@
   --accent-wash: oklch(0.72 0.14 250 / 0.16);
   --on-accent: oklch(0.18 0.02 255);
   --success: oklch(0.76 0.15 158);
+  --on-success: oklch(0.2 0.03 158);
   --success-wash: oklch(0.76 0.15 158 / 0.16);
   --error: oklch(0.7 0.17 25);
   --error-wash: oklch(0.7 0.17 25 / 0.16);
@@ -232,7 +237,7 @@ p { text-wrap: pretty; }
               transform var(--dur-fast) var(--ease-out-quart);
 }
 /* Нажатие пальцем не должно выделять надпись на кнопке. */
-.btn, .tab, .option, .chip, .node__dot, .node__title, .topbar__back, .topbar__home,
+.btn, .tab, .option, .chip, .step__hit, .appbar__mark, .topbar__back, .topbar__home,
 .tabbar__item, .kzkeys__key { -webkit-user-select: none; user-select: none; }
 
 .btn:active:not(:disabled) { transform: translateY(1px); }
@@ -630,94 +635,6 @@ p { text-wrap: pretty; }
 /* Место под панель, чтобы она не накрывала последний элемент списка. */
 .page--tabbed { padding-bottom: calc(env(safe-area-inset-bottom) + 5rem); }
 
-/* --- путь обучения --------------------------------------------------------- */
-
-.path { display: flex; flex-direction: column; gap: 1.75rem; }
-.path__unit { display: flex; flex-direction: column; gap: 0.875rem; }
-.path__unit-title {
-  font-size: var(--text-sm);
-  font-weight: 700;
-  color: var(--ink-2);
-  padding-bottom: 0.375rem;
-  border-bottom: 1px solid var(--border);
-}
-
-.node {
-  display: flex;
-  align-items: center;
-  gap: 0.875rem;
-  transition: margin var(--dur-slow) var(--ease-out-quart);
-}
-
-.node__dot {
-  position: relative;
-  flex-shrink: 0;
-  width: 3.25rem;
-  height: 3.25rem;
-  display: grid;
-  place-items: center;
-  border: 2px solid var(--border);
-  border-radius: 50%;
-  background: var(--surface-2);
-  color: var(--ink-2);
-  font-size: var(--text-md);
-  font-weight: 700;
-  cursor: pointer;
-  transition: background var(--dur-base) var(--ease-out-quart),
-              border-color var(--dur-base) var(--ease-out-quart),
-              color var(--dur-base) var(--ease-out-quart);
-}
-.node__dot:hover { border-color: var(--accent); }
-
-.node--done .node__dot {
-  background: var(--success);
-  border-color: var(--success);
-  color: #fff;
-}
-.node--current .node__dot {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--on-accent);
-  box-shadow: 0 0 0 6px var(--accent-wash);
-}
-.node--open .node__dot, .node--locked .node__dot { font-variant-numeric: tabular-nums; }
-/* «Сюда рано» показывается пунктиром, а не прозрачностью: узел остаётся
-   нажимаемым, а гашение прозрачностью роняет контраст цифры незаметно —
-   цвет-то рассчитан, прозрачность накладывается поверх него. */
-.node--locked .node__dot { border-style: dashed; }
-.node--locked .node__title { color: var(--ink-2); }
-
-.node__body { min-width: 0; }
-.node__title {
-  display: block;
-  /* Отступы расширяют область нажатия до 44 px, отрицательные поля
-     возвращают текст на прежнее место — вид не меняется, попасть легче. */
-  padding: 0.625rem 0.5rem 0.625rem 0;
-  margin: -0.625rem -0.5rem -0.625rem 0;
-  background: none;
-  border: 0;
-  color: inherit;
-  font: inherit;
-  font-weight: 650;
-  text-align: left;
-  cursor: pointer;
-}
-.node__title:hover { color: var(--accent-ink); }
-.node__sub { font-size: var(--text-sm); color: var(--ink-2); }
-
-/* Пульсация текущего узла: единственная непрерывная анимация в приложении,
-   и у неё есть работа — показать, куда нажать. */
-@keyframes node-pulse {
-  0%, 100% { box-shadow: 0 0 0 6px var(--accent-wash); }
-  50% { box-shadow: 0 0 0 11px transparent; }
-}
-.node--current .node__dot { animation: node-pulse 2.4s var(--ease-out-quart) infinite; }
-@media (prefers-reduced-motion: reduce) {
-  .node--current .node__dot { animation: none; }
-}
-
-/* --- врезка-призыв --------------------------------------------------------- */
-
 .callout {
   display: flex;
   align-items: center;
@@ -780,7 +697,7 @@ p { text-wrap: pretty; }
   font-size: var(--text-sm);
   font-weight: 700;
 }
-.week__day--on .week__dot { background: var(--success); border-color: var(--success); color: #fff; }
+.week__day--on .week__dot { background: var(--success); border-color: var(--success); color: var(--on-success); }
 .week__day--today .week__dot { border-color: var(--accent); border-width: 2px; }
 .week__label { font-size: var(--text-xs); color: var(--ink-2); }
 
@@ -906,7 +823,7 @@ p { text-wrap: pretty; }
   from { transform: scale(0.5) rotate(-12deg); }
   to { transform: scale(1) rotate(0); }
 }
-.node--done .node__dot { animation: check-in 320ms var(--ease-out-quart); }
+.step--done .step__dot { animation: check-in 320ms var(--ease-out-quart); }
 
 /* Варианты ответа появляются по очереди: взгляд успевает пройти по списку
    сверху вниз, а не хватает все четыре разом. */
@@ -944,7 +861,7 @@ p { text-wrap: pretty; }
 .flashcard--flipping { animation: card-flip 420ms var(--ease-out-quart); }
 
 @media (prefers-reduced-motion: reduce) {
-  .verdict--ok, .verdict--no, .node--done .node__dot,
+  .verdict--ok, .verdict--no, .step--done .step__dot,
   .options .option, .meta--bump, .flashcard--flipping { animation: none; }
 }
 
@@ -986,12 +903,9 @@ p { text-wrap: pretty; }
 .rise--soft { animation: rise 260ms var(--ease-out-quart); }
 
 /* Нажатие на узел пути: отклик пальцу. */
-.node__dot:active { transform: scale(0.94); }
 
 @media (prefers-reduced-motion: reduce) {
-  .rise, .rise--soft { animation: none; }
-  .node__dot:active { transform: none; }
-}
+  .rise, .rise--soft { animation: none; }}
 
 /* =============================================================================
    Глубина и материальность
@@ -1027,29 +941,14 @@ p { text-wrap: pretty; }
 .flashcard { box-shadow: var(--lift-2); }
 .tabbar { box-shadow: 0 -1px 0 var(--border), 0 -8px 24px oklch(0.25 0.02 255 / 0.04); }
 
-/* --- узел пути как физический объект --------------------------------------
-   Текущий узел приподнят над дорожкой и при нажатии проваливается,
-   а не просто уменьшается. Разница едва заметна глазом, но палец её
-   чувствует — именно это и создаёт ощущение материальности. */
-
-.node__dot {
-  box-shadow: var(--lift-1);
-  transition: transform 180ms var(--ease-out-quart),
-              box-shadow 180ms var(--ease-out-quart),
-              background var(--dur-base) var(--ease-out-quart),
-              border-color var(--dur-base) var(--ease-out-quart);
-}
-.node--current .node__dot { transform: translateY(-2px); }
-.node__dot:active { transform: translateY(1px) scale(0.96); box-shadow: none; }
-
 /* --- появление по мере прокрутки -------------------------------------------
-   То самое «scroll» из галереи, но без единой строчки JS: узлы дорожки
+   То самое «scroll» из галереи, но без единой строчки JS: шаги дорожки
    проявляются, когда попадают в поле зрения. Где браузер этого не умеет,
    всё просто видно сразу — содержимое никогда не зависит от анимации. */
 
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .node {
+    .step {
       animation: node-enter linear both;
       animation-timeline: view();
       animation-range: entry 0% entry 42%;
@@ -1141,7 +1040,6 @@ p { text-wrap: pretty; }
 
 @media (prefers-reduced-motion: reduce) {
   .summary-hero { animation: none; }
-  .node--current .node__dot, .node__dot:active { transform: none; }
 }
 
 /* --- праздничная сцена ------------------------------------------------------
@@ -1369,3 +1267,223 @@ p { text-wrap: pretty; }
 
 .award__body { display: flex; flex-direction: column; min-width: 0; }
 .award__body strong { font-size: var(--text-base); font-weight: 600; color: inherit; }
+
+
+/* --- шапка приложения ------------------------------------------------------
+   Имя приложения и счётчики над разделами. Имя — кнопка возврата на первый
+   экран: раньше приветствие пропадало навсегда после первого «Начать». */
+
+.appbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 0.875rem;
+  margin-bottom: 0.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.appbar__mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  margin-left: -0.375rem;
+  padding: 0.25rem 0.5rem;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out-quart);
+}
+.appbar__mark:hover { background: var(--surface-2); }
+.appbar__mark:active { transform: translateY(1px); }
+
+.appbar__glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.5rem;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.appbar__name { font-size: var(--text-base); font-weight: 650; letter-spacing: -0.015em; }
+
+.appbar__meta { display: flex; align-items: center; gap: 0.875rem; margin-left: auto; }
+.appbar__meta .meta { font-variant-numeric: tabular-nums; }
+
+/* --- путь обучения ---------------------------------------------------------
+   Экран назывался дорожкой, а дорожки на нём не было: кружки со случайными
+   отступами читались как сбитая вёрстка, а не как путь. Теперь путь нарисован
+   линией, шаги стоят на ней, а блоки уроков стали главами с номерами. */
+
+.path { display: flex; flex-direction: column; gap: 1.75rem; }
+
+.chapter { display: flex; flex-direction: column; gap: 0.875rem; }
+
+/* Заголовок главы прижат к левому краю колонки и не выходит на линию пути:
+   кружок с номером рядом с кружками шагов читался как ещё один шаг. */
+.chapter__head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.chapter__title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-width: 0;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.chapter__num {
+  color: var(--accent-ink);
+  font-variant-numeric: tabular-nums;
+}
+.chapter__num::after { content: '.'; }
+
+.chapter__count {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: var(--text-sm);
+  font-weight: 650;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Сама линия. Идёт по центру кружков и не выходит за пределы главы. */
+.trail {
+  position: relative;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  padding-left: 0;
+}
+.trail::before {
+  content: '';
+  position: absolute;
+  left: 1.4375rem;                 /* центр кружка 2.875rem */
+  top: 1.4375rem;
+  bottom: 1.4375rem;
+  width: 2px;
+  background: var(--border);
+  border-radius: 1px;
+}
+
+.step { position: relative; }
+
+.step__hit {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out-quart);
+}
+.step__hit:hover { background: var(--surface-2); }
+.step__hit:active { transform: translateY(1px); }
+
+.step__dot {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 2.875rem;
+  height: 2.875rem;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: var(--text-base);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  transition: transform var(--dur-base) var(--ease-out-quart),
+              border-color var(--dur-base) var(--ease-out-quart);
+}
+
+.step__body { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.step__title { font-weight: 650; color: var(--ink); }
+.step__sub { font-size: var(--text-sm); color: var(--ink-2); }
+
+.step__tail { flex-shrink: 0; display: flex; align-items: center; }
+
+.step__cta {
+  padding: 0.375rem 0.75rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: var(--text-sm);
+  font-weight: 650;
+}
+
+.step__score {
+  font-size: var(--text-sm);
+  font-weight: 650;
+  color: var(--success);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Пройденный шаг: линия за ним закрашена — видно, докуда дошёл. */
+.step--done .step__dot {
+  background: var(--success);
+  border-color: var(--success);
+  color: var(--on-success);
+}
+.step--done::before {
+  content: '';
+  position: absolute;
+  left: 1.4375rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--success);
+  border-radius: 1px;
+}
+/* У краёв главы линия обрывается по центру кружка, а не по краю строки:
+   иначе сверху и снизу торчат зелёные обрубки в пустоте. */
+.step:first-child.step--done::before { top: 1.4375rem; }
+.step:last-child.step--done::before { bottom: 1.4375rem; }
+
+.step--current .step__dot {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+  transform: scale(1.06);
+  box-shadow: 0 0 0 6px var(--accent-wash);
+}
+.step--current .step__title { color: var(--accent-ink); }
+
+/* «Сюда рано» — пунктир, а не гашение прозрачностью: цифра остаётся читаемой. */
+.step--locked .step__dot { border-style: dashed; }
+.step--locked .step__title { color: var(--ink-2); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .step--current .step__dot { animation: step-pulse 2.4s var(--ease-out-quart) infinite; }
+}
+@keyframes step-pulse {
+  0%, 100% { box-shadow: 0 0 0 6px var(--accent-wash); }
+  50% { box-shadow: 0 0 0 12px transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .step__hit:active { transform: none; }
+}

@@ -26,7 +26,7 @@ export default function LearnScreen() {
   const { state, updateSettings, due } = useApp();
   const level = state.settings.level as LevelId;
   const units = useMemo(() => unitsOfLevel(level), [level]);
-  const currentRef = useRef<HTMLDivElement>(null);
+  const currentRef = useRef<HTMLLIElement>(null);
 
   const isDone = (lesson: Lesson) => {
     const p = state.progress[lesson.id];
@@ -90,53 +90,69 @@ export default function LearnScreen() {
       )}
 
       <div className="path">
-        {units.map(({ unit, lessons: unitLessons }) => (
-          <section key={unit} className="path__unit">
-            <h2 className="path__unit-title">{unit}</h2>
-            {unitLessons.map(lesson => {
-              const idx = flat.indexOf(lesson);
-              const st = nodeState(lesson, idx);
-              const p = state.progress[lesson.id];
-              const accuracy = p?.correct != null && p.totalSteps
-                ? Math.round((p.correct / p.totalSteps) * 100)
-                : null;
+        {units.map(({ unit, lessons: unitLessons }, unitIndex) => {
+          const doneHere = unitLessons.filter(isDone).length;
+          return (
+            <section key={unit} className="chapter">
+              {/* Глава пути. Раньше здесь был безымянный заголовок тонким серым:
+                  блоки не отличались друг от друга, и путь читался одним
+                  длинным столбцом без структуры. */}
+              <header className="chapter__head">
+                <span className="chapter__title">
+                  <span className="chapter__num" aria-hidden>{unitIndex + 1}</span>
+                  {unit}
+                </span>
+                <span className="chapter__count">{doneHere}/{unitLessons.length}</span>
+              </header>
 
-              return (
-                <div
-                  key={lesson.id}
-                  ref={st === 'current' ? currentRef : undefined}
-                  className={`node node--${st}`}
-                  // Смещение по горизонтали делает дорожку дорожкой, а не столбцом.
-                  style={{ marginLeft: `${(idx % 3) * 1.75}rem` }}
-                >
-                  <button
-                    type="button"
-                    className="node__dot"
-                    onClick={() => { playClickSound(); navigate(`/lesson/${lesson.id}`); }}
-                    aria-label={`${lesson.shortRu}, ${st === 'done' ? 'пройден' : st === 'current' ? 'следующий' : 'ещё не начат'}`}
-                  >
-                    {/* Пройденный — галочка, текущий — звезда, остальные — номер.
-                        Пустой кружок читался как незагрузившийся элемент. */}
-                    {st === 'done' ? '✓' : st === 'current' ? '★' : idx + 1}
-                  </button>
-                  <div className="node__body">
-                    <button
-                      type="button"
-                      className="node__title"
-                      onClick={() => { playClickSound(); navigate(`/lesson/${lesson.id}`); }}
+              <ol className="trail">
+                {unitLessons.map(lesson => {
+                  const idx = flat.indexOf(lesson);
+                  const st = nodeState(lesson, idx);
+                  const p = state.progress[lesson.id];
+                  const accuracy = p?.correct != null && p.totalSteps
+                    ? Math.round((p.correct / p.totalSteps) * 100)
+                    : null;
+                  const open = () => { playClickSound(); navigate(`/lesson/${lesson.id}`); };
+
+                  return (
+                    <li
+                      key={lesson.id}
+                      ref={st === 'current' ? currentRef : undefined}
+                      className={`step step--${st}`}
                     >
-                      {lesson.shortRu}
-                    </button>
-                    <p className="node__sub">
-                      {lesson.shortKz}
-                      {accuracy !== null && ` · ${accuracy}% верно`}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </section>
-        ))}
+                      {/* Вся строка — одна кнопка: попасть пальцем легче,
+                          а на широком экране строка перестала обрываться
+                          на трети ширины. */}
+                      <button
+                        type="button"
+                        className="step__hit"
+                        onClick={open}
+                        aria-label={`${lesson.shortRu}. ${
+                          st === 'done' ? `Пройден${accuracy !== null ? `, ${accuracy} процентов верно` : ''}`
+                          : st === 'current' ? 'Следующий урок' : 'Ещё не начат'}`}
+                      >
+                        <span className="step__dot" aria-hidden>
+                          {st === 'done' ? '✓' : idx + 1}
+                        </span>
+                        <span className="step__body">
+                          <span className="step__title">{lesson.shortRu}</span>
+                          <span className="step__sub">{lesson.shortKz}</span>
+                        </span>
+                        <span className="step__tail" aria-hidden>
+                          {st === 'current' && <span className="step__cta">Начать</span>}
+                          {st === 'done' && accuracy !== null && (
+                            <span className="step__score">{accuracy}%</span>
+                          )}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ol>
+            </section>
+          );
+        })}
       </div>
     </div>
   );

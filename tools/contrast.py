@@ -4,7 +4,7 @@
 OKLCH → Oklab → linear sRGB → относительная яркость → коэффициент контраста.
 Запускается при каждом изменении токенов: цвета правим числом, а не на глаз.
 """
-import math, sys
+import math, pathlib, re, sys
 
 def oklch_to_srgb(L, C, H):
     h = math.radians(H)
@@ -36,35 +36,28 @@ def to_hex(L, C, H):
     return '#%02X%02X%02X' % tuple(enc(v) for v in oklch_to_srgb(L, C, H))
 
 
-LIGHT = {
-    'bg':        (0.985, 0.004, 250),
-    'surface':   (1.000, 0.000, 250),
-    'surface-2': (0.955, 0.008, 250),
-    'border':    (0.865, 0.014, 250),
-    'ink':       (0.250, 0.020, 255),
-    'ink-2':     (0.470, 0.020, 255),
-    'accent':    (0.500, 0.160, 250),
-    'accent-ink':(0.430, 0.150, 250),
-    'success':   (0.500, 0.140, 155),
-    'error':     (0.510, 0.190,  25),
-    'gold-ink':  (0.480, 0.110,  78),
-    'on-accent': (1.000, 0.000, 250),
-}
+CSS = pathlib.Path(__file__).resolve().parent.parent / "src" / "index.css"
 
-DARK = {
-    'bg':        (0.200, 0.018, 255),
-    'surface':   (0.245, 0.020, 255),
-    'surface-2': (0.295, 0.022, 255),
-    'border':    (0.380, 0.020, 255),
-    'ink':       (0.960, 0.005, 255),
-    'ink-2':     (0.745, 0.015, 255),
-    'accent':    (0.720, 0.140, 250),
-    'accent-ink':(0.780, 0.130, 250),
-    'success':   (0.760, 0.150, 158),
-    'error':     (0.700, 0.170,  25),
-    'gold-ink':  (0.820, 0.130,  82),
-    'on-accent': (0.180, 0.020, 255),
-}
+# Читаем палитру из самого index.css.
+#
+# Раньше значения были переписаны сюда руками. Это ровно та ошибка, за которую
+# проект и ругает прежнюю версию: два источника правды, и проверка могла
+# молча подтверждать цвета, которых в приложении уже нет.
+OKLCH = re.compile(r"--([\w-]+):\s*oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)")
+
+
+def palette(css: str, block_start: str) -> dict[str, tuple[float, float, float]]:
+    """Токены одного блока :root — от его начала до закрывающей скобки."""
+    i = css.index(block_start)
+    j = css.index("\n}", i)
+    return {m.group(1): (float(m.group(2)), float(m.group(3)), float(m.group(4)))
+            for m in OKLCH.finditer(css[i:j])}
+
+
+_css = CSS.read_text(encoding="utf-8")
+LIGHT = palette(_css, ":root {")
+# Тёмная тема доопределяет часть токенов поверх светлой.
+DARK = {**LIGHT, **palette(_css, ":root[data-theme='dark']")}
 
 # (текст, фон, минимум). 4.5 — обычный текст, 3.0 — крупный текст и границы контролов.
 CHECKS = [
@@ -76,6 +69,7 @@ CHECKS = [
     ('ink-2',      'surface-2', 4.5, 'вторичный текст (плейсхолдер) на поверхности'),
     ('accent-ink', 'bg',        4.5, 'ссылка/акцентный текст'),
     ('accent-ink', 'surface',   4.5, 'акцентный текст на карточке'),
+    ('on-success', 'success',   4.5, 'галочка на зелёном кружке'),
     ('on-accent',  'accent',    4.5, 'текст на акцентной кнопке'),
     ('success',    'surface',   4.5, 'текст «верно»'),
     ('error',      'surface',   4.5, 'текст «ошибка»'),
@@ -88,6 +82,11 @@ def run(name, tokens):
     print(f'\n=== {name} ===')
     bad = 0
     for fg, bgk, minimum, label in CHECKS:
+        missing = [t for t in (fg, bgk) if t not in tokens]
+        if missing:
+            print(f'  ✗ {label:38} нет токена в index.css: {", ".join(missing)}')
+            bad += 1
+            continue
         ratio = contrast(tokens[fg], tokens[bgk])
         ok = ratio >= minimum
         bad += not ok

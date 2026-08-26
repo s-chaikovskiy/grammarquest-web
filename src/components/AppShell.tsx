@@ -1,6 +1,7 @@
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from '../hooks/useApp';
 import { playClickSound } from '../utils/sounds';
+import { plural } from '../utils/helpers';
 
 /**
  * Каркас с нижней панелью.
@@ -19,14 +20,53 @@ const TABS = [
 ];
 
 export default function AppShell() {
-  const { due } = useApp();
+  const { due, state } = useApp();
   const location = useLocation();
+  const navigate = useNavigate();
 
   return (
     <>
       <div className="page page--tabbed">
-        <div className="shell" key={location.pathname}>
-          <Outlet />
+        <div className="shell">
+          {/*
+            Шапка приложения.
+
+            Появилась по двум причинам. Первая: с раздела «Учиться» некуда было
+            вернуться на первый экран — нижняя панель ведёт только между
+            разделами, и приветствие с названием пропадало навсегда после
+            первого нажатия «Начать». Вторая: имя приложения нигде больше
+            не встречалось, и человек, открывший его со второго раза, не знал,
+            чем пользуется.
+
+            Справа — серия и очки: раньше их можно было увидеть только в профиле,
+            хотя это ровно то, ради чего возвращаются каждый день.
+          */}
+          <header className="appbar">
+            <button
+              type="button"
+              className="appbar__mark"
+              onClick={() => { playClickSound(); navigate('/'); }}
+              title="На первый экран"
+            >
+              <span className="appbar__glyph" aria-hidden>қ</span>
+              <span className="appbar__name">Тілашар</span>
+              <span className="sr-only">На первый экран</span>
+            </button>
+
+            <div className="appbar__meta">
+              {state.streak > 0 && (
+                <span className="meta meta--gold" title={`Серия: ${state.streak} ${plural(state.streak, 'день', 'дня', 'дней')} подряд`}>
+                  <FlameIcon />
+                  {state.streak}
+                </span>
+              )}
+              <span className="meta meta--accent">{state.xp} XP</span>
+            </div>
+          </header>
+
+          <div key={location.pathname} className="shell__view">
+            <Outlet />
+          </div>
         </div>
       </div>
 
@@ -62,6 +102,18 @@ export default function AppShell() {
    линии. Эмодзи выглядят по-разному на каждой платформе и ломают ряд. */
 
 type IconProps = { filled?: boolean };
+
+/** Огонёк серии. Нарисован в той же сетке, что и значки панели. */
+function FlameIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+         strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M12 3c2.5 3 4 5 4 7a4 4 0 0 1-8 0c0-1 .4-2 1-3" />
+      <path d="M12 21a6 6 0 0 0 6-6c0-1.4-.5-2.7-1.3-3.8" />
+      <path d="M12 21a6 6 0 0 1-6-6c0-1.2.4-2.3 1-3.2" />
+    </svg>
+  );
+}
 
 function base(filled?: boolean) {
   return {
