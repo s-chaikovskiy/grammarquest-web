@@ -5,6 +5,7 @@ import { playClickSound } from '../utils/sounds';
 import { plural } from '../utils/helpers';
 import Character from '../components/Character';
 import ProgressRing from '../components/ProgressRing';
+import Ornament from '../components/Ornament';
 import { levels, LEVEL_IDS, unitsOfLevel } from '../data';
 import type { LevelId } from '../data';
 import type { Lesson } from '../types';
@@ -60,21 +61,57 @@ export default function LearnScreen() {
 
   const doneCount = flat.filter(isDone).length;
 
+  /* Обращение по времени суток. Мелочь, но именно от неё экран перестаёт
+     выглядеть таблицей: приложение здоровается, а не открывает раздел. */
+  const hour = new Date().getHours();
+  const greeting =
+    hour < 5 ? 'Доброй ночи' :
+    hour < 12 ? 'Сәлеметсіз бе! Доброе утро' :
+    hour < 18 ? 'Сәлем! Добрый день' :
+    'Қайырлы кеш! Добрый вечер';
+
   return (
     <div className="stack">
       <header className="stack--tight">
         {/* Заголовок первого уровня: без него разметка страницы начиналась
             сразу с H2, и экранный диктор не мог назвать, где находится. */}
-        {/* Заголовок и кольцо в одну строку: доля пройденного — первое,
-            за чем возвращаются, и её незачем искать под переключателями. */}
-        <div className="learn-head">
-          <div className="learn-head__text">
-            <h1 className="t-display">{levels[String(level)].titleRu}</h1>
-            <p className="t-small">
-              {levels[String(level)].grades} · пройдено {doneCount} из {flat.length}
-            </p>
+        {/*
+          Приветственный блок.
+
+          Раньше экран начинался с заголовка уровня — служебной надписи,
+          к которой не возвращаются. Теперь первым идёт то, ради чего
+          открывают приложение: обращение, доля пройденного и кто ты сегодня.
+          Цветная панель с орнаментом отделяет «кто я» от «что делать».
+        */}
+        <section className="greet">
+          <Ornament opacity={0.1} tile={92} />
+          <div className="greet__text">
+            <p className="greet__hi">{greeting}</p>
+            <h1 className="greet__title">{levels[String(level)].titleRu}</h1>
+            <p className="greet__sub">{levels[String(level)].grades}</p>
           </div>
-          <ProgressRing value={doneCount} total={flat.length} size={78} label="уроков" />
+          <div className="greet__figure" aria-hidden>
+            <Character name="girl" size={112} />
+          </div>
+        </section>
+
+        {/* Показатели вынесены под приветствие отдельными плитками: в самой
+            панели портрет и кольцо спорили за правый край. */}
+        <div className="tiles">
+          <div className="tile">
+            <ProgressRing value={doneCount} total={flat.length} size={52} />
+            <div className="tile__text">
+              <strong>Пройдено</strong>
+              <span>{doneCount} из {flat.length} уроков</span>
+            </div>
+          </div>
+          <div className="tile">
+            <span className="tile__num">{state.streak}</span>
+            <div className="tile__text">
+              <strong>{plural(state.streak, 'День', 'Дня', 'Дней')} подряд</strong>
+              <span>{state.streak > 0 ? 'Серия идёт' : 'Начни сегодня'}</span>
+            </div>
+          </div>
         </div>
 
         <div className="tabs" role="group" aria-label="Уровень">
