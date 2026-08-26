@@ -93,6 +93,11 @@
   --error-wash: oklch(0.51 0.19 25 / 0.09);
   --gold-ink: oklch(0.48 0.11 78);
   --gold-wash: oklch(0.48 0.11 78 / 0.11);
+  /* Заливка янтарём. Раньше золото жило только как цвет текста, и третьего
+     цвета в интерфейсе не было вовсе — отсюда монохромность. */
+  --amber: oklch(0.79 0.15 78);
+  --on-amber: oklch(0.28 0.06 78);
+  --amber-wash: oklch(0.79 0.15 78 / 0.14);
   --shadow-sm: 0 1px 2px oklch(0.25 0.02 255 / 0.06);
   --shadow-md: 0 4px 12px oklch(0.25 0.02 255 / 0.08);
 
@@ -139,6 +144,12 @@
     --error-wash: oklch(0.7 0.17 25 / 0.16);
     --gold-ink: oklch(0.82 0.13 82);
     --gold-wash: oklch(0.82 0.13 82 / 0.16);
+  --amber: oklch(0.82 0.14 82);
+  --on-amber: oklch(0.22 0.04 82);
+  --amber-wash: oklch(0.82 0.14 82 / 0.18);
+    --amber: oklch(0.82 0.14 82);
+    --on-amber: oklch(0.22 0.04 82);
+    --amber-wash: oklch(0.82 0.14 82 / 0.18);
     --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.4);
     --shadow-md: 0 4px 14px oklch(0 0 0 / 0.45);
 
@@ -173,6 +184,9 @@
   --error-wash: oklch(0.7 0.17 25 / 0.16);
   --gold-ink: oklch(0.82 0.13 82);
   --gold-wash: oklch(0.82 0.13 82 / 0.16);
+  --amber: oklch(0.82 0.14 82);
+  --on-amber: oklch(0.22 0.04 82);
+  --amber-wash: oklch(0.82 0.14 82 / 0.18);
   --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.4);
   --shadow-md: 0 4px 14px oklch(0 0 0 / 0.45);
   --ambient: 0 1px 2px oklch(0 0 0 / 0.5),
@@ -1402,7 +1416,28 @@ p { text-wrap: pretty; }
 
 .path { display: flex; flex-direction: column; gap: 1.75rem; }
 
-.chapter { display: flex; flex-direction: column; gap: 0.875rem; padding: 1.125rem 1.125rem 1.375rem; }
+/* У каждой главы свой цвет.
+   Одноцветный экран читается ровно и скучно: глазу не за что зацепиться,
+   и двенадцать уроков сливаются в один список. Цвет главы метит её номер,
+   счёт и верхнюю кромку карточки — этого достаточно, чтобы блоки различались,
+   и мало, чтобы получилась пестрота. */
+.chapter {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding: 1.125rem 1.125rem 1.375rem;
+  overflow: hidden;
+}
+.chapter::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--chapter, var(--accent));
+}
+.chapter__num { color: var(--chapter, var(--accent-ink)); }
+.chapter--done .chapter__count { color: var(--success); }
 
 /* Заголовок главы прижат к левому краю колонки и не выходит на линию пути:
    кружок с номером рядом с кружками шагов читался как ещё один шаг. */
@@ -1426,10 +1461,7 @@ p { text-wrap: pretty; }
   color: var(--ink);
 }
 
-.chapter__num {
-  color: var(--accent-ink);
-  font-variant-numeric: tabular-nums;
-}
+.chapter__num { font-variant-numeric: tabular-nums; }
 .chapter__num::after { content: '.'; }
 
 .chapter__count {
@@ -1582,4 +1614,74 @@ p { text-wrap: pretty; }
 }
 @media (prefers-reduced-motion: reduce) {
   .step__hit:active { transform: none; }
+}
+
+/* --- кольцо прогресса ------------------------------------------------------
+   Число внутри кольца написано текстом: дуга дублирует его, а не заменяет.
+   Если SVG не нарисуется, значение всё равно видно.
+
+   Класс называется .dial, а не .ring, намеренно: `ring` — имя утилиты
+   Tailwind, которая рисует контур цветом текста. Совпадение имён давало
+   чёрный прямоугольник вокруг кольца в светлой теме и белый в тёмной,
+   причём в вычисленных стилях border и outline оставались пустыми. */
+
+.dial { position: relative; flex-shrink: 0; display: grid; place-items: center; }
+.dial svg { position: absolute; inset: 0; }
+
+.dial__track { stroke: var(--tray); }
+.dial__arc {
+  stroke: var(--accent);
+  transition: stroke-dashoffset 900ms var(--ease-physical);
+}
+@media (prefers-reduced-motion: reduce) { .dial__arc { transition: none; } }
+
+.dial__value {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+}
+.dial__value strong {
+  font-size: var(--text-md);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.dial__label { font-size: var(--text-xs); color: var(--ink-2); }
+
+/* --- шапка раздела «Учиться» ----------------------------------------------- */
+
+.learn-head { display: flex; align-items: center; gap: 1.25rem; }
+.learn-head__text { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 0.375rem; }
+
+/* --- появление содержимого -------------------------------------------------
+   Блоки въезжают снизу по очереди. Анимируется только сдвиг: содержимое
+   видно с первого кадра, даже если анимация не доиграет — на замороженной
+   вкладке, слабом устройстве или при снимке экрана. */
+
+@media (prefers-reduced-motion: no-preference) {
+  .rise-in > * {
+    animation: rise-in 520ms var(--ease-physical) both;
+  }
+  .rise-in > *:nth-child(1) { animation-delay: 0ms; }
+  .rise-in > *:nth-child(2) { animation-delay: 60ms; }
+  .rise-in > *:nth-child(3) { animation-delay: 120ms; }
+  .rise-in > *:nth-child(4) { animation-delay: 180ms; }
+  .rise-in > *:nth-child(5) { animation-delay: 240ms; }
+  .rise-in > *:nth-child(n+6) { animation-delay: 300ms; }
+}
+@keyframes rise-in {
+  from { transform: translateY(14px); }
+  to { transform: none; }
+}
+
+/* Смена раздела: содержимое въезжает снизу. Сдвиг небольшой — переход должен
+   объяснять, что экран сменился, а не задерживать. */
+@media (prefers-reduced-motion: no-preference) {
+  .view-in { animation: view-in 340ms var(--ease-physical) both; }
+}
+@keyframes view-in {
+  from { transform: translateY(10px); }
+  to { transform: none; }
 }

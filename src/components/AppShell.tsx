@@ -64,7 +64,7 @@ export default function AppShell() {
             </div>
           </header>
 
-          <div key={location.pathname} className="shell__view">
+          <div key={location.pathname} className="shell__view view-in">
             <Outlet />
           </div>
         </div>

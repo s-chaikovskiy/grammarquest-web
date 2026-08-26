@@ -4,11 +4,21 @@ import { useApp } from '../hooks/useApp';
 import { playClickSound } from '../utils/sounds';
 import { plural } from '../utils/helpers';
 import Character from '../components/Character';
+import ProgressRing from '../components/ProgressRing';
 import { levels, LEVEL_IDS, unitsOfLevel } from '../data';
 import type { LevelId } from '../data';
 import type { Lesson } from '../types';
 
 type NodeState = 'done' | 'current' | 'locked' | 'open';
+
+/**
+ * Цвета глав.
+ *
+ * Три цвета по кругу, а не по одному на каждую главу: цветов должно быть
+ * меньше, чем блоков, иначе экран становится пёстрым, а различение
+ * перестаёт работать — глаз запоминает три оттенка, но не восемь.
+ */
+const CHAPTER_COLORS = ['var(--accent)', 'var(--success)', 'var(--amber)'];
 
 /**
  * Путь обучения — главный экран.
@@ -55,7 +65,18 @@ export default function LearnScreen() {
       <header className="stack--tight">
         {/* Заголовок первого уровня: без него разметка страницы начиналась
             сразу с H2, и экранный диктор не мог назвать, где находится. */}
-        <h1 className="t-display">{levels[String(level)].titleRu}</h1>
+        {/* Заголовок и кольцо в одну строку: доля пройденного — первое,
+            за чем возвращаются, и её незачем искать под переключателями. */}
+        <div className="learn-head">
+          <div className="learn-head__text">
+            <h1 className="t-display">{levels[String(level)].titleRu}</h1>
+            <p className="t-small">
+              {levels[String(level)].grades} · пройдено {doneCount} из {flat.length}
+            </p>
+          </div>
+          <ProgressRing value={doneCount} total={flat.length} size={78} label="уроков" />
+        </div>
+
         <div className="tabs" role="group" aria-label="Уровень">
           {LEVEL_IDS.map(id => (
             <button
@@ -66,12 +87,6 @@ export default function LearnScreen() {
               {levels[String(id)].titleRu}
             </button>
           ))}
-        </div>
-        <p className="t-small">
-          {levels[String(level)].grades} · пройдено {doneCount} из {flat.length}
-        </p>
-        <div className="progress" role="progressbar" aria-valuenow={doneCount} aria-valuemin={0} aria-valuemax={flat.length}>
-          <div className="progress__fill" style={{ width: `${flat.length ? (doneCount / flat.length) * 100 : 0}%` }} />
         </div>
       </header>
 
@@ -89,11 +104,15 @@ export default function LearnScreen() {
         </button>
       )}
 
-      <div className="path">
+      <div className="path rise-in">
         {units.map(({ unit, lessons: unitLessons }, unitIndex) => {
           const doneHere = unitLessons.filter(isDone).length;
           return (
-            <section key={unit} className="chapter panel panel--tray">
+            <section
+              key={unit}
+              className={`chapter panel panel--tray${doneHere === unitLessons.length ? ' chapter--done' : ''}`}
+              style={{ '--chapter': CHAPTER_COLORS[unitIndex % CHAPTER_COLORS.length] } as React.CSSProperties}
+            >
               {/* Глава пути. Раньше здесь был безымянный заголовок тонким серым:
                   блоки не отличались друг от друга, и путь читался одним
                   длинным столбцом без структуры. */}

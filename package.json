@@ -10,7 +10,8 @@
     "test": "node_modules/.bin/esbuild tools/tests/answer.test.ts tools/tests/srs.test.ts tools/tests/morphology.test.ts tools/tests/helpers.test.ts --bundle --platform=node --format=esm --outdir=node_modules/.test --log-level=warning && node node_modules/.test/answer.test.js && node node_modules/.test/srs.test.js && node node_modules/.test/morphology.test.js && node node_modules/.test/helpers.test.js",
     "data": "python3 tools/content/build.py && python3 tools/enrich_lessons.py && python3 tools/export_reference_review.py",
     "icons": "python3 tools/make_icon.py",
-    "android": "npm run build && npx cap sync android"
+    "android": "npm run build && npx cap sync android",
+    "check:css": "node tools/check_class_names.mjs"
   },
   "dependencies": {
     "@capacitor/app": "^8.1.1",
