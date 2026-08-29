@@ -16,6 +16,7 @@ import gzip
 import json
 import pathlib
 import re
+import subprocess
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -42,7 +43,16 @@ def facts() -> dict[str, str]:
         if main:
             weight = str(round(sum(len(gzip.compress(f.read_bytes())) for f in main) / 1024))
 
+    # Автотесты и проверки контраста тоже числа доклада: они росли молча,
+    # и слайд «что проверяется само» успел отстать на восемь проверок.
+    tests = sum(len(re.findall(r"^test\(", f.read_text(encoding="utf-8"), re.M))
+                for f in sorted((ROOT / "tools" / "tests").glob("*.test.ts")))
+    contrast = subprocess.run([sys.executable, str(ROOT / "tools" / "contrast.py")],
+                              capture_output=True, text=True).stdout
+
     return {
+        "автотестов": str(tests),
+        "проверок контраста": str(len(re.findall(r"нужно ≥", contrast))),
         "уроков": str(len(lessons)),
         "заданий": str(len(steps)),
         "слов в словаре": str(len(load("vocabulary.json")["words"])),
@@ -65,6 +75,8 @@ EXPECTED = [
     ("s01_kpi[0]", "уроков"),
     ("s01_kpi[1]", "заданий"),
     ("s01_kpi[2]", "типов заданий"),
+    ("s05_right[0]", "автотестов"),
+    ("s05_right[1]", "проверок контраста"),
     ("s04_levels[0]", "уроков на уровне 1"),
     ("s04_levels[1]", "уроков на уровне 2"),
     ("s04_levels[2]", "уроков на уровне 3"),
@@ -73,12 +85,15 @@ EXPECTED = [
 
 
 def read(deck: dict, path: str):
-    """s12_rows[1][2] → deck['s12_rows'][1][2]"""
+    """s12_rows[1][2] → deck['s12_rows'][1][2]; из строки берётся первое число"""
     name = path.split("[", 1)[0]
     value = deck[name]
     for part in re.findall(r"\[(\d+)\]", path):
         value = value[int(part)]
-    return value[0] if isinstance(value, (list, tuple)) else value
+    if isinstance(value, (list, tuple)):
+        return value[0]
+    m = re.search(r"\d+", value)
+    return m.group() if m else value
 
 
 def main():
