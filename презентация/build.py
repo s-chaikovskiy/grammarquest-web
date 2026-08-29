@@ -44,6 +44,13 @@ def build(lang: str):
         """Заметки докладчика: видны выступающему, но не залу."""
         slide.notes_slide.notes_text_frame.text = text.strip()
 
+    def fits(bottom, where):
+        """Нижнее поле листа. Проверка карточек его не ловит: там меряется
+        только высота карточки, а не то, куда её поставили. Казахская версия
+        длиннее русской и уезжала вниз именно так."""
+        if bottom > H - MB:
+            OVERFLOW.append(f"{where}: ниже поля на {bottom - (H - MB):.2f}″")
+
     # ═════════════════════════════════════════════════ 01 · титул
     N[0] += 1
     s = d.add()
@@ -64,7 +71,7 @@ def build(lang: str):
     for i, (tag, head, items) in enumerate(cards):
         card(s, ML + i * (cw + gap), yy, cw, h, tag, head, items,
              head_size=15, item_size=10, accent=tones[i], tag_color=tones[i])
-    band(s, yy + h + 0.42, [(T["s02_band"], TEXT_SB, WHITE)], size=12.5)
+    fits(band(s, yy + h + 0.42, [(T["s02_band"], TEXT_SB, WHITE)], size=12.5), "02 полоса")
     notes(s, T["s02_notes"])
 
     # ═════════════════════════════════════════════════ 03 · зачем это нужно
@@ -103,8 +110,8 @@ def build(lang: str):
                                    TEXT, 10.5, SOFT_D, leading=15))
     bb = band(s, bottom + 0.46, [(T["s04_band"], TEXT_SB, WHITE)], dark=True, size=12.5)
     # Три уровня — здесь же: так «5–11 классы» с титула получает конкретику.
-    kpi_row(s, T["s04_levels"], bb + 0.58, dark=True, size=34, label_size=8,
-            w_total=CW * 0.72)
+    fits(kpi_row(s, T["s04_levels"], bb + 0.58, dark=True, size=34, label_size=8,
+                 w_total=CW * 0.72), "04 уровни")
     notes(s, T["s04_notes"])
 
     # ═════════════════════════════════════════════════ 05 · как создано
@@ -123,7 +130,8 @@ def build(lang: str):
     b2 = bullets(s, T["s05_right"], rx + 0.30, b2 + 0.20, rw - 0.60, dark=True, size=11,
                  gap=0.14, mcolor=PETROL_L)
     panel_behind(s, rx, yy, rw, bottom=b2, pad=0.30, dark=True, accent=PETROL)
-    band(s, max(b, b2) + 0.46, [(T["s05_band"], TEXT_SB, WHITE)], dark=True, size=12.5)
+    fits(band(s, max(b, b2) + 0.46, [(T["s05_band"], TEXT_SB, WHITE)], dark=True,
+              size=12.5), "05 полоса")
     notes(s, T["s05_notes"])
 
     # ═════════════════════════════════════════════════ 06 · что особенного
@@ -138,7 +146,8 @@ def build(lang: str):
     for i, (tag, head, items) in enumerate(cards):
         card(s, ML + i * (cw + gap), yy, cw, h, tag, head, items, dark=True,
              head_size=15, item_size=10, accent=SIGNAL, tag_color=SIGNAL_L)
-    band(s, yy + h + 0.44, [(T["s06_band"], TEXT_SB, WHITE)], dark=True, size=12.5)
+    fits(band(s, yy + h + 0.44, [(T["s06_band"], TEXT_SB, WHITE)], dark=True,
+              size=12.5), "06 полоса")
     notes(s, T["s06_notes"])
 
     # ═════════════════════════════════════════════════ 07 · попробуйте сами
@@ -172,7 +181,10 @@ def build(lang: str):
     # ═════════════════════════════════════════════════ 08 · что дальше
     s, y = sl(T["s08_eyebrow"], dark=True)
     y = title(s, T["s08_title"], y, dark=True, max_lines=2, start=38, minimum=24)
-    yy = y + 0.50
+    # Зелёная полоса — то, что уже сделано: жюри должно услышать это до планов.
+    # Запас по вертикали: когда впишут ФИО учителя, полоса станет двухстрочной.
+    yy = band(s, y + 0.32, [(T["s08_done"], TEXT_SB, WHITE)], dark=True,
+              fill=PETROL, size=12) + 0.38
     lx, lw = col(0, 7)
     rx, rw = col(7, 5)
     b = block(s, [T["s08_concl_tag"]], lx + 0.30, yy + 0.30, lw - 0.60, MONO_SB, 8.5,
@@ -182,8 +194,9 @@ def build(lang: str):
     panel_behind(s, lx, yy, lw, bottom=b, pad=0.30, dark=True, fill=SIGNAL, border=False)
     b2 = block(s, [T["s08_next_tag"]], rx + 0.30, yy + 0.30, rw - 0.60, MONO_SB, 8.5,
                SIGNAL_L, leading=11, tracking=0.16, caps=True)
-    b2 = bullets(s, T["s08_next"], rx + 0.30, b2 + 0.20, rw - 0.60, dark=True, size=11, gap=0.15)
+    b2 = bullets(s, T["s08_next"], rx + 0.30, b2 + 0.20, rw - 0.60, dark=True, size=11, gap=0.13)
     panel_behind(s, rx, yy, rw, bottom=b2, pad=0.30, dark=True)
+    fits(b2 + 0.30, "08 план развития")
     block(s, [f"{SITE}  ·  {T['author_line']}"], ML, H - MB - 0.10, CW, MONO_MD, 8.5,
           SOFT_D, leading=11, tracking=0.10, caps=True)
     notes(s, T["s08_notes"])
