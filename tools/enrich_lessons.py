@@ -300,7 +300,11 @@ def enrich():
                 step["taskType"] = "fill_blank"
                 step["blank"] = blank
 
-            elif wc <= 2 and 1 <= len(ru.split()) <= 3 and i % 2 == 0:
+            elif (wc <= 2 and 1 <= len(ru.split()) <= 3 and i % 2 == 0
+                  and any(ch.isalpha() for ch in answer)):
+                # Ответ обязан быть словом. Без этой проверки шаг «Какое число
+                # означает „үш“?» с ответом «3» превращался в «Переведи на
+                # казахский: три» — и ученик, написавший «үш», получал «неверно».
                 step["taskType"] = "translate"
                 step["prompt"] = ru
 
