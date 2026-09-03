@@ -83,6 +83,42 @@ function audioUrl(id: string): string {
   return `${import.meta.env.BASE_URL}audio/${id}.mp3`;
 }
 
+/**
+ * Запись сначала скачивается, и только потом играет.
+ *
+ * Казалось бы, лишний шаг: можно отдать адрес прямо в Audio. Но тег media
+ * просит файл кусками — с заголовком Range, — и сервер отвечает «206,
+ * частичное содержимое». Service worker такие ответы не кэширует и правильно
+ * делает: в кэш попал бы обрывок. Из-за этого озвучка не сохранялась совсем,
+ * и обещание «работает без интернета» на звук не распространялось.
+ *
+ * Обычный fetch получает честные 200 и полный файл: он и оседает в кэше,
+ * а играем мы уже из памяти. Файлы по 20–40 КБ, задержки на слух нет.
+ */
+const BLOBS = new Map<string, string>();
+const BLOB_LIMIT = 24;
+
+async function playableUrl(id: string): Promise<string> {
+  const ready = BLOBS.get(id);
+  if (ready) return ready;
+  try {
+    const resp = await fetch(audioUrl(id));
+    if (!resp.ok) return audioUrl(id);
+    const url = URL.createObjectURL(await resp.blob());
+    // Ссылки на blob держат файл в памяти, пока их не отозвать.
+    // Двух десятков хватает на занятие, а память не растёт весь сеанс.
+    if (BLOBS.size >= BLOB_LIMIT) {
+      const oldest = BLOBS.keys().next().value;
+      if (oldest) { URL.revokeObjectURL(BLOBS.get(oldest)!); BLOBS.delete(oldest); }
+    }
+    BLOBS.set(id, url);
+    return url;
+  } catch {
+    // Сети нет и в кэше пусто — пробуем обычный адрес, вдруг повезёт.
+    return audioUrl(id);
+  }
+}
+
 /** Есть ли запись для этой фразы. Ответ известен заранее, в сеть не ходим. */
 export function hasAudio(text: string): boolean {
   const id = audioIdFor(text);
@@ -95,7 +131,7 @@ export async function speak(text: string): Promise<boolean> {
   if (!id || !AVAILABLE.has(id)) return false;
 
   current?.pause();
-  const audio = new Audio(audioUrl(id));
+  const audio = new Audio(await playableUrl(id));
   current = audio;
 
   // Снимаем признак «говорит» только если с тех пор не начали другую реплику:
