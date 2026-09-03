@@ -1009,6 +1009,7 @@ p { text-wrap: pretty; }
 /* --- кнопка озвучки -------------------------------------------------------- */
 
 .speak {
+  position: relative;
   display: inline-grid;
   place-items: center;
   width: 2.25rem;
@@ -1023,6 +1024,21 @@ p { text-wrap: pretty; }
               border-color var(--dur-fast) var(--ease-out-quart);
 }
 .speak:hover { background: var(--accent-wash); border-color: var(--accent); }
+
+/* Зона нажатия шире самой кнопки.
+   Кружок 36 px — столько и нужно рядом со строкой текста, иначе он спорит
+   с самой репликой. Но пальцем в 36 px попадают мимо, а в словаре таких
+   кнопок 162: там это не мелочь, а половина экрана. Псевдоэлемент
+   растягивает цель до 44 px, ничего не меняя на вид. */
+.speak::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2.75rem;
+  height: 2.75rem;
+  transform: translate(-50%, -50%);
+}
 
 @keyframes speak-ping {
   0% { box-shadow: 0 0 0 0 var(--accent-wash); }
