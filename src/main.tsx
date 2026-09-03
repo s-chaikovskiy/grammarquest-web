@@ -38,12 +38,29 @@ try {
  *
  * Защита от цикла: перезагружаем ровно один раз за жизнь вкладки.
  */
-if ('serviceWorker' in navigator) {
+/**
+ * Регистрируем только по http и https.
+ *
+ * В настольной оболочке страница открывается по собственной схеме app://,
+ * где service worker не поддерживается, — и он там не нужен: файлы лежат
+ * внутри приложения. Проверка избавляет от необработанной ошибки в консоли.
+ */
+const вебКонтекст = location.protocol === 'http:' || location.protocol === 'https:';
+
+if ('serviceWorker' in navigator && вебКонтекст) {
   let reloaded = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (reloaded) return;
     reloaded = true;
     window.location.reload();
+  });
+
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`, {
+      scope: import.meta.env.BASE_URL,
+    }).catch(() => {
+      // Без service worker приложение работает, просто теряет офлайн.
+    });
   });
 }
 

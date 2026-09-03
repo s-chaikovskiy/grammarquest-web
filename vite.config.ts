@@ -9,6 +9,14 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
+
+      // Скрипт регистрации в разметку не встраиваем — регистрируем сами
+      // в main.tsx. Причина: в настольной оболочке страница открывается
+      // не по http, а по собственной схеме app://, где service worker
+      // не поддерживается. Встроенный скрипт там падал с необработанной
+      // ошибкой, хотя в оболочке service worker и не нужен: все файлы
+      // и так лежат рядом с приложением.
+      injectRegister: null,
       includeAssets: ['characters/*.webp', 'icons/*.png', 'fonts/*.woff2'],
       manifest: {
         name: 'Тілашар — казахский язык шаг за шагом',

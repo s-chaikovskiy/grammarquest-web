@@ -1,0 +1,40 @@
+{
+  "name": "tilashar-desktop",
+  "productName": "Тілашар",
+  "version": "2.0.0",
+  "description": "Тілашар — казахский язык шаг за шагом",
+  "author": "Малышко Макар",
+  "main": "main.cjs",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win --publish never"
+  },
+  "devDependencies": {
+    "electron": "^38.0.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "kz.tilashar.desktop",
+    "productName": "Тілашар",
+    "copyright": "Малышко Макар, 2026",
+    "directories": { "output": "выпуск" },
+    "files": ["main.cjs", "dist/**/*"],
+    "win": {
+      "icon": "icon.png",
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Тілашар",
+      "artifactName": "Tilashar-Setup-${version}.${ext}"
+    },
+    "portable": { "artifactName": "Tilashar-portable-${version}.${ext}" }
+  }
+}

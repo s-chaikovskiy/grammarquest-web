@@ -1,0 +1,70 @@
+# Сборка приложения для Windows.
+#
+# Собирается на windows-latest, а не на своей машине: electron-builder
+# делает установщик NSIS средствами самой Windows, и кросс-сборка с macOS
+# требует Wine и всё равно даёт менее предсказуемый результат.
+#
+# Внутрь кладётся та же самая веб-сборка, что открывается по ссылке
+# и лежит в APK. Отдельной версии для компьютера не существует.
+name: Windows
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Установить зависимости
+        run: npm ci
+
+      - name: Проверить типы
+        run: npx tsc --noEmit
+
+      - name: Прогнать тесты
+        run: npm test
+
+      - name: Собрать веб-часть
+        run: npm run build
+
+      - name: Положить веб-сборку в оболочку
+        shell: bash
+        run: cp -R dist desktop/dist
+
+      - name: Установить зависимости оболочки
+        working-directory: desktop
+        run: npm install
+
+      - name: Собрать установщик и переносимую версию
+        working-directory: desktop
+        run: npx electron-builder --win --publish never
+
+      - name: Показать, что получилось
+        shell: bash
+        working-directory: desktop/выпуск
+        run: ls -la *.exe
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Tilashar-Windows
+          path: desktop/выпуск/*.exe
+          if-no-files-found: error
+
+      - name: Опубликовать в Releases
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: desktop/выпуск/*.exe
