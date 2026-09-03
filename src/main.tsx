@@ -14,6 +14,21 @@ if (savedTheme === 'light' || savedTheme === 'dark') {
 }
 
 /**
+ * То же и для «уменьшить движение»: если ждать, пока состояние поднимется
+ * из хранилища, первый экран успеет проиграть анимацию появления — ровно
+ * то, что настройка и должна была предотвратить.
+ */
+try {
+  const saved = localStorage.getItem('grammarquest_state');
+  if (saved && JSON.parse(saved)?.settings?.reducedMotion) {
+    document.documentElement.dataset.motion = 'reduced';
+  }
+} catch {
+  // Испорченное хранилище не должно мешать запуску: без атрибута
+  // приложение просто анимируется как обычно.
+}
+
+/**
  * Обновление приложения.
  *
  * Service worker отдаёт закешированную версию, поэтому после выкладки

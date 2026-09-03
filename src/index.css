@@ -992,6 +992,20 @@ p { text-wrap: pretty; }
   .options .option, .meta--bump, .flashcard--flipping { animation: none; }
 }
 
+/* Настройка «Уменьшить движение» в профиле.
+   Системную настройку меняют редко, а на школьном телефоне анимации мешают
+   чаще, чем радуют, — поэтому у приложения есть собственный выключатель.
+   Правило намеренно широкое: любая новая анимация подчинится ему сама,
+   и её не придётся вспоминать при следующей правке. */
+:root[data-motion='reduced'] *,
+:root[data-motion='reduced'] *::before,
+:root[data-motion='reduced'] *::after {
+  animation-duration: 1ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 1ms !important;
+  scroll-behavior: auto !important;
+}
+
 /* --- кнопка озвучки -------------------------------------------------------- */
 
 .speak {
@@ -1016,6 +1030,204 @@ p { text-wrap: pretty; }
 }
 .speak--playing { animation: speak-ping 600ms var(--ease-out-quart); }
 @media (prefers-reduced-motion: reduce) { .speak--playing { animation: none; } }
+
+/* --- устройство урока на первом экране -------------------------------------
+   Три шага нумерованным списком: номер слева, название и пояснение справа.
+   Стоит до выбора уровня — сначала «что это», потом «с чего начать». */
+
+.lesson-map { display: flex; flex-direction: column; gap: 0.6rem; }
+
+.lesson-map__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+.lesson-map__steps li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.6rem 0.75rem 0.6rem 2.6rem;
+  background: var(--surface-2);
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 0 0 1px var(--border);
+  counter-increment: step;
+}
+.lesson-map__steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0.75rem;
+  top: 0.62rem;
+  display: grid;
+  place-items: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 50%;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.lesson-map__steps b { font-size: var(--text-base); color: var(--ink); }
+.lesson-map__steps span { font-size: var(--text-sm); color: var(--ink-2); }
+
+/* --- порядок урока ---------------------------------------------------------
+   Диалог → правило → задание. Три шага показаны всегда, а не выводятся
+   из того, что сейчас на экране: ученику видно, где он и что дальше,
+   а проверяющему — что порядок именно такой, как в документации. */
+
+.flow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.flow__step {
+  position: relative;
+  padding-left: 1.15rem;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.flow__step::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-top: -0.275rem;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  transition: background var(--dur-fast) var(--ease-physical);
+}
+.flow__step + .flow__step { margin-left: 0.15rem; }
+
+.flow__step--done { color: var(--success); }
+.flow__step--done::before { background: currentColor; }
+
+.flow__step--now {
+  color: var(--accent-ink);
+  font-weight: 700;
+}
+.flow__step--now::before {
+  background: currentColor;
+  box-shadow: 0 0 0 3px var(--accent-wash);
+}
+
+@media (max-width: 22rem) {
+  .flow { gap: 0.3rem; font-size: 0.625rem; }
+  .flow__step { padding-left: 0.95rem; }
+}
+
+/* --- персонажи -------------------------------------------------------------
+   Портреты — растр, мимику им не сделать. Оживают движением всей фигуры:
+   дыхание в покое, покачивание в такт речи, подскок на верном ответе,
+   качание головой на неверном. Амплитуды намеренно маленькие: на экране
+   портрет 40–112 px, и заметное движение на таком размере читается как
+   дёрганье, а не как жизнь. */
+
+.chr {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.chr__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform-origin: 50% 92%;   /* «стоит на ногах»: качается верх, а не низ */
+  will-change: transform;
+}
+
+@keyframes chr-breathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-1.5%) scale(1.012); }
+}
+.chr--idle .chr__img { animation: chr-breathe 4.2s ease-in-out infinite; }
+
+/* Речь: покачивание с наклоном — так читается «говорит», а не «дрожит». */
+@keyframes chr-talk {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25%      { transform: translateY(-3%) rotate(-1.6deg); }
+  50%      { transform: translateY(0) rotate(0deg); }
+  75%      { transform: translateY(-2.5%) rotate(1.6deg); }
+}
+.chr--talking .chr__img { animation: chr-talk 620ms var(--ease-physical) infinite; }
+
+@keyframes chr-cheer {
+  0%   { transform: translateY(0) scale(1); }
+  35%  { transform: translateY(-12%) scale(1.06); }
+  60%  { transform: translateY(0) scale(0.98); }
+  80%  { transform: translateY(-4%) scale(1.02); }
+  100% { transform: translateY(0) scale(1); }
+}
+.chr--correct .chr__img { animation: chr-cheer 720ms var(--ease-physical); }
+
+@keyframes chr-shake {
+  0%, 100% { transform: rotate(0deg); }
+  20%      { transform: rotate(-5deg); }
+  45%      { transform: rotate(4deg); }
+  70%      { transform: rotate(-2.5deg); }
+}
+.chr--wrong .chr__img { animation: chr-shake 520ms var(--ease-out-quart); }
+
+@keyframes chr-nudge {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6%); }
+}
+.chr--hint .chr__img { animation: chr-nudge 1.6s ease-in-out infinite; }
+
+/* Звуковые волны у говорящего: показывают, что звук идёт именно отсюда. */
+.chr__wave {
+  position: absolute;
+  right: -0.18rem;
+  bottom: 0.1rem;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 0.7rem;
+  padding: 2px 3px;
+  background: var(--surface);
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px var(--border);
+}
+.chr__wave i {
+  display: block;
+  width: 2px;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 1px;
+  transform-origin: 50% 100%;
+  animation: chr-wave 720ms ease-in-out infinite;
+}
+.chr__wave i:nth-child(2) { animation-delay: 140ms; }
+.chr__wave i:nth-child(3) { animation-delay: 280ms; }
+
+@keyframes chr-wave {
+  0%, 100% { transform: scaleY(0.35); }
+  50%      { transform: scaleY(1); }
+}
+
+/* Движение отключается и системной настройкой, и настройкой приложения:
+   «Уменьшить движение» в профиле должна работать там, где системную
+   никто не трогал. */
+@media (prefers-reduced-motion: reduce) {
+  .chr__img, .chr__wave i { animation: none !important; }
+}
+:root[data-motion='reduced'] .chr__img,
+:root[data-motion='reduced'] .chr__wave i { animation: none !important; }
 
 /* --- появление блоков ------------------------------------------------------
    Заменяет анимации из библиотеки: тот же короткий сдвиг, но средствами CSS.

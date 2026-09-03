@@ -44,6 +44,37 @@ function normalize(text: string): string {
 
 let current: HTMLAudioElement | null = null;
 
+/**
+ * Кто сейчас говорит — и говорит ли вообще.
+ *
+ * Нужно персонажам: учитель должен шевелиться ровно столько, сколько звучит
+ * его реплика. Хранить это в состоянии приложения незачем — звук живёт
+ * доли секунды и к прогрессу отношения не имеет, поэтому здесь простая
+ * подписка вместо ещё одного поля в localStorage.
+ */
+type SpeechListener = (speakingId: string | null) => void;
+const listeners = new Set<SpeechListener>();
+let speakingId: string | null = null;
+
+function setSpeaking(id: string | null): void {
+  if (speakingId === id) return;
+  speakingId = id;
+  for (const cb of listeners) cb(id);
+}
+
+/** Подписка на «сейчас звучит реплика». Возвращает функцию отписки. */
+export function onSpeaking(cb: SpeechListener): () => void {
+  listeners.add(cb);
+  cb(speakingId);
+  return () => { listeners.delete(cb); };
+}
+
+/** Звучит ли прямо сейчас именно эта фраза. */
+export function isSpeaking(text: string): boolean {
+  const id = audioIdFor(text);
+  return id !== null && id === speakingId;
+}
+
 function audioIdFor(text: string): string | null {
   return BY_TEXT.get(normalize(text)) ?? null;
 }
@@ -66,18 +97,35 @@ export async function speak(text: string): Promise<boolean> {
   current?.pause();
   const audio = new Audio(audioUrl(id));
   current = audio;
+
+  // Снимаем признак «говорит» только если с тех пор не начали другую реплику:
+  // иначе быстрое переключение между фразами гасило бы анимацию новой.
+  const done = () => { if (current === audio) setSpeaking(null); };
+  audio.addEventListener('ended', done);
+  audio.addEventListener('error', done);
+  audio.addEventListener('pause', done);
+
   try {
     await audio.play();
+    setSpeaking(id);
     return true;
   } catch {
     // Браузер не дал воспроизвести — тишина, но не ошибка.
+    done();
     return false;
   }
 }
 
+/** Останавливает воспроизведение: при уходе с экрана звук не должен продолжаться. */
+export function stopSpeaking(): void {
+  current?.pause();
+  current = null;
+  setSpeaking(null);
+}
+
 /*
- * Наружу торчат ровно две функции: «есть ли запись» и «проиграть».
- * Остальное — внутреннее. Экспорт, который никто не вызывает, со временем
- * начинает выглядеть как обещанная возможность: именно так прежняя версия
- * и разошлась с собственным описанием.
+ * Наружу торчит ровно то, что вызывается: «есть ли запись», «проиграть»,
+ * «остановить» и подписка на состояние речи. Экспорт, который никто
+ * не вызывает, со временем начинает выглядеть как обещанная возможность:
+ * именно так прежняя версия и разошлась с собственным описанием.
  */

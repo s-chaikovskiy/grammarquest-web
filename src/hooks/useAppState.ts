@@ -112,6 +112,20 @@ export function useAppState() {
 
   useEffect(() => { saveState(state); }, [state]);
 
+  /**
+   * «Уменьшить движение» — настройка приложения, а не системы.
+   *
+   * Раньше поле в состоянии было, а действия у него не было: галка
+   * сохранялась и ничего не выключала. Теперь она ставит атрибут на корень
+   * документа, а правило в стилях гасит по нему все анимации разом —
+   * включая те, которые появятся позже.
+   */
+  useEffect(() => {
+    const root = document.documentElement;
+    if (state.settings.reducedMotion) root.dataset.motion = 'reduced';
+    else delete root.dataset.motion;
+  }, [state.settings.reducedMotion]);
+
   const updateSettings = useCallback((patch: Partial<Settings>) => {
     setState(s => ({ ...s, settings: { ...s.settings, ...patch } }));
   }, []);

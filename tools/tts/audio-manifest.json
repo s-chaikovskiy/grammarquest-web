@@ -11,15 +11,6 @@
    "voice": "kk-KZ-AigulNeural"
   },
   {
-   "id": "a291df58e189",
-   "text": "Ағаш тұрған жерде",
-   "ru": "Там, где стоит дерево",
-   "kind": "word",
-   "priority": 1,
-   "speaker": "girl",
-   "voice": "kk-KZ-AigulNeural"
-  },
-  {
    "id": "1ed16e742c34",
    "text": "Бұл үйдің",
    "ru": "этого дома",
@@ -59,15 +50,6 @@
    "id": "53d1f71457d3",
    "text": "Жылдам жүрсін!",
    "ru": "Пусть идут быстрее!",
-   "kind": "word",
-   "priority": 1,
-   "speaker": "girl",
-   "voice": "kk-KZ-AigulNeural"
-  },
-  {
-   "id": "87132452dffe",
-   "text": "Келіңізші!",
-   "ru": "Приходите, пожалуйста!",
    "kind": "word",
    "priority": 1,
    "speaker": "girl",
@@ -128,15 +110,6 @@
    "voice": "kk-KZ-AigulNeural"
   },
   {
-   "id": "348c67e0ad2b",
-   "text": "Мен, бұл, ол",
-   "ru": "я, этот, оно",
-   "kind": "word",
-   "priority": 1,
-   "speaker": "girl",
-   "voice": "kk-KZ-AigulNeural"
-  },
-  {
    "id": "9df43adf1108",
    "text": "Паркке барамын.",
    "ru": "Я иду в парк",
@@ -149,15 +122,6 @@
    "id": "377dc42f4c2c",
    "text": "Сабақ біткен кезде",
    "ru": "Когда закончится урок",
-   "kind": "word",
-   "priority": 1,
-   "speaker": "girl",
-   "voice": "kk-KZ-AigulNeural"
-  },
-  {
-   "id": "da5148bd9127",
-   "text": "Сенің сағатың қанша?",
-   "ru": "Сенің сағатың қанша?",
    "kind": "word",
    "priority": 1,
    "speaker": "girl",
@@ -365,15 +329,6 @@
    "id": "c28e298e6ae2",
    "text": "дәптер",
    "ru": "тетрадь",
-   "kind": "word",
-   "priority": 1,
-   "speaker": "girl",
-   "voice": "kk-KZ-AigulNeural"
-  },
-  {
-   "id": "e26741595999",
-   "text": "дәрісхана",
-   "ru": "аудитория, лекционный зал",
    "kind": "word",
    "priority": 1,
    "speaker": "girl",
@@ -650,15 +605,6 @@
    "voice": "kk-KZ-AigulNeural"
   },
   {
-   "id": "0014aa50f1dd",
-   "text": "мектептер, әжелер, балалар",
-   "ru": "школы, бабушки, дети",
-   "kind": "word",
-   "priority": 1,
-   "speaker": "girl",
-   "voice": "kk-KZ-AigulNeural"
-  },
-  {
    "id": "48246c5495ad",
    "text": "мұғалімнің кітабы",
    "ru": "книга учителя",
@@ -785,27 +731,9 @@
    "voice": "kk-KZ-AigulNeural"
   },
   {
-   "id": "460c8245ed54",
-   "text": "оқу, қала, бала",
-   "ru": "учёба, город, ребёнок",
-   "kind": "word",
-   "priority": 1,
-   "speaker": "girl",
-   "voice": "kk-KZ-AigulNeural"
-  },
-  {
    "id": "1acfe9f3a459",
    "text": "оқушы",
    "ru": "ученик",
-   "kind": "word",
-   "priority": 1,
-   "speaker": "girl",
-   "voice": "kk-KZ-AigulNeural"
-  },
-  {
-   "id": "77d2be63b34d",
-   "text": "оқушы, оқытушы",
-   "ru": "ученик, преподаватель",
    "kind": "word",
    "priority": 1,
    "speaker": "girl",
@@ -1091,15 +1019,6 @@
    "voice": "kk-KZ-AigulNeural"
   },
   {
-   "id": "714ecf82a7cf",
-   "text": "тауықтар, балықтар, кілемдер",
-   "ru": "куры, рыбы, ковры",
-   "kind": "word",
-   "priority": 1,
-   "speaker": "girl",
-   "voice": "kk-KZ-AigulNeural"
-  },
-  {
    "id": "d3f8fcf867fb",
    "text": "таңғы ас",
    "ru": "завтрак",
@@ -1130,15 +1049,6 @@
    "id": "0f152db44e6e",
    "text": "тыңдап отыр",
    "ru": "слушал",
-   "kind": "word",
-   "priority": 1,
-   "speaker": "girl",
-   "voice": "kk-KZ-AigulNeural"
-  },
-  {
-   "id": "14fdf66bd481",
-   "text": "тілдер, көлдер",
-   "ru": "языки, озёра",
    "kind": "word",
    "priority": 1,
    "speaker": "girl",
@@ -1184,15 +1094,6 @@
    "id": "7cd1a67626fe",
    "text": "төрттен үш",
    "ru": "три четвёртых",
-   "kind": "word",
-   "priority": 1,
-   "speaker": "girl",
-   "voice": "kk-KZ-AigulNeural"
-  },
-  {
-   "id": "40e9041b6800",
-   "text": "футболшылар, теледидарлар",
-   "ru": "футболисты, телевизоры",
    "kind": "word",
    "priority": 1,
    "speaker": "girl",
@@ -1595,6 +1496,15 @@
    "voice": "kk-KZ-AigulNeural"
   },
   {
+   "id": "a291df58e189",
+   "text": "Ағаш тұрған жерде",
+   "ru": "Там, где стоит дерево",
+   "kind": "answer",
+   "priority": 2,
+   "speaker": "girl",
+   "voice": "kk-KZ-AigulNeural"
+  },
+  {
    "id": "163dec333129",
    "text": "Баланың әкесі (Ілік) сыйлықты (Табыс) үйде (Жатыс) берді.",
    "ru": "Отец мальчика подарил дома подарок",
@@ -1649,9 +1559,27 @@
    "voice": "kk-KZ-AigulNeural"
   },
   {
+   "id": "87132452dffe",
+   "text": "Келіңізші!",
+   "ru": "Приходите, пожалуйста!",
+   "kind": "answer",
+   "priority": 2,
+   "speaker": "girl",
+   "voice": "kk-KZ-AigulNeural"
+  },
+  {
    "id": "8db4ef501b60",
    "text": "Кеше мен кітап оқыдым. Ол өте қызықты болды. Мен әрдайым кеште оқимын.",
    "ru": "Вчера я читал книгу. Она была очень интересной. Я всегда читаю по вечерам",
+   "kind": "answer",
+   "priority": 2,
+   "speaker": "girl",
+   "voice": "kk-KZ-AigulNeural"
+  },
+  {
+   "id": "348c67e0ad2b",
+   "text": "Мен, бұл, ол",
+   "ru": "я, этот, оно",
    "kind": "answer",
    "priority": 2,
    "speaker": "girl",
@@ -1715,6 +1643,15 @@
    "id": "3a257970dccd",
    "text": "Парктағы — сын есім. Ол «парк» (жат. септік: паркта) + ғы = парктағы.",
    "ru": "парктегі — от «парк» через местно-временной падеж плюс аффикс -гі",
+   "kind": "answer",
+   "priority": 2,
+   "speaker": "girl",
+   "voice": "kk-KZ-AigulNeural"
+  },
+  {
+   "id": "da5148bd9127",
+   "text": "Сенің сағатың қанша?",
+   "ru": "Сенің сағатың қанша?",
    "kind": "answer",
    "priority": 2,
    "speaker": "girl",
@@ -1802,6 +1739,15 @@
    "voice": "kk-KZ-AigulNeural"
   },
   {
+   "id": "e26741595999",
+   "text": "дәрісхана",
+   "ru": "аудитория, лекционный зал",
+   "kind": "answer",
+   "priority": 2,
+   "speaker": "girl",
+   "voice": "kk-KZ-AigulNeural"
+  },
+  {
    "id": "435cb8d95c4f",
    "text": "егер ол менің досым болса",
    "ru": "если он мой друг",
@@ -1838,6 +1784,15 @@
    "voice": "kk-KZ-AigulNeural"
   },
   {
+   "id": "0014aa50f1dd",
+   "text": "мектептер, әжелер, балалар",
+   "ru": "школы, бабушки, дети",
+   "kind": "answer",
+   "priority": 2,
+   "speaker": "girl",
+   "voice": "kk-KZ-AigulNeural"
+  },
+  {
    "id": "b24dbc7b261e",
    "text": "ол келетінін, егер уақыты болса, біз онымен кездесеміз",
    "ru": "что он придёт, если будет время, мы с ним встретимся",
@@ -1847,9 +1802,54 @@
    "voice": "kk-KZ-AigulNeural"
   },
   {
+   "id": "460c8245ed54",
+   "text": "оқу, қала, бала",
+   "ru": "учёба, город, ребёнок",
+   "kind": "answer",
+   "priority": 2,
+   "speaker": "girl",
+   "voice": "kk-KZ-AigulNeural"
+  },
+  {
+   "id": "77d2be63b34d",
+   "text": "оқушы, оқытушы",
+   "ru": "ученик, преподаватель",
+   "kind": "answer",
+   "priority": 2,
+   "speaker": "girl",
+   "voice": "kk-KZ-AigulNeural"
+  },
+  {
    "id": "d7af4c62db28",
    "text": "сөйлеу → сөйлес → сөйлесу → сөйлесуші",
    "ru": "говорение → разговаривать → разговор → собеседник",
+   "kind": "answer",
+   "priority": 2,
+   "speaker": "girl",
+   "voice": "kk-KZ-AigulNeural"
+  },
+  {
+   "id": "714ecf82a7cf",
+   "text": "тауықтар, балықтар, кілемдер",
+   "ru": "куры, рыбы, ковры",
+   "kind": "answer",
+   "priority": 2,
+   "speaker": "girl",
+   "voice": "kk-KZ-AigulNeural"
+  },
+  {
+   "id": "14fdf66bd481",
+   "text": "тілдер, көлдер",
+   "ru": "языки, озёра",
+   "kind": "answer",
+   "priority": 2,
+   "speaker": "girl",
+   "voice": "kk-KZ-AigulNeural"
+  },
+  {
+   "id": "40e9041b6800",
+   "text": "футболшылар, теледидарлар",
+   "ru": "футболисты, телевизоры",
    "kind": "answer",
    "priority": 2,
    "speaker": "girl",

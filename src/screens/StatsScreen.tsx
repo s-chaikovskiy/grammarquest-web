@@ -208,6 +208,20 @@ export default function StatsScreen() {
             </span>
           </label>
 
+          <label className="switch">
+            <input
+              type="checkbox"
+              checked={settings.reducedMotion}
+              onChange={e => updateSettings({ reducedMotion: e.target.checked })}
+            />
+            <span>
+              <span className="t-body">Уменьшить движение</span>
+              <span className="t-small">
+                Выключает анимации, в том числе движение персонажей
+              </span>
+            </span>
+          </label>
+
           <div className="stack--tight">
             <span className="t-small">Цель на день</span>
             <div className="tabs">

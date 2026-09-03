@@ -1,21 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Синтез озвучки через Azure Speech.
+Синтез озвучки казахскими нейроголосами.
 
-Казахские нейроголоса есть у Azure: kk-KZ-AigulNeural (женский) и
-kk-KZ-DauletNeural (мужской). Встроенная в браузер озвучка для казахского
-не годится — казахских голосов там попросту нет (проверено: на типовой
-машине 157 голосов, ни одного казахского).
+Казахских голосов нет ни в macOS, ни в браузере: на этой машине 143 голоса
+системы и 322 голоса Edge — казахские есть только во вторых. Нужны
+kk-KZ-AigulNeural (женский) и kk-KZ-DauletNeural (мужской).
 
-Ключ берётся из переменных окружения и в репозиторий не попадает:
+Два способа получить те же самые голоса:
 
-    export AZURE_SPEECH_KEY=...
-    export AZURE_SPEECH_REGION=westeurope
-    python3 tools/tts/synthesize.py
+    edge   — через edge-tts, ключ не нужен (по умолчанию)
+    azure  — через Azure Speech, нужен ключ в переменной окружения
+
+    python3 tools/tts/synthesize.py           # edge, без ключа
+    TTS_BACKEND=azure AZURE_SPEECH_KEY=... python3 tools/tts/synthesize.py
+
+Голоса в обоих случаях одни и те же — это озвучка Microsoft, отличается
+только способ доступа. Ключ, если он используется, берётся из окружения
+и в репозиторий не попадает.
 
 Скрипт пропускает уже записанные файлы, поэтому его можно прерывать
-и запускать повторно. Объём для оценки стоимости печатается перед стартом.
+и запускать повторно.
 """
 import json
 import os
@@ -34,6 +39,7 @@ VOICE_OVERRIDE = os.environ.get("AZURE_SPEECH_VOICE")
 DEFAULT_VOICE = "kk-KZ-AigulNeural"
 KEY = os.environ.get("AZURE_SPEECH_KEY")
 REGION = os.environ.get("AZURE_SPEECH_REGION", "westeurope")
+BACKEND = os.environ.get("TTS_BACKEND", "edge").lower()
 
 # Чуть медленнее обычного: ученик слышит язык впервые.
 RATE = os.environ.get("AZURE_SPEECH_RATE", "-8%")
@@ -47,7 +53,38 @@ def ssml(text: str, voice: str) -> str:
     )
 
 
-def synth(text: str, voice: str) -> bytes:
+def synth_edge(text: str, voice: str) -> bytes:
+    """edge-tts: те же голоса Microsoft, но без ключа.
+
+    Библиотека асинхронная и умеет только писать в файл, поэтому пишем
+    во временный и читаем обратно: остальной скрипт работает с байтами.
+    """
+    import asyncio
+    import tempfile
+
+    import edge_tts
+
+    async def run(path: str) -> None:
+        # Таймаут обязателен: без него одна зависшая фраза останавливает
+        # весь прогон молча — процесс живёт, файлы не появляются, и понять,
+        # что он встал, можно только по времени последней записи.
+        await asyncio.wait_for(
+            edge_tts.Communicate(text, voice, rate=RATE).save(path), timeout=25
+        )
+
+    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as f:
+        tmp = f.name
+    try:
+        asyncio.run(run(tmp))
+        data = Path(tmp).read_bytes()
+    finally:
+        Path(tmp).unlink(missing_ok=True)
+    if not data:
+        raise RuntimeError("пустой ответ синтеза")
+    return data
+
+
+def synth_azure(text: str, voice: str) -> bytes:
     req = urllib.request.Request(
         f"https://{REGION}.tts.speech.microsoft.com/cognitiveservices/v1",
         data=ssml(text, voice).encode("utf-8"),
@@ -60,6 +97,10 @@ def synth(text: str, voice: str) -> bytes:
     )
     with urllib.request.urlopen(req, timeout=30) as resp:
         return resp.read()
+
+
+def synth(text: str, voice: str) -> bytes:
+    return synth_azure(text, voice) if BACKEND == "azure" else synth_edge(text, voice)
 
 
 def main():
@@ -77,10 +118,11 @@ def main():
     for v, n in sorted(voices.items()):
         print(f"  {v:22} {n}")
 
-    if not KEY:
+    print(f"Способ синтеза: {BACKEND}")
+    if BACKEND == "azure" and not KEY:
         print("\nПеременная AZURE_SPEECH_KEY не задана — синтез не запускается.")
-        print("Это не ошибка: приложение работает и без озвучки.")
-        print("Чтобы озвучить, задайте ключ и регион и запустите скрипт снова.")
+        print("Либо задайте ключ, либо уберите TTS_BACKEND=azure: без него")
+        print("те же голоса берутся через edge-tts и ключ не нужен.")
         return
 
     if not todo:
@@ -95,9 +137,9 @@ def main():
             done += 1
         except Exception as exc:                      # noqa: BLE001
             failed += 1
-            print(f"  ✗ {entry['text'][:40]}: {exc}")
+            print(f"  ✗ {entry['text'][:40]}: {exc}", flush=True)
         if i % 25 == 0:
-            print(f"  {i}/{len(todo)}…")
+            print(f"  {i}/{len(todo)}…", flush=True)
         time.sleep(0.12)          # бережём лимит запросов
 
     print(f"\nГотово: {done}, с ошибкой: {failed}")

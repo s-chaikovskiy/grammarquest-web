@@ -4,6 +4,7 @@ import { useApp } from '../hooks/useApp';
 import { useCountUp } from '../hooks/useCountUp';
 import { getCharacterSvgName, splitDialogue } from '../utils/helpers';
 import { playCorrectSound, playWrongSound, playClickSound } from '../utils/sounds';
+import { stopSpeaking } from '../utils/speech';
 import { fireSuccess } from '../utils/confetti';
 import Character from '../components/Character';
 import Celebration from '../components/Celebration';
@@ -40,6 +41,16 @@ function splitMorph(answer: string, options?: string[]): { stem: string; suffix:
   return { stem: answer.slice(0, prefix.length), suffix: answer.slice(prefix.length) };
 }
 
+/**
+ * Три шага урока в том порядке, в котором они идут. Совпадает с порядком
+ * из документации проекта: диалог → правило → задание.
+ */
+const FLOW: [string, string][] = [
+  ['dialogue', 'Диалог'],
+  ['grammar', 'Правило'],
+  ['task', 'Задание'],
+];
+
 export default function LessonScreen() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -63,6 +74,12 @@ export default function LessonScreen() {
     const t = setTimeout(() => setBumpXp(false), 450);
     return () => clearTimeout(t);
   }, [tally.xp]);
+
+  /**
+   * Уходя с урока, глушим звук: иначе реплика продолжает звучать уже
+   * на списке уроков, и непонятно, кто говорит.
+   */
+  useEffect(() => stopSpeaking, []);
 
   /** Очередь повторного прохода по ошибкам; пустая — идёт обычный урок. */
   const [redoQueue, setRedoQueue] = useState<number[]>([]);
@@ -240,6 +257,26 @@ export default function LessonScreen() {
           <div className="progress__fill" style={{ width: `${(answered / total) * 100}%` }} />
         </div>
 
+        {/* Порядок урока — диалог, правило, задание — показан, а не подразумевается.
+            Он был таким и раньше, но узнать об этом можно было, только дойдя
+            до третьего экрана: учитель, посмотревшая приложение снаружи,
+            решила, что порядок другой. Теперь он виден с первой секунды. */}
+        {phase !== 'summary' && (
+          <ol className="flow" aria-label="Порядок урока">
+            {FLOW.map(([key, label]) => {
+              const at = FLOW.findIndex(([k]) => k === (phase === 'verdict' ? 'task' : phase));
+              const mine = FLOW.findIndex(([k]) => k === key);
+              const state = mine < at ? ' flow__step--done' : mine === at ? ' flow__step--now' : '';
+              return (
+                <li key={key} className={`flow__step${state}`}
+                    aria-current={mine === at ? 'step' : undefined}>
+                  {label}
+                </li>
+              );
+            })}
+          </ol>
+        )}
+
         {confirmLeave && (
           <section className="panel panel--raised stack--tight" role="alertdialog" aria-label="Выйти из урока">
             <strong>Выйти из урока?</strong>
@@ -261,7 +298,10 @@ export default function LessonScreen() {
                 <ul className="dialogue">
                   {splitDialogue(step.dialogueKz, step.dialogueRu, lesson.character).map((line, i) => (
                     <li key={i} className="dialogue__line">
-                      <Character name={line.who} size={40} />
+                      {/* Реплика передаётся персонажу: пока она звучит,
+                          он покачивается — учитель просил, чтобы герой
+                          двигался или говорил. */}
+                      <Character name={line.who} size={40} speaks={line.kz} />
                       <div className="dialogue__body">
                         <span className="dialogue__who">{line.name}</span>
                         <div className="dialogue__say">
@@ -315,6 +355,7 @@ export default function LessonScreen() {
                   <Character
                     name={getCharacterSvgName(lesson.character)}
                     size={48}
+                    mood={result.verdict === 'wrong' ? 'wrong' : 'correct'}
                     emotion={result.verdict === 'wrong' ? 'finger_up' : 'like'}
                   />
                   <span className="verdict__title">{verdictTitle(result.verdict)}</span>
@@ -377,6 +418,7 @@ export default function LessonScreen() {
                       <Character
                         name={getCharacterSvgName(lesson.character)}
                         size={64}
+                        mood={tone === 'weak' ? 'hint' : 'correct'}
                         emotion={tone === 'weak' ? 'finger_up' : 'like'}
                       />
                     </div>
