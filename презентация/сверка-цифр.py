@@ -65,6 +65,9 @@ def facts() -> dict[str, str]:
         "уроков на уровне 2": str(len([l for l in lessons if l.get("level") == 2])),
         "уроков на уровне 3": str(len([l for l in lessons if l.get("level") == 3])),
         "фраз озвучки": str(len(manifest)),
+        "записей озвучки": str(len(json.loads(
+            (ROOT / "src" / "data" / "audio-index.json").read_text(encoding="utf-8")
+        ).get("available", []))),
         "символов озвучки": str(sum(len(e["text"]) for e in manifest)),
         "вес в сжатом виде, КБ": weight or "— (нет dist, сделайте npm run build)",
     }
@@ -75,6 +78,7 @@ EXPECTED = [
     ("s01_kpi[0]", "уроков"),
     ("s01_kpi[1]", "заданий"),
     ("s01_kpi[2]", "типов заданий"),
+    ("s04_band", "записей озвучки"),
     ("s05_right[0]", "автотестов"),
     ("s05_right[1]", "проверок контраста"),
     ("s04_levels[0]", "уроков на уровне 1"),
