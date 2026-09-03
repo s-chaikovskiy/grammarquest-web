@@ -54,6 +54,14 @@ def main():
         for f in нет:
             print("  ✗", f)
 
+    # «Блокнот» на школьном ПК без BOM показывает кириллицу кракозябрами,
+    # а без CRLF слепляет весь текст в одну строку.
+    памятка = OUT / "ЧИТАТЬ-ПЕРВЫМ.txt"
+    if памятка.exists():
+        текст = памятка.read_text(encoding="utf-8").lstrip("\ufeff")
+        памятка.write_bytes(
+            ("\ufeff" + текст.replace("\r\n", "\n").replace("\n", "\r\n")).encode("utf-8"))
+
     ARCHIVE.unlink(missing_ok=True)
     with zipfile.ZipFile(ARCHIVE, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as z:
         for f in sorted(OUT.rglob("*")):
