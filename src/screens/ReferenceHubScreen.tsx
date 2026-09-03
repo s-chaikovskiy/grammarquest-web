@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { loadReference, loadRules } from '../data';
 import { playClickSound } from '../utils/sounds';
 
 /**
@@ -10,7 +12,10 @@ const SECTIONS = [
   {
     to: '/reference/tables',
     title: 'Таблицы окончаний',
-    sub: 'Семь септіктер и спряжение глагола',
+    // «Семь септіктер» было ошибкой в обоих языках сразу: русское
+    // числительное с казахским множественным числом, которого после
+    // числа в казахском не бывает («жеті септік», а не «септіктер»).
+    sub: 'Падежи, число, принадлежность, глагол',
     hint: 'Подставь своё слово — увидишь все его формы',
   },
   {
@@ -35,6 +40,18 @@ const SECTIONS = [
 
 export default function ReferenceHubScreen() {
   const navigate = useNavigate();
+
+  /**
+   * Правила и темы грузятся отдельно от основной сборки: вместе они около
+   * 350 КБ и держали бы первый урок. Но и ждать их на самом экране плохо —
+   * на школьном телефоне надпись «Загружаем справочник…» успевает попасть
+   * в кадр. Начинаем загрузку здесь: пока ученик выбирает раздел, файлы
+   * уже в пути, и внутри открывается сразу.
+   */
+  useEffect(() => {
+    void loadRules().catch(() => {});
+    void loadReference().catch(() => {});
+  }, []);
 
   return (
     <div className="stack">

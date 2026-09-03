@@ -2089,19 +2089,23 @@ p { text-wrap: pretty; }
 }
 
 .greet__text { min-width: 0; flex: 1; }
-.greet__hi {
-  font-size: var(--text-sm);
-  font-weight: 600;
-  color: oklch(0.86 0.05 250);
-  margin-bottom: 0.25rem;
-}
+/* Порядок: крупное казахское приветствие, под ним перевод, ниже уровень.
+   Цвета заданы прямо, а не токенами: панель всегда синяя в обеих темах,
+   и текст на ней светлый независимо от того, какая тема выбрана. */
 .greet__title {
   font-size: var(--text-2xl);
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.05;
+  color: oklch(0.99 0.005 250);
 }
-.greet__sub { font-size: var(--text-sm); color: oklch(0.84 0.045 250); margin-top: 0.25rem; }
+.greet__hi {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: oklch(0.88 0.05 250);
+  margin-top: 0.2rem;
+}
+.greet__sub { font-size: var(--text-sm); color: oklch(0.82 0.045 250); margin-top: 0.35rem; }
 
 /* Портрет прижат к правому нижнему углу и подрезан панелью — так он
    выглядит частью композиции, а не картинкой, поставленной сверху. */

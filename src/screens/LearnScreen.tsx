@@ -61,14 +61,21 @@ export default function LearnScreen() {
 
   const doneCount = flat.filter(isDone).length;
 
-  /* Обращение по времени суток. Мелочь, но именно от неё экран перестаёт
-     выглядеть таблицей: приложение здоровается, а не открывает раздел. */
+  /* Обращение по времени суток.
+     Мелочь, но именно от неё экран перестаёт выглядеть таблицей:
+     приложение здоровается, а не открывает раздел.
+
+     Пары были неверными: «Сәлеметсіз бе» — это «здравствуйте», а не
+     «доброе утро», и рядом с русским переводом получалась неправда.
+     В приложении, которое учит языку, подпись обязана быть переводом
+     того, что написано выше. Здесь ровно тот ряд, которому учат
+     в школе: таң — утро, күн — день, кеш — вечер, түн — ночь. */
   const hour = new Date().getHours();
-  const greeting =
-    hour < 5 ? 'Доброй ночи' :
-    hour < 12 ? 'Сәлеметсіз бе! Доброе утро' :
-    hour < 18 ? 'Сәлем! Добрый день' :
-    'Қайырлы кеш! Добрый вечер';
+  const [greetKz, greetRu] =
+    hour < 5 ? ['Қайырлы түн!', 'Доброй ночи'] :
+    hour < 12 ? ['Қайырлы таң!', 'Доброе утро'] :
+    hour < 18 ? ['Қайырлы күн!', 'Добрый день'] :
+    ['Қайырлы кеш!', 'Добрый вечер'];
 
   return (
     <div className="stack">
@@ -86,9 +93,16 @@ export default function LearnScreen() {
         <section className="greet">
           <Ornament opacity={0.1} tile={92} />
           <div className="greet__text">
-            <p className="greet__hi">{greeting}</p>
-            <h1 className="greet__title">{levels[String(level)].titleRu}</h1>
-            <p className="greet__sub">{levels[String(level)].grades}</p>
+            {/* Крупно — казахское приветствие, под ним перевод и уровень.
+                Раньше крупнее всего стояло название уровня: надпись, которая
+                тут же повторялась кнопкой ниже и без неё ничего не значила.
+                Теперь самое заметное место занято тем, ради чего приложение
+                и открывают, — живой казахской фразой. */}
+            <h1 className="greet__title">{greetKz}</h1>
+            <p className="greet__hi">{greetRu}</p>
+            <p className="greet__sub">
+              Уровень «{levels[String(level)].titleRu}» · {levels[String(level)].grades}
+            </p>
           </div>
           <div className="greet__figure" aria-hidden>
             <Character name="girl" size={112} />

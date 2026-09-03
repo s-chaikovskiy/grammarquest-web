@@ -64,7 +64,8 @@ export default function DictionaryScreen() {
         className="field"
         value={query}
         onChange={e => setQuery(e.target.value)}
-        placeholder="Поиск — можно с русской раскладки"
+        // Длиннее не влезает: подсказка обрезалась прямо в поле.
+        placeholder="Поиск, можно по-русски"
         aria-label="Поиск по словарю"
       />
 
