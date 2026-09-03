@@ -7,8 +7,8 @@ import type { AnswerEvent } from '../../src/utils/metrics';
 const NOW = new Date('2026-09-01T10:00:00Z');
 
 test('новая карточка доступна сразу', () => {
-  eq(newCard('l1', 0).due, todayISO());
-  eq(newCard('l1', 0).id, 'l1:0');
+  eq(newCard('l1', 0, NOW).due, todayISO(NOW));
+  eq(newCard('l1', 0, NOW).id, 'l1:0');
 });
 
 test('вердикт переводится в оценку SM-2', () => {
@@ -19,7 +19,7 @@ test('вердикт переводится в оценку SM-2', () => {
 });
 
 test('интервалы растут 1 → 3 → дальше по коэффициенту', () => {
-  let c = newCard('l1', 0);
+  let c = newCard('l1', 0, NOW);
   c = reviewCard(c, 'correct', NOW);
   eq(c.interval, 1);
   c = reviewCard(c, 'correct', NOW);
@@ -29,7 +29,7 @@ test('интервалы растут 1 → 3 → дальше по коэффи
 });
 
 test('ошибка возвращает карточку на сегодня и роняет лёгкость', () => {
-  let c = newCard('l1', 0);
+  let c = newCard('l1', 0, NOW);
   c = reviewCard(c, 'correct', NOW);
   c = reviewCard(c, 'correct', NOW);
   const easeBefore = c.ease;
@@ -41,31 +41,31 @@ test('ошибка возвращает карточку на сегодня и 
 });
 
 test('лёгкость не проваливается ниже 1.3', () => {
-  let c = newCard('l1', 0);
+  let c = newCard('l1', 0, NOW);
   for (let i = 0; i < 20; i++) c = reviewCard(c, 'wrong', NOW);
   ok(c.ease >= 1.3, `ease=${c.ease}`);
 });
 
 test('интервал не превышает 180 дней', () => {
-  let c = newCard('l1', 0);
+  let c = newCard('l1', 0, NOW);
   for (let i = 0; i < 30; i++) c = reviewCard(c, 'correct', NOW);
   ok(c.interval <= 180, `interval=${c.interval}`);
 });
 
 test('очередь ставит вперёд то, что забывалось чаще', () => {
-  const easy = reviewCard(reviewCard(newCard('l', 1), 'wrong', NOW), 'wrong', NOW);
-  const hard = { ...newCard('l', 2), lapses: 5 };
+  const easy = reviewCard(reviewCard(newCard('l', 1, NOW), 'wrong', NOW), 'wrong', NOW);
+  const hard = { ...newCard('l', 2, NOW), lapses: 5 };
   const q = dueQueue({ [easy.id]: easy, [hard.id]: hard }, NOW);
   eq(q[0].id, hard.id);
 });
 
 test('в очередь не попадают карточки с будущей датой', () => {
-  const future = reviewCard(reviewCard(newCard('l', 3), 'correct', NOW), 'correct', NOW);
+  const future = reviewCard(reviewCard(newCard('l', 3, NOW), 'correct', NOW), 'correct', NOW);
   eq(dueQueue({ [future.id]: future }, NOW).length, 0);
 });
 
 test('прогноз раскладывает карточки по дням', () => {
-  const c = reviewCard(newCard('l', 4), 'correct', NOW);  // +1 день
+  const c = reviewCard(newCard('l', 4, NOW), 'correct', NOW);  // +1 день
   const f = forecast({ [c.id]: c }, 7, NOW);
   eq(f[0], 0);
   eq(f[1], 1);

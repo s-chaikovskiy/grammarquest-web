@@ -32,14 +32,22 @@ function addDays(days: number, now = new Date()): string {
   return todayISO(new Date(now.getTime() + days * DAY));
 }
 
-export function newCard(lessonId: string, stepIndex: number): Card {
+/**
+ * `now` принимается, как и во всех остальных функциях модуля.
+ *
+ * Раньше эта одна читала системные часы напрямую, и тест, закреплённый
+ * на конкретной дате, разъезжался с ней на следующий же день: карточка
+ * получала сегодняшнее число, а очередь фильтровалась по дате из теста.
+ * Проверка молча ломалась не от изменения кода, а от смены суток.
+ */
+export function newCard(lessonId: string, stepIndex: number, now = new Date()): Card {
   return {
     id: `${lessonId}:${stepIndex}`,
     lessonId,
     stepIndex,
     ease: 2.5,
     interval: 0,
-    due: todayISO(),
+    due: todayISO(now),
     reps: 0,
     lapses: 0,
     lastVerdict: 'wrong',
