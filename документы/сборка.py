@@ -374,6 +374,10 @@ def main():
     print()
     subprocess.run([sys.executable, str(HERE / "проверка-вёрстки.py")], check=False)
 
+    # И полноту: приложение растёт быстрее текстов о нём.
+    print()
+    subprocess.run([sys.executable, str(HERE / "сверка-возможностей.py")], check=False)
+
 
 if __name__ == "__main__":
     main()
