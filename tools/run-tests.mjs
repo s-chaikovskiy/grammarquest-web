@@ -10,6 +10,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { buildSync } from 'esbuild';
 
 const out = mkdtempSync(join(tmpdir(), 'tilashar-tests-'));
 const suites = [
@@ -18,15 +19,20 @@ const suites = [
   'tools/tests/morphology.test.ts',
   'tools/tests/helpers.test.ts',
 ];
-const esbuild = process.platform === 'win32'
-  ? 'node_modules/.bin/esbuild.cmd'
-  : 'node_modules/.bin/esbuild';
-
+// Сборка идёт через JS-API, а не через исполняемый файл в node_modules/.bin.
+// На Windows там лежит .cmd, а Node с 18-й версии отказывается запускать
+// .cmd и .bat без shell — тесты падали только на Windows, и только там.
 const упавшие = [];
 for (const suite of suites) {
   const bundle = join(out, suite.replace(/[/]/g, '_') + '.mjs');
-  execFileSync(esbuild, [suite, '--bundle', '--platform=node', '--format=esm',
-    `--outfile=${bundle}`, '--log-level=warning'], { stdio: 'inherit' });
+  buildSync({
+    entryPoints: [suite],
+    bundle: true,
+    platform: 'node',
+    format: 'esm',
+    outfile: bundle,
+    logLevel: 'warning',
+  });
   console.log(`\n— ${suite.split('/').pop()}`);
   try {
     execFileSync(process.execPath, [bundle], { stdio: 'inherit' });
