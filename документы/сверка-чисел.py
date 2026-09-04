@@ -87,6 +87,40 @@ def факты() -> dict[str, int]:
 }
 
 
+def листов(pdf: pathlib.Path) -> int:
+    """Число страниц PDF без сторонних библиотек — по объектам /Type /Page."""
+    b = pdf.read_bytes()
+    return len(re.findall(rb"/Type\s*/Page[^s]", b))
+
+
+def страницы_в_памятке() -> int:
+    """
+    В памятке рядом с каждым документом стоит его объём. Это число живёт
+    отдельно от документов и уже разъезжалось: стояло 15 и 16 страниц,
+    когда в файлах было 16 и 20. Сверяем с настоящими PDF.
+    """
+    памятка = HERE / "ЧИТАТЬ-ПЕРВЫМ.md"
+    if not памятка.exists():
+        return 0
+    текст_памятки = памятка.read_text(encoding="utf-8")
+    плохо = 0
+    for pdf in sorted(HERE.glob("*.pdf")):
+        имя = pdf.stem
+        строка = next((s for s in текст_памятки.splitlines() if имя in s), None)
+        if строка is None:
+            continue
+        заявлено = re.search(r"(\d+)\s+страниц", строка)
+        если_есть = int(заявлено.group(1)) if заявлено else None
+        было = листов(pdf)
+        if если_есть is None:
+            print(f"  ! {памятка.name}: у «{имя}» не указан объём")
+            continue
+        if если_есть != было:
+            плохо += 1
+            print(f"  ✗ {памятка.name}: «{имя}» — заявлено {если_есть} стр., в файле {было}")
+    return плохо
+
+
 def текст(файл: pathlib.Path) -> str:
     import zipfile
     xml = zipfile.ZipFile(файл).read("word/document.xml").decode("utf-8")
@@ -110,10 +144,13 @@ def main() -> None:
                 плохо += 1
                 print(f"  ✗ {файл.name}: «{найдено} {ключ}», по данным {ф[ключ]}")
 
+    print("\nСверка объёма с памяткой:")
+    плохо += страницы_в_памятке()
+
     if плохо:
         print(f"\nРасхождений: {плохо}. Поправить в текстах и пересобрать.")
         sys.exit(1)
-    print(f"  ✓ все числа в {len(list(HERE.glob('*.docx')))} документах сходятся с данными")
+    print(f"  ✓ числа и объём в {len(list(HERE.glob('*.docx')))} документах сходятся с данными")
 
 
 if __name__ == "__main__":
