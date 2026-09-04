@@ -14,15 +14,29 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const ev = async e => (await send('Runtime.evaluate', { expression: e, awaitPromise: true })).result?.value;
 
 await send('Page.enable'); await send('Runtime.enable');
-await send('Emulation.setDeviceMetricsOverride', { width: 400, height: 860, deviceScaleFactor: 2, mobile: true });
+// Кадр ровно в экран телефона: снимок «во всю прокрутку» в документ не влезает.
+const ЭКРАН = { width: 400, height: 860, deviceScaleFactor: 2, mobile: true };
+await send('Emulation.setDeviceMetricsOverride', ЭКРАН);
 const shot = async n => { const { data } = await send('Page.captureScreenshot', { format: 'png' });
-  fs.writeFileSync(`${OUT}/${n}.png`, Buffer.from(data, 'base64')); console.log('  ' + n + '.png'); };
+  const buf = Buffer.from(data, 'base64');
+  const w = buf.readUInt32BE(16), h = buf.readUInt32BE(20);
+  if (w !== 800 || h !== 1720) throw new Error(`${n}: снимок ${w}×${h}, а нужен 800×1720`);
+  fs.writeFileSync(`${OUT}/${n}.png`, buf); console.log('  ' + n + '.png  ' + w + '×' + h); };
 const click = t => ev(`(()=>{const b=[...document.querySelectorAll('button')]
   .find(e=>e.textContent.trim().startsWith(${JSON.stringify(t)}));
   if(b){b.click();return 'ok'}return 'НЕТ: '+${JSON.stringify(t)}})()`);
 
+// Прогресс от прошлого прогона оставлял урок открытым сразу на задании,
+// и все три «фазы» выходили одним и тем же кадром. Чистим состояние —
+// профиль браузера здесь одноразовый, ничьи данные не страдают.
+await send('Page.navigate', { url: BASE });
+await sleep(1800);
+await ev(`localStorage.removeItem('grammarquest_state')`);
 await send('Page.navigate', { url: BASE + '#/lesson/kz_base_03_otbasy' });
 await sleep(2600);
+// Переход сбрасывает эмуляцию устройства — возвращаем её до первого кадра.
+await send('Emulation.setDeviceMetricsOverride', ЭКРАН);
+await sleep(400);
 await shot('03-урок-диалог');
 console.log('   ', await click('К правилу')); await sleep(1200);
 await shot('04-урок-правило');
