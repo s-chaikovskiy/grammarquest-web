@@ -14,12 +14,6 @@ const { pathToFileURL } = require('node:url');
 
 const ROOT = path.join(__dirname, 'dist');
 
-// Папка данных Electron называется по productName. В версии 3.0.1 название
-// сменилось на Grammar Dialogue Quest — без этой строки программа завела бы
-// новую пустую папку, и прогресс тех, кто уже занимался, пропал бы. По той же
-// причине адрес app://tilashar/ ниже не меняется: localStorage привязан к нему.
-app.setPath('userData', path.join(app.getPath('appData'), 'Тілашар'));
-
 protocol.registerSchemesAsPrivileged([{
   scheme: 'app',
   privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true },
@@ -52,7 +46,7 @@ function createWindow() {
     return { action: 'deny' };
   });
 
-  win.loadURL('app://tilashar/index.html');
+  win.loadURL('app://grammarquest/index.html');
   return win;
 }
 

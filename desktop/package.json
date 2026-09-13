@@ -1,7 +1,7 @@
 {
   "name": "grammarquest-desktop",
   "productName": "Grammar Dialogue Quest",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Grammar Dialogue Quest — қазақ тілі грамматикасы",
   "author": "Малышко Макар",
   "main": "main.cjs",
@@ -15,7 +15,7 @@
     "electron-builder": "^26.0.12"
   },
   "build": {
-    "appId": "kz.tilashar.desktop",
+    "appId": "kz.grammarquest.desktop",
     "productName": "Grammar Dialogue Quest",
     "copyright": "Малышко Макар, 2026",
     "directories": {

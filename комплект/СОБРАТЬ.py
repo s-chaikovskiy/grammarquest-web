@@ -41,7 +41,7 @@ import тексты as Т  # noqa: E402
     # В архив кладём только установщик. Переносимая версия — то же самое
     # приложение, отличается лишь тем, что не устанавливается; второй файл
     # по сто мегабайт удвоил бы архив без пользы. Ссылка на неё в памятке.
-    ("комплект/exe/GrammarDialogueQuest-Setup-3.0.1.exe", "{приложение}/Windows/GrammarDialogueQuest-Setup-3.0.1.exe"),
+    ("комплект/exe/GrammarDialogueQuest-Setup-3.0.2.exe", "{приложение}/Windows/GrammarDialogueQuest-Setup-3.0.2.exe"),
     ("комплект/САЙТ — grammarquest-web.vercel.app.url", "САЙТ — grammarquest-web.vercel.app.url"),
 ]
 

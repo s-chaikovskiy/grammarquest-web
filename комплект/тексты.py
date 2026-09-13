@@ -237,10 +237,10 @@ def _правки_ru() -> str:
   аптадан кейін сақталған деректерді, оның ішінде прогрессті де
   тазалауы мүмкін.
 
-  Компьютерде (Windows): 4-Қосымша/Windows/GrammarDialogueQuest-Setup-3.0.1.exe
+  Компьютерде (Windows): 4-Қосымша/Windows/GrammarDialogueQuest-Setup-3.0.2.exe
   Орнатуға болмайтын компьютерде (мысалы, мектепте) орнатпай іске
   қосылатын нұсқа бар: github.com/s-chaikovskiy/grammarquest-web/releases,
-  GrammarDialogueQuest-portable-3.0.1.exe файлы.
+  GrammarDialogueQuest-portable-3.0.2.exe файлы.
 
   Бағдарлама сертификатпен қол қойылмаған, сондықтан Windows алғаш іске
   қосқанда «SmartScreen» терезесін көрсетеді. Бұл вирус емес — ақылы
@@ -314,10 +314,10 @@ def _правки_ru() -> str:
   На iPhone добавление «На экран „Домой“» обязательно: иначе iOS примерно
   через неделю может очистить сохранённые данные вместе с прогрессом.
 
-  На компьютере (Windows): 4-Приложение/Windows/GrammarDialogueQuest-Setup-3.0.1.exe
+  На компьютере (Windows): 4-Приложение/Windows/GrammarDialogueQuest-Setup-3.0.2.exe
   Если ставить нельзя (например, на школьном компьютере), есть версия,
   которая запускается без установки: github.com/s-chaikovskiy/grammarquest-web/releases,
-  файл GrammarDialogueQuest-portable-3.0.1.exe.
+  файл GrammarDialogueQuest-portable-3.0.2.exe.
 
   Программа не подписана сертификатом, поэтому Windows при первом запуске
   покажет синее окно «Система SmartScreen предотвратила запуск». Это не
