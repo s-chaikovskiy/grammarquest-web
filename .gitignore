@@ -67,3 +67,4 @@ desktop/выпуск/
 
 # Кэш Python рядом со сборкой содержания
 tools/content/__pycache__/
+.impeccable/hook.cache.json

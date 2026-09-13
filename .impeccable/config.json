@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "src/index.css"
+        ],
+        "createdAt": "2026-09-13T11:28:04.116Z",
+        "reason": "assistant triage: .chapter::before is a 3px TOP edge (inset 0 0 auto 0), not a side tab; pre-existing intentional chapter colour marker documented in the CSS comment"
+      }
+    ]
+  }
+}

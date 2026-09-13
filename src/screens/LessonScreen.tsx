@@ -109,7 +109,7 @@ export default function LessonScreen() {
         />
 
         <div className="progress" role="progressbar" aria-valuenow={answered} aria-valuemin={0} aria-valuemax={total}>
-          <div className="progress__fill" style={{ width: `${(answered / total) * 100}%` }} />
+          <div className="progress__fill" style={{ transform: `scaleX(${answered / total})` }} />
         </div>
 
         {phase !== 'summary' && (
