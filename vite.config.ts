@@ -19,10 +19,10 @@ export default defineConfig({
       injectRegister: null,
       includeAssets: ['characters/*.webp', 'icons/*.png', 'fonts/*.woff2'],
       manifest: {
-        name: 'Тілашар — казахский язык шаг за шагом',
+        name: 'Тілашар — қазақ тілі грамматикасы',
         short_name: 'Тілашар',
-        description: 'Казахский язык для тех, кто говорит по-русски: диалоги, правила и семь типов упражнений. Работает офлайн.',
-        lang: 'ru',
+        description: 'Қазақ тілі грамматикасы: диалог, ереже, тапсырма. Интернетсіз жұмыс істейді.',
+        lang: 'kk',
         theme_color: '#0064B9',
         background_color: '#0064B9',
         display: 'standalone',

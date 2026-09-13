@@ -26,17 +26,22 @@ interface CharacterProps {
  * а не мимикой: дыхание в покое, покачивание в такт речи, подскок на верном
  * ответе, качание головой на неверном. Учитель просил именно этого —
  * «чтобы персонаж двигался либо говорил».
+ *
+ * Имена файлов не совпадают с тем, кто на них нарисован: в «teacher.webp» —
+ * девочка с рюкзаком, в «aisha.webp» — учительница. Раньше привязка шла
+ * по именам, и в диалоге Айша и учитель менялись ролями. Привязка ниже —
+ * по самим картинкам; таблица соответствия — assets-source/ОТКУДА-КАРТИНКИ.md.
  */
 const SOURCES: Record<string, Record<string, string>> = {
   teacher: {
-    neutral: '/characters/teacher.webp',
-    finger_up: '/characters/teacher_finger_up.webp',
-    like: '/characters/teacher_like.webp',
+    neutral: '/characters/teacher_finger_up.webp',
+    finger_up: '/characters/aisha_finger_up.webp',
+    like: '/characters/aisha.webp',
   },
   girl: {
-    neutral: '/characters/aisha.webp',
-    finger_up: '/characters/aisha_finger_up.webp',
-    like: '/characters/aisha_finger_up.webp',
+    neutral: '/characters/teacher_like.webp',
+    finger_up: '/characters/teacher.webp',
+    like: '/characters/teacher.webp',
   },
   boy: {
     neutral: '/characters/dima.webp',

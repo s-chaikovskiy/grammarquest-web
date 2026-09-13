@@ -3,16 +3,16 @@
 """
 Список фраз для озвучки.
 
-Озвучивать всё подряд не нужно и вредно: грамматические объяснения на слух
-не воспринимаются, а длинные записи никто не дослушивает. Озвучиваем то,
-что ученик должен научиться произносить сам:
-
-  1. Словарные слова      — основа произношения
-  2. Правильные ответы    — та форма, которую он только что построил
-  3. Реплики диалогов     — живая речь в контексте
+Озвучивается то, что ученик слышит от героев: реплики диалога — голосом
+того, кто говорит, — и правильный ответ после проверки. Правила не
+озвучиваются: на слух длинное объяснение не воспринимается.
 
 Имя файла — короткий хеш от текста. Так один и тот же текст не записывается
 дважды, а приложение находит запись, не храня отдельной таблицы.
+
+Записи, которых нет в списке, удаляются из public/audio: после того как
+учитель сократила приложение, там остались бы сотни файлов от уроков,
+которых больше нет, — лишние мегабайты в каждой установке.
 
 Запуск: python3 tools/tts/build_manifest.py
 """
@@ -22,21 +22,24 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 LESSONS = ROOT / "src" / "data" / "lessons.json"
-VOCAB = ROOT / "src" / "data" / "vocabulary.json"
 MANIFEST = ROOT / "tools" / "tts" / "audio-manifest.json"
 INDEX = ROOT / "src" / "data" / "audio-index.json"
 PHRASES = ROOT / "tools" / "tts" / "фразы-для-записи.md"
 AUDIO = ROOT / "public" / "audio"
 
-# Верхняя граница длины реплики.
-#
-# Было 120 знаков — это экономия на Azure, где платят посимвольно. Через
-# edge-tts синтез бесплатный, и лимит превратился в дыру: 31 реплика
-# из 412 оставалась без записи. В диалоге, где у одной строки кнопка
-# «послушать» есть, а у следующей нет, это читается как поломка.
-# Самая длинная реплика курса — 247 знаков, поэтому 300 закрывает всё
-# с запасом и всё ещё отсекает случайный абзац.
-MAX_CHARS = 300
+# Казахских нейроголосов ровно два, мужской и женский. Обе героини — женщины:
+# учитель на картинке — взрослая женщина, Айша — девочка. Мужской голос
+# учителю противоречил картинке, поэтому обе говорят женским, а различаются
+# высотой и темпом: Айша выше и чуть живее, учитель — ровнее и спокойнее.
+VOICE_BY_SPEAKER = {
+    "girl": "kk-KZ-AigulNeural",
+    "teacher": "kk-KZ-AigulNeural",
+}
+PROSODY_BY_SPEAKER = {
+    "girl": {"pitch": "+18Hz", "rate": "-4%"},
+    "teacher": {"pitch": "-6Hz", "rate": "-10%"},
+}
+WHO_RU = {"girl": "Айша", "teacher": "Мұғалім"}
 
 
 def audio_id(text: str) -> str:
@@ -47,154 +50,62 @@ def clean(text: str) -> str:
     return " ".join(text.replace("\n", " ").split()).strip()
 
 
-# Кто произносит реплику. Имя стоит в начале строки — так же, как их разбирает
-# само приложение (src/utils/helpers.ts, splitDialogue).
-SPEAKERS = {
-    "мұғалім": "teacher",
-    "учитель": "teacher",
-    "айша": "girl",
-    "дима": "boy",
-}
-
-
-def split_speaker(line: str, fallback: str) -> tuple[str, str]:
-    """Отделяет имя говорящего от самой реплики."""
-    head, sep, tail = line.partition(":")
-    name = head.strip().lower()
-    if sep and 2 <= len(head) <= 20 and name in SPEAKERS:
-        return SPEAKERS[name], tail.strip()
-    return fallback, line.strip()
-
-
-# Казахских нейроголосов у Azure ровно два. Женский — основной: им читаются
-# слова, ответы и реплики Айши. Мужской достаётся Диме и учителю, иначе в
-# диалоге двух собеседников не различить на слух.
-VOICE_BY_SPEAKER = {
-    "girl": "kk-KZ-AigulNeural",
-    "teacher": "kk-KZ-DauletNeural",
-    "boy": "kk-KZ-DauletNeural",
-}
-DEFAULT_VOICE = "kk-KZ-AigulNeural"
-
-
-def character_to_speaker(character: str) -> str:
-    return {
-        "AISHA": "girl", "GIRL": "girl",
-        "DIMA": "boy", "BOY": "boy",
-    }.get((character or "").upper(), "teacher")
-
-
 def main():
     lessons = json.loads(LESSONS.read_text(encoding="utf-8"))["lessons"]
-    vocab = json.loads(VOCAB.read_text(encoding="utf-8"))["words"]
-
     entries: dict[str, dict] = {}
 
-    def add(text: str, kind: str, priority: int, ru: str = "", speaker: str = "girl"):
+    def add(text: str, kind: str, speaker: str):
         text = clean(text)
-        if not text or len(text) > MAX_CHARS:
+        # Окончание само по себе («-нші») не произносится — звучит готовое слово.
+        if not text or text.startswith("-") or not any(ch.isalpha() for ch in text):
             return
-        # Цифры озвучивать незачем: ученику нужно услышать «он», а не «десять».
-        if not any(ch.isalpha() for ch in text):
-            return
-        key = audio_id(text)
-        existing = entries.get(key)
-        if existing:
-            # Приоритет берём самый высокий из встретившихся.
-            existing["priority"] = min(existing["priority"], priority)
-            return
-        entries[key] = {
-            "id": key,
+        entries.setdefault(audio_id(text), {
+            "id": audio_id(text),
             "text": text,
-            "ru": clean(ru),
             "kind": kind,
-            "priority": priority,
             "speaker": speaker,
-            "voice": VOICE_BY_SPEAKER.get(speaker, DEFAULT_VOICE),
-        }
-
-    for word in vocab:
-        add(word["kz"], "word", 1, word["ru"], speaker="girl")
+            "voice": VOICE_BY_SPEAKER[speaker],
+            **PROSODY_BY_SPEAKER[speaker],
+        })
 
     for lesson in lessons:
         for step in lesson["steps"]:
-            if "/" not in step["answerKz"]:
-                add(step["answerKz"], "answer", 2, step["answerRu"], speaker="girl")
-            # Диалог — это обмен репликами, и приложение показывает их по одной.
-            # Записываем так же построчно: иначе кнопка «послушать» рядом с
-            # репликой не найдёт файл, а в одной записи звучали бы оба
-            # собеседника подряд одним голосом.
-            fallback = character_to_speaker(lesson.get("character", ""))
-            kz_lines = [x for x in step["dialogueKz"].split("\n") if x.strip()]
-            ru_lines = [x for x in step["dialogueRu"].split("\n") if x.strip()]
-            for i, raw in enumerate(kz_lines):
-                who, line = split_speaker(raw, fallback)
-                _, line_ru = split_speaker(ru_lines[i], fallback) if i < len(ru_lines) else ("", "")
-                add(line, "dialogue", 3, line_ru, speaker=who)
+            for line in step["dialogue"]:
+                add(line["kz"], "dialogue", line["who"])
+            task = step["task"]
+            for answer in task["answers"]:
+                add(answer, "answer", "teacher")
+            if task.get("result"):
+                add(task["result"], "answer", "teacher")
 
-    items = sorted(entries.values(), key=lambda e: (e["priority"], e["text"]))
+    items = sorted(entries.values(), key=lambda e: (e["kind"], e["text"]))
+    MANIFEST.write_text(json.dumps({"version": 2, "items": items}, ensure_ascii=False, indent=1),
+                        encoding="utf-8")
 
-    # Полный манифест — для скриптов синтеза и списка на запись.
-    MANIFEST.write_text(
-        json.dumps({"version": 1, "items": items}, ensure_ascii=False, indent=1),
-        encoding="utf-8",
-    )
+    AUDIO.mkdir(parents=True, exist_ok=True)
+    stale = [p for p in AUDIO.glob("*.mp3") if p.stem not in entries]
+    for p in stale:
+        p.unlink()
+    available = sorted(p.stem for p in AUDIO.glob("*.mp3"))
 
-    # Какие записи реально лежат в public/audio на момент сборки.
-    #
-    # Раньше приложение узнавало это, спрашивая сам файл по сети. Пока записей
-    # нет, каждая фраза на экране порождала запрос, который заканчивался
-    # ошибкой, — и обещание «работает без интернета, ни одного запроса в сеть»
-    # переставало быть правдой. Теперь список известен заранее.
-    available = sorted(p.stem for p in AUDIO.glob("*.mp3")) if AUDIO.exists() else []
-
-    # В приложение уходит только то, что нужно для поиска записи по тексту:
-    # переводы и пометки типа в браузере не используются, а весят втрое больше.
+    # Приложение знает заранее, какие записи лежат в сборке, и не спрашивает
+    # файлы по сети — иначе обещание «работает без интернета» не выполняется.
     INDEX.write_text(
-        json.dumps({"version": 2,
-                    "items": [[e["id"], e["text"]] for e in items],
-                    "available": available},
+        json.dumps({"version": 3, "items": [[e["id"], e["text"]] for e in items], "available": available},
                    ensure_ascii=False, separators=(",", ":")),
         encoding="utf-8",
     )
 
-    by_kind: dict[str, int] = {}
-    chars = 0
-    for e in items:
-        by_kind[e["kind"]] = by_kind.get(e["kind"], 0) + 1
-        chars += len(e["text"])
+    lines = ["# Фразы для записи", "", f"Всего: {len(items)}.", "",
+             "| Имя файла | Кто говорит | Текст |", "|---|---|---|"]
+    lines += [f"| `{e['id']}.mp3` | {WHO_RU[e['speaker']]} | {e['text']} |" for e in items]
+    PHRASES.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
-    print(f"Фраз к озвучке: {len(items)} (символов {chars})")
-    for kind, n in sorted(by_kind.items(), key=lambda kv: -kv[1]):
-        label = {"word": "слова", "answer": "ответы", "dialogue": "реплики диалогов"}[kind]
-        print(f"  {label:20} {n}")
-
-    # Текстовый список — для записи живым голосом.
-    lines = [
-        "# Фразы для записи",
-        "",
-        f"Всего: {len(items)}. Порядок — от самого нужного к менее важному,",
-        "поэтому запись можно прервать в любой момент: приложение озвучит то,",
-        "что успели записать, а остальное просто останется без звука.",
-        "",
-        "**Как записывать.** Один файл на фразу, имя файла — код из первой колонки,",
-        f"формат mp3, тихая комната, ровный темп чуть медленнее обычного. Готовые файлы",
-        "положить в `public/audio/`.",
-        "",
-    ]
-    for kind, label in (("word", "Слова"), ("answer", "Ответы"), ("dialogue", "Реплики диалогов")):
-        group = [e for e in items if e["kind"] == kind]
-        if not group:
-            continue
-        lines += [f"## {label} ({len(group)})", "", "| Имя файла | Кто говорит | Текст | Перевод |", "|---|---|---|---|"]
-        who_ru = {"girl": "Айша", "boy": "Дима", "teacher": "Учитель"}
-        lines += [f"| `{e['id']}.mp3` | {who_ru.get(e['speaker'], '—')} | {e['text']} | {e['ru']} |" for e in group]
-        lines.append("")
-    PHRASES.write_text("\n".join(lines), encoding="utf-8")
-    print(f"\nЗаписей в public/audio: {len(available)} из {len(items)}")
-    if not available:
-        print("  Кнопка «послушать» не показывается нигде — записей ещё нет.")
-    print(f"Список для записи голосом: {PHRASES.relative_to(ROOT)}")
+    missing = len(items) - len(set(available) & set(entries))
+    print(f"Фраз к озвучке: {len(items)} · удалено лишних записей: {len(stale)} · "
+          f"не записано: {missing}")
+    if missing:
+        print("  Записать: python3 tools/tts/synthesize.py, затем снова эту команду.")
 
 
 if __name__ == "__main__":

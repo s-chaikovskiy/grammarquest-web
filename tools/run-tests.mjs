@@ -14,9 +14,7 @@ import { buildSync } from 'esbuild';
 
 const out = mkdtempSync(join(tmpdir(), 'tilashar-tests-'));
 const suites = [
-  'tools/tests/answer.test.ts',
-  'tools/tests/srs.test.ts',
-  'tools/tests/morphology.test.ts',
+  'tools/tests/verdict.test.ts',
   'tools/tests/helpers.test.ts',
 ];
 // Сборка идёт через JS-API, а не через исполняемый файл в node_modules/.bin.

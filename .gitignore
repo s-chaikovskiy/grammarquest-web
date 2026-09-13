@@ -64,3 +64,6 @@ tools/.venv/
 desktop/node_modules/
 desktop/dist/
 desktop/выпуск/
+
+# Кэш Python рядом со сборкой содержания
+tools/content/__pycache__/

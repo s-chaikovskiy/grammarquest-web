@@ -45,15 +45,15 @@ BACKEND = os.environ.get("TTS_BACKEND", "edge").lower()
 RATE = os.environ.get("AZURE_SPEECH_RATE", "-8%")
 
 
-def ssml(text: str, voice: str) -> str:
+def ssml(text: str, voice: str, rate: str, pitch: str) -> str:
     safe = (text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
     return (
         f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="kk-KZ">'
-        f'<voice name="{voice}"><prosody rate="{RATE}">{safe}</prosody></voice></speak>'
+        f'<voice name="{voice}"><prosody rate="{rate}" pitch="{pitch}">{safe}</prosody></voice></speak>'
     )
 
 
-def synth_edge(text: str, voice: str) -> bytes:
+def synth_edge(text: str, voice: str, rate: str, pitch: str) -> bytes:
     """edge-tts: те же голоса Microsoft, но без ключа.
 
     Библиотека асинхронная и умеет только писать в файл, поэтому пишем
@@ -69,7 +69,7 @@ def synth_edge(text: str, voice: str) -> bytes:
         # весь прогон молча — процесс живёт, файлы не появляются, и понять,
         # что он встал, можно только по времени последней записи.
         await asyncio.wait_for(
-            edge_tts.Communicate(text, voice, rate=RATE).save(path), timeout=25
+            edge_tts.Communicate(text, voice, rate=rate, pitch=pitch).save(path), timeout=25
         )
 
     with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as f:
@@ -84,10 +84,10 @@ def synth_edge(text: str, voice: str) -> bytes:
     return data
 
 
-def synth_azure(text: str, voice: str) -> bytes:
+def synth_azure(text: str, voice: str, rate: str, pitch: str) -> bytes:
     req = urllib.request.Request(
         f"https://{REGION}.tts.speech.microsoft.com/cognitiveservices/v1",
-        data=ssml(text, voice).encode("utf-8"),
+        data=ssml(text, voice, rate, pitch).encode("utf-8"),
         headers={
             "Ocp-Apim-Subscription-Key": KEY,
             "Content-Type": "application/ssml+xml",
@@ -99,8 +99,10 @@ def synth_azure(text: str, voice: str) -> bytes:
         return resp.read()
 
 
-def synth(text: str, voice: str) -> bytes:
-    return synth_azure(text, voice) if BACKEND == "azure" else synth_edge(text, voice)
+def synth(text: str, voice: str, rate: str = RATE, pitch: str = "+0Hz") -> bytes:
+    """Высота и темп — у каждой фразы свои: две героини говорят одним голосом."""
+    fn = synth_azure if BACKEND == "azure" else synth_edge
+    return fn(text, voice, rate, pitch)
 
 
 def main():
@@ -132,7 +134,8 @@ def main():
     done = failed = 0
     for i, entry in enumerate(todo, 1):
         try:
-            data = synth(entry["text"], VOICE_OVERRIDE or entry.get("voice", DEFAULT_VOICE))
+            data = synth(entry["text"], VOICE_OVERRIDE or entry.get("voice", DEFAULT_VOICE),
+                         entry.get("rate", RATE), entry.get("pitch", "+0Hz"))
             (OUT / f"{entry['id']}.mp3").write_bytes(data)
             done += 1
         except Exception as exc:                      # noqa: BLE001

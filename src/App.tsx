@@ -1,4 +1,4 @@
-import { useEffect, lazy, Suspense } from 'react';
+import { useEffect } from 'react';
 import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { AppProvider, useApp } from './hooks/useApp';
 import { setSoundEnabled } from './utils/sounds';
@@ -6,87 +6,40 @@ import AppShell from './components/AppShell';
 import WelcomeScreen from './screens/WelcomeScreen';
 import LearnScreen from './screens/LearnScreen';
 import LessonScreen from './screens/LessonScreen';
-import ReviewScreen from './screens/ReviewScreen';
-
-// Разделы, до которых доходят не в первую минуту, грузятся отдельными частями:
-// первый урок не должен ждать загрузки словаря и справочника.
-const PracticeScreen = lazy(() => import('./screens/PracticeScreen'));
-const DictionaryScreen = lazy(() => import('./screens/DictionaryScreen'));
-const ReferenceHubScreen = lazy(() => import('./screens/ReferenceHubScreen'));
-const RulesScreen = lazy(() => import('./screens/RulesScreen'));
-const ReferenceScreen = lazy(() => import('./screens/ReferenceScreen'));
-const TablesScreen = lazy(() => import('./screens/TablesScreen'));
-const StatsScreen = lazy(() => import('./screens/StatsScreen'));
-const CardsScreen = lazy(() => import('./screens/CardsScreen'));
-const SprintScreen = lazy(() => import('./screens/SprintScreen'));
-const HelpScreen = lazy(() => import('./screens/HelpScreen'));
-
-/* Экран во время подгрузки раздела. Надпись «Загрузка…» на пустой странице
-   читается как поломка; скелетон занимает место будущего содержимого, и
-   страница не прыгает, когда оно приходит. */
-function Loading() {
-  return (
-    <div className="page">
-      <div className="shell skeleton" role="status" aria-label="Загрузка раздела">
-        <div className="skeleton__bar skeleton__bar--title" />
-        <div className="skeleton__bar skeleton__bar--half" />
-        <div className="skeleton__block" />
-        <div className="skeleton__block" />
-      </div>
-    </div>
-  );
-}
 
 /**
- * Урок пересоздаётся при смене адреса.
+ * Тема пересоздаётся при смене адреса.
  *
- * Без этого React оставляет экран смонтированным, когда меняется только
- * номер урока: шаг, фаза и список ошибок остаются от предыдущего. Переход
- * с итогов одного урока прямо на другой ронял экран — разбор ошибок брал
- * шаг по номеру из прошлого урока, а там его уже нет. Ключ по адресу
- * заставляет React собрать экран заново, с чистым состоянием.
+ * Без ключа React оставляет экран смонтированным, когда меняется только id:
+ * шаг и ответы оставались бы от предыдущей темы.
  */
 function LessonRoute() {
   const { id } = useParams<{ id: string }>();
   return <LessonScreen key={id} />;
 }
 
+/*
+ * Экранов три: первый, список тем и сама тема.
+ *
+ * 13 сентября 2026 учитель попросила оставить только грамматику в её порядке —
+ * диалог, правило, задание — и говорящих героев. Практика, словарь, справочник,
+ * профиль, карточки, спринт и повторение убраны. Старые адреса ведут на первый
+ * экран: закладка на удалённый раздел не должна открывать пустоту.
+ */
 function AppRoutes() {
   const { state } = useApp();
 
-  // Настройка звука живёт в состоянии, а проигрыватель — отдельный модуль:
-  // синхронизируем их в одном месте, а не в каждом обработчике.
   useEffect(() => { setSoundEnabled(state.settings.sound); }, [state.settings.sound]);
 
   return (
-    <Suspense fallback={<Loading />}>
-      <Routes>
-        <Route path="/" element={<WelcomeScreen />} />
-
-        {/* Разделы с нижней панелью */}
-        <Route element={<AppShell />}>
-          <Route path="/learn" element={<LearnScreen />} />
-          <Route path="/practice" element={<PracticeScreen />} />
-          <Route path="/dictionary" element={<DictionaryScreen />} />
-          <Route path="/reference" element={<ReferenceHubScreen />} />
-          <Route path="/reference/rules" element={<RulesScreen />} />
-          <Route path="/reference/topics" element={<ReferenceScreen />} />
-          <Route path="/reference/tables" element={<TablesScreen />} />
-          <Route path="/stats" element={<StatsScreen />} />
-          <Route path="/help" element={<HelpScreen />} />
-        </Route>
-
-        {/* Занятия идут на весь экран: панель отвлекала бы от задания */}
-        <Route path="/lesson/:id" element={<LessonRoute />} />
-        <Route path="/review" element={<ReviewScreen />} />
-        <Route path="/cards" element={<CardsScreen />} />
-        <Route path="/sprint" element={<SprintScreen />} />
-
-        <Route path="/menu" element={<Navigate to="/learn" replace />} />
-        <Route path="/lessons" element={<Navigate to="/learn" replace />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Suspense>
+    <Routes>
+      <Route path="/" element={<WelcomeScreen />} />
+      <Route element={<AppShell />}>
+        <Route path="/learn" element={<LearnScreen />} />
+      </Route>
+      <Route path="/lesson/:id" element={<LessonRoute />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 
