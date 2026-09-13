@@ -1,8 +1,8 @@
 {
   "name": "tilashar-desktop",
   "productName": "Тілашар",
-  "version": "2.0.0",
-  "description": "Тілашар — казахский язык шаг за шагом",
+  "version": "3.0.0",
+  "description": "Тілашар — қазақ тілі грамматикасы",
   "author": "Малышко Макар",
   "main": "main.cjs",
   "private": true,
@@ -18,13 +18,28 @@
     "appId": "kz.tilashar.desktop",
     "productName": "Тілашар",
     "copyright": "Малышко Макар, 2026",
-    "directories": { "output": "выпуск" },
-    "files": ["main.cjs", "dist/**/*"],
+    "directories": {
+      "output": "выпуск"
+    },
+    "files": [
+      "main.cjs",
+      "dist/**/*"
+    ],
     "win": {
       "icon": "icon.png",
       "target": [
-        { "target": "nsis", "arch": ["x64"] },
-        { "target": "portable", "arch": ["x64"] }
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
       ]
     },
     "nsis": {
@@ -35,6 +50,8 @@
       "shortcutName": "Тілашар",
       "artifactName": "Tilashar-Setup-${version}.${ext}"
     },
-    "portable": { "artifactName": "Tilashar-portable-${version}.${ext}" }
+    "portable": {
+      "artifactName": "Tilashar-portable-${version}.${ext}"
+    }
   }
 }
