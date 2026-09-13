@@ -68,7 +68,7 @@ EDGE = ROOT / "tools" / ".venv" / "bin" / "edge-tts"
 ПОЛЯ = 26          # отступ текста от края плашки
 МАКС_СТРОК = 2
 FPS = 30
-НАДПИСЬ_МАСТЕРА = "Тілашар  ·  tilashar-kz.vercel.app"
+НАДПИСЬ_МАСТЕРА = "Grammar Dialogue Quest  ·  grammarquest-web.vercel.app"
 
 sys.path.insert(0, str(HERE))
 import importlib.util

@@ -10,7 +10,7 @@
 import fs from 'node:fs';
 
 const OUT = process.argv[2];
-const BASE = process.argv[3] ?? 'https://tilashar-kz.vercel.app/';
+const BASE = process.argv[3] ?? 'https://grammarquest-web.vercel.app/';
 if (!OUT) throw new Error('укажите папку для снимков');
 fs.mkdirSync(OUT, { recursive: true });
 

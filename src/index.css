@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* =============================================================================
-   Тілашар — дизайн-система
+   Grammar Dialogue Quest — дизайн-система
 
    Шрифт вшит в бандл: приложение обязано работать офлайн и внутри APK,
    где загрузка с Google Fonts недоступна. Golos Text выбран потому, что
@@ -1681,7 +1681,13 @@ p { text-wrap: pretty; }
   font-weight: 700;
   line-height: 1;
 }
-.appbar__name { font-size: var(--text-base); font-weight: 650; letter-spacing: -0.015em; }
+/* «Grammar Dialogue Quest» втрое длиннее прежнего имени. В одну строку оно
+   встаёт от 375 точек при 14px (замер: 164 из 179 на 390); на совсем узком
+   экране пусть лучше перенесётся, чем наедет на переключатель языка. */
+.appbar__name { font-size: var(--text-sm); font-weight: 650; letter-spacing: -0.015em; white-space: nowrap; }
+@media (max-width: 374px) {
+  .appbar__name { white-space: normal; line-height: 1.15; }
+}
 
 .appbar__meta { display: flex; align-items: center; gap: 0.875rem; margin-left: auto; }
 .appbar__meta .meta { font-variant-numeric: tabular-nums; }

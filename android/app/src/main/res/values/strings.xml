@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Тілашар</string>
-    <string name="title_activity_main">Тілашар</string>
+    <string name="app_name">Grammar Dialogue Quest</string>
+    <string name="title_activity_main">Grammar Dialogue Quest</string>
     <string name="package_name">kz.grammarquest.app</string>
     <string name="custom_url_scheme">kz.grammarquest.app</string>
 </resources>

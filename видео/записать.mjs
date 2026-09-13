@@ -22,7 +22,7 @@ import { execFileSync } from 'node:child_process';
 
 const КОРЕНЬ = path.dirname(path.dirname(url.fileURLToPath(import.meta.url)));
 const OUT = process.argv[2];
-const BASE = process.argv[3] ?? 'https://tilashar-kz.vercel.app/';
+const BASE = process.argv[3] ?? 'https://grammarquest-web.vercel.app/';
 if (!OUT) throw new Error('укажите папку для кадров');
 fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });

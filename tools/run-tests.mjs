@@ -12,7 +12,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { buildSync } from 'esbuild';
 
-const out = mkdtempSync(join(tmpdir(), 'tilashar-tests-'));
+const out = mkdtempSync(join(tmpdir(), 'grammarquest-tests-'));
 const suites = [
   'tools/tests/verdict.test.ts',
   'tools/tests/helpers.test.ts',

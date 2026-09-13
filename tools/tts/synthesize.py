@@ -92,7 +92,7 @@ def synth_azure(text: str, voice: str, rate: str, pitch: str) -> bytes:
             "Ocp-Apim-Subscription-Key": KEY,
             "Content-Type": "application/ssml+xml",
             "X-Microsoft-OutputFormat": "audio-24khz-48kbitrate-mono-mp3",
-            "User-Agent": "tilashar",
+            "User-Agent": "grammarquest",
         },
     )
     with urllib.request.urlopen(req, timeout=30) as resp:

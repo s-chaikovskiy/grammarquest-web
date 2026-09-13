@@ -82,22 +82,22 @@ jobs:
           ./gradlew assembleDebug --no-daemon
 
       - name: Переименовать APK
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk Tilashar.apk
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk GrammarDialogueQuest.apk
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Tilashar-APK
-          path: Tilashar.apk
+          name: GrammarDialogueQuest-APK
+          path: GrammarDialogueQuest.apk
           retention-days: 90
 
       - name: Опубликовать в Releases
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: Tilashar.apk
+          files: GrammarDialogueQuest.apk
           body: |
             Установка на Android:
-            1. Скачайте Tilashar.apk по ссылке ниже.
+            1. Скачайте GrammarDialogueQuest.apk по ссылке ниже.
             2. Откройте файл на телефоне.
             3. Разрешите установку из этого источника, когда система спросит.
 

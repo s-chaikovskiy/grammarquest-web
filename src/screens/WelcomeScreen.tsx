@@ -42,7 +42,7 @@ export default function WelcomeScreen() {
 
         <header className="stack--tight">
           <h1 className="wordmark">
-            <span className="wordmark__name">Тілашар</span>
+            <span className="wordmark__name">Grammar Dialogue Quest</span>
             <span className="wordmark__tag">{t.appTag}</span>
           </h1>
           <p className="t-body prose t-mut">{t.intro}</p>

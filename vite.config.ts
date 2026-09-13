@@ -19,8 +19,8 @@ export default defineConfig({
       injectRegister: null,
       includeAssets: ['characters/*.webp', 'icons/*.png', 'fonts/*.woff2'],
       manifest: {
-        name: 'Тілашар — қазақ тілі грамматикасы',
-        short_name: 'Тілашар',
+        name: 'Grammar Dialogue Quest — қазақ тілі грамматикасы',
+        short_name: 'Grammar Dialogue Quest',
         description: 'Қазақ тілі грамматикасы: диалог, ереже, тапсырма. Интернетсіз жұмыс істейді.',
         lang: 'kk',
         theme_color: '#0064B9',

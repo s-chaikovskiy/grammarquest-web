@@ -5,7 +5,7 @@
 Нужен, чтобы одним взглядом увидеть, не вылез ли где текст и не разъехалась ли
 вёрстка. Открывать PDF постранично для этого слишком долго.
 
-    ./venv/bin/python контрольный-лист.py Тілашар-защита.pdf
+    ./venv/bin/python контрольный-лист.py Grammar-Dialogue-Quest-защита.pdf
 """
 import sys
 from pathlib import Path
@@ -20,7 +20,7 @@ BG = (232, 234, 238)
 
 
 def main():
-    src = Path(sys.argv[1] if len(sys.argv) > 1 else "Тілашар-защита.pdf")
+    src = Path(sys.argv[1] if len(sys.argv) > 1 else "Grammar-Dialogue-Quest-защита.pdf")
     doc = pdfium.PdfDocument(str(src))
     pages = [doc[i].render(scale=SCALE).to_pil() for i in range(len(doc))]
 

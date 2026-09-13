@@ -24,7 +24,7 @@ export default function AppShell() {
             title={t.home}
           >
             <span className="appbar__glyph" aria-hidden>қ</span>
-            <span className="appbar__name">Тілашар</span>
+            <span className="appbar__name">Grammar Dialogue Quest</span>
             <span className="sr-only">{t.home}</span>
           </button>
           <LangSwitch />
