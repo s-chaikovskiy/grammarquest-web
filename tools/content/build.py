@@ -14,16 +14,21 @@
 Запуск: python3 tools/content/build.py
 """
 import json
+import re
 import sys
 import unicodedata
+import zipfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from сабақтар import AISHA, LESSONS, TEACHER, ПРАВКИ  # noqa: E402
+from сабақтар import AISHA, LESSONS, TEACHER, ПРАВКИ, ФОРМА  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 OUT = ROOT / "src" / "data" / "lessons.json"
 REVIEW = ROOT / "НА-ПРОВЕРКУ-УЧИТЕЛЮ.md"
+# Документ учителя лежит в олимпиада/ — мимо git. Где его нет (сборка на GitHub),
+# дословная сверка пропускается, остальные проверки идут как обычно.
+TEACHER_DOC = ROOT / "олимпиада" / "Задания-09-09.docx"
 
 SPEAKERS = {AISHA: "Айша", TEACHER: "Мұғалім"}
 KINDS = {"choice", "multi"}
@@ -132,6 +137,58 @@ def check() -> None:
             fail(w, "у правки должны быть «нет», «есть» и источник")
 
 
+def loose(text: str) -> str:
+    """Для дословной сверки: регистр, кавычки, многоточия и пробелы не в счёт."""
+    t = key(text).replace("«", '"').replace("»", '"')
+    return " ".join(re.sub(r"\.{3,}|…", "...", t).split())
+
+
+def check_teacher_doc() -> str:
+    """
+    Тексты учителя в приложении против её собственного документа.
+
+    Проверка правок выше смотрит только на урок: стоит ли исправление там,
+    где записано. Она не видит изменения, которое в список не попало, —
+    а одно такое нашлось при перепроверке 13 сентября («сан есімдерге»
+    молча стало «сан есімге»). Здесь каждый текст учителя ищется в её
+    документе дословно; не нашёлся — значит, он должен быть объяснён
+    в ПРАВКИ или ФОРМА, иначе сборка падает.
+    """
+    if not TEACHER_DOC.exists():
+        return "документ учителя не найден — дословная сверка пропущена"
+    xml = zipfile.ZipFile(TEACHER_DOC).read("word/document.xml").decode("utf-8")
+    paragraphs = ["".join(re.findall(r"<w:t[^>]*>(.*?)</w:t>", p, flags=re.S))
+                  for p in re.findall(r"<w:p[ >].*?</w:p>", xml, flags=re.S)]
+    doc = loose("\n".join(paragraphs))
+    fixed = [(f["урок"], key(frag)) for f in ПРАВКИ for frag in f["есть"]]
+    forms = {(f["урок"], key(f["стало"])) for f in ФОРМА}
+    teacher = [l for l in LESSONS if l["author"] == "учитель"]
+
+    blocks = doc.count("айша:")
+    steps = sum(len(l["steps"]) for l in teacher)
+    if blocks != steps:
+        fail("документ учителя", f"диалогов в документе {blocks}, заданий учителя в приложении {steps}")
+
+    checked = 0
+    for lesson in teacher:
+        for n, step in enumerate(lesson["steps"], 1):
+            task = step["task"]
+            texts = [kz for _, kz, _ in step["dialogue"]] + [step["ruleKz"], task["kz"], *task["options"]]
+            if task.get("sentence"):
+                texts.append(task["sentence"])
+            for text in texts:
+                checked += 1
+                if loose(text).strip(". ") in doc:
+                    continue
+                if any(u == lesson["id"] and frag in key(text) for u, frag in fixed):
+                    continue
+                if (lesson["id"], key(text)) in forms:
+                    continue
+                fail(f"{lesson['id']}, шаг {n}",
+                     f"текст расходится с документом учителя, а в ПРАВКИ и ФОРМА этого нет: «{text}»")
+    return f"дословная сверка с документом учителя: {checked} текстов, диалогов {blocks}"
+
+
 def export() -> dict:
     lessons = sorted(LESSONS, key=lambda l: l["sheet"])
     return {
@@ -206,6 +263,7 @@ def write_review(data: dict) -> None:
 
 def main() -> None:
     check()
+    doc_note = check_teacher_doc()
     if errors:
         print("✗ Уроки не собраны:")
         for e in errors:
@@ -222,6 +280,7 @@ def main() -> None:
     for n, title in SHEET.items():
         if n not in have:
             print(f"   {n}. {title:18} — ещё нет")
+    print(f"   {doc_note}")
     print(f"На проверку учителю: {REVIEW.name}")
 
 

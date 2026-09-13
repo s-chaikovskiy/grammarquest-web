@@ -4,7 +4,7 @@ import { isSpeaking, onSpeaking } from '../utils/speech';
 export type Mood = 'idle' | 'talking' | 'correct' | 'wrong' | 'hint';
 
 interface CharacterProps {
-  name: 'teacher' | 'girl' | 'boy';
+  name: 'teacher' | 'girl';
   size?: number;
   emotion?: 'neutral' | 'finger_up' | 'like';
   /**
@@ -43,17 +43,11 @@ const SOURCES: Record<string, Record<string, string>> = {
     finger_up: '/characters/teacher.webp',
     like: '/characters/teacher.webp',
   },
-  boy: {
-    neutral: '/characters/dima.webp',
-    finger_up: '/characters/dima_finger_up.webp',
-    like: '/characters/dima_finger_up.webp',
-  },
 };
 
 const ALT: Record<string, string> = {
   teacher: 'Учитель',
   girl: 'Айша',
-  boy: 'Дима',
 };
 
 /** У верного ответа своя поза: одобрение видно раньше, чем прочитан текст. */
