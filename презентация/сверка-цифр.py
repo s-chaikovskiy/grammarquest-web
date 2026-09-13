@@ -3,8 +3,8 @@
 Сверка чисел презентации с данными проекта.
 
 Каждое число в докладе должно пересчитываться из первоисточника — иначе оно
-незаметно устаревает. Так уже случилось: после правок кода вес приложения
-изменился, а слайд остался со старым числом.
+незаметно устаревает. Так уже случалось не раз: вес приложения, число
+автотестов и проверок контраста менялись, а слайд оставался со старым.
 
 Скрипт не правит тексты, а показывает расхождения. Запуск перед защитой:
 
@@ -21,9 +21,9 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+sys.path.insert(0, str(ROOT / "tools" / "content"))
 from тексты import RU, KZ
-
-KZ_LETTERS = set("әғқңөұүһі")
+from сабақтар import ПРАВКИ
 
 
 def load(name):
@@ -32,9 +32,7 @@ def load(name):
 
 def facts() -> dict[str, str]:
     lessons = load("lessons.json")["lessons"]
-    steps = [s for l in lessons for s in l["steps"]]
-    special = sum(1 for s in steps if KZ_LETTERS & set(s["answerKz"].lower()))
-    manifest = json.loads((ROOT / "tools" / "tts" / "audio-manifest.json").read_text(encoding="utf-8"))["items"]
+    steps = [(l["author"], s) for l in lessons for s in l["steps"]]
 
     assets = ROOT / "dist" / "assets"
     weight = None
@@ -43,8 +41,6 @@ def facts() -> dict[str, str]:
         if main:
             weight = str(round(sum(len(gzip.compress(f.read_bytes())) for f in main) / 1024))
 
-    # Автотесты и проверки контраста тоже числа доклада: они росли молча,
-    # и слайд «что проверяется само» успел отстать на восемь проверок.
     tests = sum(len(re.findall(r"^test\(", f.read_text(encoding="utf-8"), re.M))
                 for f in sorted((ROOT / "tools" / "tests").glob("*.test.ts")))
     contrast = subprocess.run([sys.executable, str(ROOT / "tools" / "contrast.py")],
@@ -53,37 +49,28 @@ def facts() -> dict[str, str]:
     return {
         "автотестов": str(tests),
         "проверок контраста": str(len(re.findall(r"нужно ≥", contrast))),
-        "уроков": str(len(lessons)),
+        "тем": str(len(lessons)),
         "заданий": str(len(steps)),
-        "слов в словаре": str(len(load("vocabulary.json")["words"])),
-        "правил": str(len(load("rules.json"))),
-        "тем": str(len(load("reference.json")["topics"])),
-        "типов заданий": str(len({s.get("taskType") for s in steps})),
-        "ответов с особыми буквами": str(special),
-        "доля таких ответов": f"{round(special / len(steps) * 100)}%",
-        "уроков на уровне 1": str(len([l for l in lessons if l.get("level") == 1])),
-        "уроков на уровне 2": str(len([l for l in lessons if l.get("level") == 2])),
-        "уроков на уровне 3": str(len([l for l in lessons if l.get("level") == 3])),
-        "фраз озвучки": str(len(manifest)),
-        "записей озвучки": str(len(json.loads(
-            (ROOT / "src" / "data" / "audio-index.json").read_text(encoding="utf-8")
-        ).get("available", []))),
-        "символов озвучки": str(sum(len(e["text"]) for e in manifest)),
+        "заданий учителя": str(sum(1 for a, _ in steps if a == "учитель")),
+        "заданий по её образцу": str(sum(1 for a, _ in steps if a != "учитель")),
+        "исправлений в тексте учителя": str(len(ПРАВКИ)),
+        "записей озвучки": str(len(load("audio-index.json").get("available", []))),
         "вес в сжатом виде, КБ": weight or "— (нет dist, сделайте npm run build)",
     }
 
 
 # Где какое число обязано стоять. Ключ — из тексты.py, значение — из facts().
 EXPECTED = [
-    ("s01_kpi[0]", "уроков"),
+    ("s01_kpi[0]", "тем"),
     ("s01_kpi[1]", "заданий"),
-    ("s01_kpi[2]", "типов заданий"),
+    ("s01_kpi[2]", "записей озвучки"),
+    ("s02_cards[1][2][1]", "тем"),
     ("s04_band", "записей озвучки"),
+    ("s04_levels[0]", "заданий учителя"),
+    ("s04_levels[1]", "заданий по её образцу"),
+    ("s04_levels[2]", "исправлений в тексте учителя"),
     ("s05_right[0]", "автотестов"),
     ("s05_right[1]", "проверок контраста"),
-    ("s04_levels[0]", "уроков на уровне 1"),
-    ("s04_levels[1]", "уроков на уровне 2"),
-    ("s04_levels[2]", "уроков на уровне 3"),
     ("s07_kpi[0]", "вес в сжатом виде, КБ"),
 ]
 
@@ -104,7 +91,7 @@ def main():
     f = facts()
     print("Числа по данным проекта:")
     for k, v in f.items():
-        print(f"  {k:28} {v}")
+        print(f"  {k:30} {v}")
 
     print("\nСверка со слайдами:")
     bad = 0
@@ -112,14 +99,20 @@ def main():
         for path, fact in EXPECTED:
             got = str(read(deck, path))
             want = f[fact]
-            ok = got == want
-            if not ok:
+            if got != want:
                 bad += 1
-                print(f"  ✗ [{deck_name}] {path:18} на слайде «{got}», по данным «{want}» ({fact})")
+                print(f"  ✗ [{deck_name}] {path:20} на слайде «{got}», по данным «{want}» ({fact})")
+        # И строка «уже сделано» на последнем слайде: в ней тоже числа.
+        done = deck["s08_done"]
+        for number, fact in ((f["тем"], "тем"), (f["заданий"], "заданий"),
+                             (f["записей озвучки"], "записей озвучки")):
+            if number not in re.findall(r"\d+", done):
+                bad += 1
+                print(f"  ✗ [{deck_name}] s08_done: нет числа {number} ({fact})")
     if bad:
         print(f"\nРасхождений: {bad}. Поправить в тексты.py и пересобрать колоду.")
         sys.exit(1)
-    print(f"  ✓ все {len(EXPECTED) * 2} чисел сходятся с данными проекта")
+    print(f"  ✓ все {(len(EXPECTED) + 3) * 2} чисел сходятся с данными проекта")
 
 
 if __name__ == "__main__":
